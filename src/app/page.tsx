@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TechStackCard } from "@/components/tech-stack-card";
+import { STACK_DATA } from "@/lib/data";
 
 export default function Home() {
   return (
@@ -31,6 +33,19 @@ export default function Home() {
             </p>
           </CardContent>
         </Card>
+
+        {/* Tech Stack Section */}
+        <section className="py-12 text-center">
+          <h2 className="text-4xl font-bold tracking-tight">Tech Stack</h2>
+          <p className="mt-4 text-muted-foreground">
+            Tech stack entries will appear here.
+          </p>
+          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {STACK_DATA.map((stack) => (
+              <TechStackCard key={stack.name} stack={stack} />
+            ))}
+          </div>
+        </section>
       </div>
     </main>
   );
