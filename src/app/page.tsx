@@ -1,3 +1,4 @@
+import HorizontalScrollCarousel, { HorizontalScrollCarouselExample } from "@/components/carousel/horizontalScrollCarousel/HorizontalScrollCarousel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -18,6 +19,13 @@ export default function Home() {
             Welcome to my portfolio. This is the scaffolding.
           </p>
         </section>
+
+
+        {/* Project showcases - Moved outside the max-w-4xl container */}
+        <div className="mt-16">
+          <h2 className="text-3xl font-bold text-center mb-8">Featured Projects</h2>
+          <HorizontalScrollCarousel />
+        </div>
 
         {/* Guestbook Section */}
         <Card>
