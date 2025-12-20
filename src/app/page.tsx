@@ -1,5 +1,7 @@
+import HorizontalScrollCarousel, { HorizontalScrollCarouselExample } from "@/components/carousel/horizontalScrollCarousel/HorizontalScrollCarousel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SmoothScrollHero } from "@/components/hero/SmoothScrollHeroSection";
 
 export default function Home() {
   return (
@@ -12,12 +14,13 @@ export default function Home() {
         </header>
 
         {/* Hero Section */}
-        <section className="py-12 text-center">
-          <h2 className="text-4xl font-bold tracking-tight">Hello World</h2>
-          <p className="mt-4 text-muted-foreground">
-            Welcome to my portfolio. This is the scaffolding.
-          </p>
-        </section>
+        <SmoothScrollHero />
+
+        {/* Project showcases - Moved outside the max-w-4xl container */}
+        <div className="mt-16">
+          <h2 className="text-3xl font-bold text-center mb-8">Featured Projects</h2>
+          <HorizontalScrollCarousel />
+        </div>
 
         {/* Guestbook Section */}
         <Card>
