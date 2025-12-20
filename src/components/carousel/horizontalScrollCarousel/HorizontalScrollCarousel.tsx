@@ -61,6 +61,7 @@ export const HorizontalScrollCarousel = () => {
 };
 
 const Card = ({ project }: { project: CardType }) => {
+    console.log(project.storageId);
     return (
         <div
             key={project._id}
@@ -68,7 +69,7 @@ const Card = ({ project }: { project: CardType }) => {
         >
             <div className="absolute inset-0 z-0 transition-transform duration-300 group-hover:scale-110">
                 <div className="h-full w-full [&>img]:h-full [&>img]:w-full [&>img]:object-cover">
-                    <ConvexImage message={{ url: project.storageId }} />
+                    <img src={project.storageId} alt={project.title} />
                 </div>
             </div>
             <div className="absolute inset-0 z-10 grid place-content-center">
