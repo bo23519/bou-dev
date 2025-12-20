@@ -2,6 +2,7 @@ import HorizontalScrollCarousel, { HorizontalScrollCarouselExample } from "@/com
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SmoothScrollHero } from "@/components/hero/SmoothScrollHeroSection";
+import { Introduction } from "@/components/hero/Introduction";
 
 export default function Home() {
   return (
@@ -15,6 +16,9 @@ export default function Home() {
 
         {/* Hero Section */}
         <SmoothScrollHero />
+
+        <Introduction />
+
 
         {/* Project showcases - Moved outside the max-w-4xl container */}
         <div className="mt-16">

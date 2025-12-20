@@ -6,7 +6,6 @@ import { motion, useTransform, useScroll } from "framer-motion";
 import { useRef } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
-import ConvexImage from "../../Convex/ConvexImage";
 
 export const HorizontalScrollCarouselExample = () => {
     return (
@@ -61,7 +60,7 @@ export const HorizontalScrollCarousel = () => {
 };
 
 const Card = ({ project }: { project: CardType }) => {
-    console.log(project.storageId);
+    // console.log(project.storageId);
     return (
         <div
             key={project._id}
