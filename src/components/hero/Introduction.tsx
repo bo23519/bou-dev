@@ -1,9 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../../../convex/_generated/api";
 import { useQuery } from "convex/react";
+import { ReactLenis } from "lenis/react";
+import {
+    motion,
+    AnimatePresence,
+    useMotionTemplate,
+    useScroll,
+    useTransform,
+} from "framer-motion";
+import { SiSpacex } from "react-icons/si";
+import { FiArrowRight, FiMapPin } from "react-icons/fi";
+import { useRef } from "react";
 
 export const Introduction = () => {
     const links = useQuery(api.links.getLinks);
@@ -23,6 +33,25 @@ export const Introduction = () => {
             setShowCopied(false);
         }, 1000);
     };
+    const ref = useRef(null);
+    // test
+    const start = 200;
+    const end = 0;
+
+    const { scrollYProgress } = useScroll({
+        target: ref,
+        // @ts-ignore
+        offset: [`${start}px end`, `end ${end * -1}px`],
+    });
+
+    const opacity = useTransform(scrollYProgress, [0.75, 1], [1, 0]);
+    const scale = useTransform(scrollYProgress, [0.75, 1], [1, 0.85]);
+
+    const y = useTransform(scrollYProgress, [0, 1], [start, end]);
+    const transform = useMotionTemplate`translateY(${y}px) scale(${scale})`;
+
+
+    const style = { transform, opacity };
 
     return (
         <section className="relative w-full bg-[#0B1120] px-8 py-24 md:py-32 overflow-hidden rounded-3xl">
@@ -42,6 +71,8 @@ export const Introduction = () => {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
+                    ref={ref}
+                    style={{ transform, opacity }}
                     viewport={{ once: true }}
                     className="flex flex-col gap-6"
                 >

@@ -1,7 +1,6 @@
 "use client";
 
 // Sources: https://www.hover.dev/components/heros
-"use client";
 import { ReactLenis } from "lenis/react";
 import {
     motion,
@@ -25,31 +24,31 @@ export const SmoothScrollHero = () => {
                     //   syncTouch: true,
                 }}
             >
-                {/* <Nav /> */}
+                <Nav />
                 <Hero />
-                {/* <Schedule /> */}
+                <Schedule />
             </ReactLenis>
         </div>
     );
 };
 
-// const Nav = () => {
-//     return (
-//         <nav className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between px-6 py-3 text-white">
-//             <SiSpacex className="text-3xl mix-blend-difference" />
-//             <button
-//                 onClick={() => {
-//                     document.getElementById("launch-schedule")?.scrollIntoView({
-//                         behavior: "smooth",
-//                     });
-//                 }}
-//                 className="flex items-center gap-1 text-xs text-zinc-400"
-//             >
-//                 LAUNCH SCHEDULE <FiArrowRight />
-//             </button>
-//         </nav>
-//     );
-// };
+const Nav = () => {
+    return (
+        <nav className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between px-6 py-3 text-white">
+            <SiSpacex className="text-3xl mix-blend-difference" />
+            <button
+                onClick={() => {
+                    document.getElementById("launch-schedule")?.scrollIntoView({
+                        behavior: "smooth",
+                    });
+                }}
+                className="flex items-center gap-1 text-xs text-zinc-400"
+            >
+                LAUNCH SCHEDULE <FiArrowRight />
+            </button>
+        </nav>
+    );
+};
 
 const SECTION_HEIGHT = 1500;
 
@@ -60,15 +59,14 @@ const Hero = () => {
             className="relative w-full"
         >
             <CenterImage />
-
-            <ParallaxImages />
+            <ListOfItems />
 
             <div className="absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-b from-zinc-950/0 to-zinc-950" />
         </div>
     );
 };
 
-const CenterImage = () => {
+export const CenterImage = () => {
     const { scrollY } = useScroll();
 
     const clip1 = useTransform(scrollY, [0, 1500], [25, 0]);
@@ -103,7 +101,7 @@ const CenterImage = () => {
     );
 };
 
-const ParallaxImages = () => {
+const ListOfItems = () => {
     return (
         <div className="mx-auto max-w-5xl px-4 pt-[200px]">
             <ParallaxImg
@@ -112,6 +110,7 @@ const ParallaxImages = () => {
                 start={-200}
                 end={200}
                 className="w-1/3"
+                stickyDuration={500} // Stays pinned for 500px of scrolling
             />
             <ParallaxImg
                 src="https://images.unsplash.com/photo-1446776709462-d6b525c57bd3?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -119,6 +118,7 @@ const ParallaxImages = () => {
                 start={200}
                 end={-250}
                 className="mx-auto w-2/3"
+                stickyDuration={500}
             />
             <ParallaxImg
                 src="https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?q=80&w=2370&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -126,6 +126,7 @@ const ParallaxImages = () => {
                 start={-200}
                 end={200}
                 className="ml-auto w-1/3"
+                stickyDuration={500}
             />
             <ParallaxImg
                 src="https://images.unsplash.com/photo-1494022299300-899b96e49893?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -133,6 +134,7 @@ const ParallaxImages = () => {
                 start={0}
                 end={-500}
                 className="ml-24 w-5/12"
+                stickyDuration={500}
             />
         </div>
     );
@@ -144,12 +146,14 @@ const ParallaxImg = ({
     src,
     start,
     end,
+    stickyDuration = 0, // How long (in px) the image should stay sticky
 }: {
     className?: string;
     alt: string;
     src: string;
     start: number;
     end: number;
+    stickyDuration?: number; // NEW: Controls how long image stays pinned
 }) => {
     const ref = useRef(null);
 
@@ -165,6 +169,29 @@ const ParallaxImg = ({
     const y = useTransform(scrollYProgress, [0, 1], [start, end]);
     const transform = useMotionTemplate`translateY(${y}px) scale(${scale})`;
 
+    // If stickyDuration > 0, wrap in a tall container to make it stick
+    if (stickyDuration > 0) {
+        return (
+            <div
+                ref={ref}
+                style={{ height: `calc(100vh + ${stickyDuration}px)` }} // Tall wrapper
+            >
+                <motion.img
+                    src={src}
+                    alt={alt}
+                    className={className}
+                    style={{
+                        position: 'sticky',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        opacity,
+                    }}
+                />
+            </div>
+        );
+    }
+
+    // Default behavior (no sticky)
     return (
         <motion.img
             src={src}
