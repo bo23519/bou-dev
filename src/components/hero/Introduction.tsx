@@ -1,12 +1,28 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../../../convex/_generated/api";
 import { useQuery } from "convex/react";
 
 export const Introduction = () => {
     const links = useQuery(api.links.getLinks);
+
+    // Local state to track if the tooltip is visible
+    const [showCopied, setShowCopied] = useState(false);
+
+    const handleEmailClick = () => {
+        // Copy email to clipboard
+        navigator.clipboard.writeText(links?.Email?.url ?? "");
+
+        // Show the tooltip
+        setShowCopied(true);
+
+        // Hide it after 2 seconds
+        setTimeout(() => {
+            setShowCopied(false);
+        }, 1000);
+    };
 
     return (
         <section className="relative w-full bg-[#0B1120] px-8 py-24 md:py-32 overflow-hidden rounded-3xl">
@@ -51,7 +67,7 @@ export const Introduction = () => {
                         If you are interested in learning more, let's connect!
                     </p>
 
-                    {/* CTA Button */}
+                    {/* CTA Buttons */}
                     <motion.div className="flex gap-4">
                         <motion.a
                             whileHover={{ scale: 1.02 }}
@@ -86,16 +102,32 @@ export const Introduction = () => {
                             GitHub
                         </motion.a>
 
-                        <motion.a
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => {
-                                navigator.clipboard.writeText(links?.Email?.url ?? "");
-                            }}
-                            className="mt-8 w-fit rounded-lg bg-[#6366F1] px-4 py-2 text-lg font-bold text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC]"
-                        >
-                            Email
-                        </motion.a>
+                        {/* Email button with tooltip */}
+                        <div className="relative">
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={handleEmailClick}
+                                className="mt-8 w-fit rounded-lg bg-[#6366F1] px-4 py-2 text-lg font-bold text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC] cursor-pointer"
+                            >
+                                Email
+                            </motion.button>
+
+                            {/* Tooltip popup */}
+                            <AnimatePresence>
+                                {showCopied && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="absolute -top-2 -translate-x-1/2 px-3 py-1 bg-green-500 text-white text-sm font-medium rounded-md whitespace-nowrap"
+                                    >
+                                        Copied!
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
                     </motion.div>
                 </motion.div>
             </div>
