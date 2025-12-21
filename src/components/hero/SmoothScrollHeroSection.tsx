@@ -103,16 +103,24 @@ export const CenterImage = () => {
 
 const ListOfItems = () => {
     return (
-        <div className="mx-auto max-w-5xl px-4 pt-[200px]">
+        <div 
+            className="relative z-10 mx-auto max-w-5xl px-4 pt-[200px]"
+            style={{ minHeight: `calc(${SECTION_HEIGHT}px + 100vh)` }}
+        >
             <ParallaxImg
-                src="https://images.unsplash.com/photo-1484600899469-230e8d1d59c0?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                alt="And example of a space launch"
                 start={-200}
                 end={200}
-                className="w-1/3"
-                stickyPos={0}
+                className="text-6xl md:text-8xl font-black tracking-tight text-white font-inter"
+                stickyPos={1}
+                children={
+                    <>
+                        Hi, I&apos;m <span className="text-white">Baian Ou</span>
+                        <span className="text-[#6366F1]">.</span>
+                    </>
+                }
+                as="h1"
             />
-            <ParallaxImg
+            {/* <ParallaxImg
                 src="https://images.unsplash.com/photo-1446776709462-d6b525c57bd3?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="An example of a space launch"
                 start={-200}
@@ -135,25 +143,25 @@ const ListOfItems = () => {
                 end={200}
                 className="ml-24 w-5/12"
                 stickyPos={75}
-            />
+            /> */}
         </div>
     );
 };
 
 const ParallaxImg = ({
     className,
-    alt,
-    src,
     start,
     end,
-    stickyPos
+    stickyPos,
+    children,
+    as
 }: {
     className?: string;
-    alt: string;
-    src: string;
     start: number;
     end: number;
-    stickyPos: number; // NEW: Controls how long image stays pinned
+    stickyPos: number;
+    children: React.ReactNode;
+    as: 'div' | 'h1' | 'h2' | 'h3' | 'p' | 'span' | 'section'
 }) => {
     const ref = useRef(null);
 
@@ -169,37 +177,24 @@ const ParallaxImg = ({
     const y = useTransform(scrollYProgress, [0, 1], [start, end]);
     const transform = useMotionTemplate`translateY(${y}px) scale(${scale})`;
 
-    // If stickyDuration > 0, wrap in a tall container to make it stick
-    // if (stickyDuration > 0) {
-    //     return (
-    //         <div
-    //             ref={ref}
-    //             style={{ height: `calc(100vh + ${stickyDuration}px)` }} // Tall wrapper
-    //         >
-    //             <motion.img
-    //                 src={src}
-    //                 alt={alt}
-    //                 className={className}
-    //                 style={{
-    //                     position: 'sticky',
-    //                     top: '50%',
-    //                     transform: 'translateY(-50%)',
-    //                     opacity,
-    //                 }}
-    //             />
-    //         </div>
-    //     );
-    // }
+    // Dynamically pick the motion component
+    const MotionComponent = motion[as];
 
-    // Default behavior (no sticky)
     return (
-        <motion.img
-            src={src}
-            alt={alt}
-            className={className}
+        <div
             ref={ref}
-            style={{ transform, opacity, position: 'sticky', top: `${stickyPos}%` }}
-        />
+            style={{ 
+                position: 'sticky', 
+                top: `${stickyPos}vh`,
+            }}
+        >
+            <MotionComponent
+                className={className}
+                style={{ transform, opacity }}
+            >
+                {children}
+            </MotionComponent>
+        </div>
     );
 };
 
