@@ -110,15 +110,15 @@ const ListOfItems = () => {
                 start={-200}
                 end={200}
                 className="w-1/3"
-                stickyDuration={500} // Stays pinned for 500px of scrolling
+                stickyPos={0}
             />
             <ParallaxImg
                 src="https://images.unsplash.com/photo-1446776709462-d6b525c57bd3?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="An example of a space launch"
-                start={200}
-                end={-250}
+                start={-200}
+                end={200}
                 className="mx-auto w-2/3"
-                stickyDuration={500}
+                stickyPos={25}
             />
             <ParallaxImg
                 src="https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?q=80&w=2370&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -126,15 +126,15 @@ const ListOfItems = () => {
                 start={-200}
                 end={200}
                 className="ml-auto w-1/3"
-                stickyDuration={500}
+                stickyPos={50}
             />
             <ParallaxImg
                 src="https://images.unsplash.com/photo-1494022299300-899b96e49893?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="Orbiting satellite"
-                start={0}
-                end={-500}
+                start={-200}
+                end={200}
                 className="ml-24 w-5/12"
-                stickyDuration={500}
+                stickyPos={75}
             />
         </div>
     );
@@ -146,14 +146,14 @@ const ParallaxImg = ({
     src,
     start,
     end,
-    stickyDuration = 0, // How long (in px) the image should stay sticky
+    stickyPos
 }: {
     className?: string;
     alt: string;
     src: string;
     start: number;
     end: number;
-    stickyDuration?: number; // NEW: Controls how long image stays pinned
+    stickyPos: number; // NEW: Controls how long image stays pinned
 }) => {
     const ref = useRef(null);
 
@@ -170,26 +170,26 @@ const ParallaxImg = ({
     const transform = useMotionTemplate`translateY(${y}px) scale(${scale})`;
 
     // If stickyDuration > 0, wrap in a tall container to make it stick
-    if (stickyDuration > 0) {
-        return (
-            <div
-                ref={ref}
-                style={{ height: `calc(100vh + ${stickyDuration}px)` }} // Tall wrapper
-            >
-                <motion.img
-                    src={src}
-                    alt={alt}
-                    className={className}
-                    style={{
-                        position: 'sticky',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        opacity,
-                    }}
-                />
-            </div>
-        );
-    }
+    // if (stickyDuration > 0) {
+    //     return (
+    //         <div
+    //             ref={ref}
+    //             style={{ height: `calc(100vh + ${stickyDuration}px)` }} // Tall wrapper
+    //         >
+    //             <motion.img
+    //                 src={src}
+    //                 alt={alt}
+    //                 className={className}
+    //                 style={{
+    //                     position: 'sticky',
+    //                     top: '50%',
+    //                     transform: 'translateY(-50%)',
+    //                     opacity,
+    //                 }}
+    //             />
+    //         </div>
+    //     );
+    // }
 
     // Default behavior (no sticky)
     return (
@@ -198,7 +198,7 @@ const ParallaxImg = ({
             alt={alt}
             className={className}
             ref={ref}
-            style={{ transform, opacity }}
+            style={{ transform, opacity, position: 'sticky', top: `${stickyPos}%` }}
         />
     );
 };
