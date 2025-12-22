@@ -11,7 +11,8 @@ import {
 } from "framer-motion";
 import { SiSpacex } from "react-icons/si";
 import { FiArrowRight, FiMapPin } from "react-icons/fi";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { useMotionValue } from "framer-motion";
 import { api } from "../../../convex/_generated/api";
 import { useQuery } from "convex/react";
 
@@ -117,14 +118,10 @@ const ListOfItems = () => {
 
     return (
         <div 
-            className="relative z-10 mx-auto max-w-5xl px-4 pt-[200px]"
-            style={{ minHeight: `calc(${SECTION_HEIGHT}px + 100vh)` }}
+            className="sticky top-0 z-10 mx-auto max-w-5xl px-4 pt-[200px]"
         >
             <ParallaxImg
-                start={-200}
-                end={200}
                 className="text-6xl md:text-8xl font-black tracking-tight text-white font-inter"
-                stickyPos={1}
                 children={
                     <>
                         Hi, I&apos;m <span className="text-white">Baian Ou</span>
@@ -134,10 +131,7 @@ const ListOfItems = () => {
                 as="h1"
             />
             <ParallaxImg
-                start={-200}
-                end={200}
                 className="text-3xl md:text-5xl font-bold tracking-tight text-[#94A3B8]"
-                stickyPos={25}
                 children={
                     <>
                         I&apos;m a <span className="text-[#6366F1]">Software Engineer</span><br />
@@ -149,10 +143,7 @@ const ListOfItems = () => {
                 as="h2"
             />
             <ParallaxImg
-                start={-200}
-                end={200}
                 className="max-w-2xl text-lg md:text-xl leading-relaxed text-[#B5B5B5] font-medium"
-                stickyPos={50}
                 children={
                     <>
                         2 years as a <span className="text-[#6366F1]">Data Engineer</span> in Mastercard. <br />
@@ -164,10 +155,7 @@ const ListOfItems = () => {
                 as="p"
             />
             <ParallaxImg
-                start={-200}
-                end={200}
-                className="flex gap-4"
-                stickyPos={75}
+                className="flex gap-4 bottom-0"
                 children={
                     <>
                         <motion.a
@@ -233,56 +221,47 @@ const ListOfItems = () => {
 
 const ParallaxImg = ({
     className,
-    start,
-    end,
-    stickyPos,
     children,
     as
 }: {
     className?: string;
-    start: number;
-    end: number;
-    stickyPos: number;
     children: React.ReactNode;
-    as: 'div' | 'h1' | 'h2' | 'h3' | 'p' | 'span' | 'section'
+    as: 'div' | 'h1' | 'h2' | 'h3' | 'p' | 'span' | 'section';
 }) => {
     const ref = useRef(null);
+    const { scrollY } = useScroll();
 
-    const { scrollYProgress } = useScroll({
-        target: ref,
-        // @ts-ignore
-        offset: [`${start}px end`, `end ${end * -1}px`],
-    });
-
-    const opacity = useTransform(scrollYProgress, [0.75, 1], [1, 0]);
-    const scale = useTransform(scrollYProgress, [0.75, 1], [1, 0.85]);
-
-    const y = useTransform(scrollYProgress, [0, 1], [start, end]);
-    const transform = useMotionTemplate`translateY(${y}px) scale(${scale})`;
+    const backgroundSize = useTransform(
+        scrollY,
+        [0, SECTION_HEIGHT+1000],
+        ["170%", "100%"]
+    );
+    const opacity = useTransform(
+        scrollY,
+        [SECTION_HEIGHT, SECTION_HEIGHT+700],
+        [1.5, 0.5]
+    );
+    const set_styles = {
+        transformOrigin: 'center' as const,
+        backfaceVisibility: 'hidden' as const,
+        willChange: 'transform' as const,
+        backgroundSize,
+        opacity,
+    };
 
     // Dynamically pick the motion component
     const MotionComponent = motion[as];
 
     return (
-        <div
+        <motion.div
             ref={ref}
-            style={{ 
-                position: 'sticky', 
-                top: `${stickyPos}vh`,
-            }}
+            style={set_styles}
         >
             <MotionComponent
                 className={className}
-                style={{ 
-                    transform, 
-                    opacity,
-                    willChange: 'transform',
-                    backfaceVisibility: 'hidden',
-                    transformOrigin: 'center',
-                }}
             >
                 {children}
             </MotionComponent>
-        </div>
+        </motion.div>
     );
 };
