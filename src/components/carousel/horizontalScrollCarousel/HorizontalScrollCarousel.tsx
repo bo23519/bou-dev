@@ -6,6 +6,7 @@ import { motion, useTransform, useScroll } from "framer-motion";
 import { useRef } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
+import { Github, ExternalLink } from "lucide-react";
 
 export const HorizontalScrollCarouselExample = () => {
     return (
@@ -60,21 +61,56 @@ export const HorizontalScrollCarousel = () => {
 };
 
 const Card = ({ project }: { project: CardType }) => {
-    // console.log(project.storageId);
+
     return (
         <div
             key={project._id}
             className="group relative h-[450px] w-[450px] overflow-hidden bg-neutral-200"
         >
             <div className="absolute inset-0 z-0 transition-transform duration-300 group-hover:scale-110">
-                <div className="h-full w-full [&>img]:h-full [&>img]:w-full [&>img]:object-cover">
+                <div className="h-full w-full [&>img]:h-full [&>img]:w-full [&>img]:object-cover [&>img]:blur-sm">
                     <img src={project.storageId} alt={project.title} />
                 </div>
             </div>
-            <div className="absolute inset-0 z-10 grid place-content-center">
-                <p className="bg-gradient-to-br from-white/20 to-white/0 p-8 text-6xl font-black uppercase text-white backdrop-blur-lg">
-                    {project.title}
+            <div className="absolute inset-0 z-5 bg-black/40"></div>
+            <div className="absolute inset-0 z-10 flex flex-col justify-center items-start px-8">
+                <div className="flex items-center gap-4 w-full mb-4">
+                    <p className="bg-gradient-to-br from-black/50 to-black/20 p-8 text-5xl font-black uppercase text-white">    
+                        {project.title}
+                        
+                    </p>
+                    <div className="flex items-center gap-3">
+                        {project.repo && (
+                            <a
+                                href={project.repo}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-white hover:text-neutral-300 transition-colors"
+                            >
+                                <Github className="w-5 h-5" />
+                            </a>
+                        )}
+                        {project.link && (
+                            <a
+                                href={project.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-white hover:text-neutral-300 transition-colors"
+                            >
+                                <ExternalLink className="w-5 h-5" />
+                            </a>
+                        )}
+                <div className="flex-1 h-px bg-neutral-400/30"></div>
+                    </div>
+                </div>
+                <p className="text-sm font-medium text-[#6366F1] mb-4 ">
+                    {project.tags.join(" - ")}
                 </p>
+                {project.description && (
+                    <p className="text-white text-sm leading-relaxed max-w-md drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                        {project.description}
+                    </p>
+                )}
             </div>
         </div>
     );
@@ -82,54 +118,13 @@ const Card = ({ project }: { project: CardType }) => {
 
 export default HorizontalScrollCarousel;
 
-// type CardType = {
-//     url: string;
-//     title: string;
-//     id: number;
-// };
-
 type CardType = {
     _id: string;
     storageId: string;
     title: string;
     description: string;
     tags: string[];
+    link?: string;
+    repo?: string;
+    dark_theme?: boolean;
 };
-
-// const cards: CardType[] = [
-//     {
-//         url: "/imgs/abstract/1.jpg",
-//         title: "Title 1",
-//         id: 1,
-//     },
-//     {
-//         url: "/imgs/abstract/2.jpg",
-//         title: "Title 2",
-//         id: 2,
-//     },
-//     {
-//         url: "/imgs/abstract/3.jpg",
-//         title: "Title 3",
-//         id: 3,
-//     },
-//     {
-//         url: "/imgs/abstract/4.jpg",
-//         title: "Title 4",
-//         id: 4,
-//     },
-//     {
-//         url: "/imgs/abstract/5.jpg",
-//         title: "Title 5",
-//         id: 5,
-//     },
-//     {
-//         url: "/imgs/abstract/6.jpg",
-//         title: "Title 6",
-//         id: 6,
-//     },
-//     {
-//         url: "/imgs/abstract/7.jpg",
-//         title: "Title 7",
-//         id: 7,
-//     },
-// ];

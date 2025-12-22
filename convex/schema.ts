@@ -7,6 +7,8 @@ export default defineSchema({
     title: v.string(),
     description: v.string(),
     tags: v.array(v.string()),
+    link: v.optional(v.string()),
+    repo: v.optional(v.string()),
   }),
   links: defineTable({
     name: v.string(),
