@@ -10,11 +10,12 @@ import {
     useTransform,
 } from "framer-motion";
 import { SiSpacex } from "react-icons/si";
-import { FiArrowRight, FiMapPin } from "react-icons/fi";
-import { useRef, useState, useEffect } from "react";
-import { useMotionValue } from "framer-motion";
+import { FiArrowRight } from "react-icons/fi";
+import { useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import { useQuery } from "convex/react";
+import { FileText, Linkedin, GitBranch, Mail, ChevronDown } from 'lucide-react';
+import { useRef } from "react";
 
 export const SmoothScrollHero = () => {
     return (
@@ -22,10 +23,7 @@ export const SmoothScrollHero = () => {
             <ReactLenis
                 root
                 options={{
-                    // Learn more -> https://github.com/darkroomengineering/lenis?tab=readme-ov-file#instance-settings
                     lerp: 0.05,
-                    //   infinite: true,
-                    //   syncTouch: true,
                 }}
             >
                 <Nav />
@@ -57,15 +55,47 @@ const SECTION_HEIGHT = 1500;
 
 const Hero = () => {
     return (
-        <div
-            style={{ height: `calc(${SECTION_HEIGHT}px + 100vh)` }}
-            className="relative w-full"
-        >
+            <div
+                style={{ height: `calc(${SECTION_HEIGHT}px + 100vh)` }}
+                className="relative w-full"
+            >
             <CenterImage />
+            <ScrollIndicator />
             <ListOfItems />
 
             <div className="absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-b from-zinc-950/0 to-zinc-950" />
-        </div>
+            </div>
+    );
+};
+
+const ScrollIndicator = () => {
+    const { scrollY } = useScroll();
+    
+    const opacity = useTransform(scrollY, [0, 100], [1, 0]);
+    const yOffset = useTransform(scrollY, [0, 100], [0, 20]);
+
+    return (
+        <motion.div 
+            className="fixed bottom-8 left-1/2 z-20"
+            style={{ 
+                opacity,
+                x: "-50%",
+                y: yOffset
+            }}
+        >
+            <motion.div
+                animate={{ y: [0, 10, 0] }}
+                transition={{
+                    duration: 2.5,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                }}
+                className="flex flex-col items-center gap-2 text-white/60"
+            >
+                <span className="text-xs uppercase tracking-wider">Scroll</span>
+                <ChevronDown className="w-6 h-6" />
+            </motion.div>
+        </motion.div>
     );
 };
 
@@ -85,7 +115,7 @@ export const CenterImage = () => {
     const opacity = useTransform(
         scrollY,
         [SECTION_HEIGHT, SECTION_HEIGHT + 500],
-        [1, 0]
+        [0.2, 0]
     );
 
     return (
@@ -126,10 +156,12 @@ const ListOfItems = () => {
                     <>
                         Hi, I&apos;m <span className="text-white">Baian Ou</span>
                         <span className="text-[#6366F1]">.</span>
+                        <br/>
                     </>
                 }
                 as="h1"
             />
+
             <ParallaxImg
                 className="text-3xl md:text-5xl font-bold tracking-tight text-[#94A3B8]"
                 children={
@@ -138,6 +170,7 @@ const ListOfItems = () => {
                         <span className="text-2xl md:text-4xl text-[#94A3B8]/80">
                             Focused on Backend & Data Systems.
                         </span>
+                        <br/>
                     </>
                 }
                 as="h2"
@@ -150,12 +183,13 @@ const ListOfItems = () => {
                         Recent <span className="text-[#6366F1]">MSCS Graduate</span> from Brown University. <br />
                         Working on <span className="text-[#6366F1]">Full-stack/Backend</span> dev. <br /><br />
                         If you are interested in learning more, let&apos;s connect!
+                        <br/>
                     </>
                 }
                 as="p"
             />
             <ParallaxImg
-                className="flex gap-4 bottom-0"
+                className="flex gap-4"
                 children={
                     <>
                         <motion.a
@@ -164,9 +198,9 @@ const ListOfItems = () => {
                             href={links?.Resume?.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-8 w-fit rounded-lg bg-[#6366F1] px-4 py-2 text-lg font-bold text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC]"
+                            className="mt-8 w-fit rounded-lg bg-[#6366F1] px-4 py-2 text-lg text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC] flex items-center gap-2"
                         >
-                            Resume
+                            <FileText/>Resume
                         </motion.a>
                         <motion.a
                             whileHover={{ scale: 1.02 }}
@@ -174,9 +208,9 @@ const ListOfItems = () => {
                             href={links?.LinkedIn?.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-8 w-fit rounded-lg bg-[#6366F1] px-4 py-2 text-lg font-bold text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC]"
+                            className="mt-8 w-fit rounded-lg bg-[#6366F1] px-4 py-2 text-lg text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC] flex items-center gap-2"
                         >
-                            LinkedIn
+                            <Linkedin />LinkedIn
                         </motion.a>
                         <motion.a
                             whileHover={{ scale: 1.02 }}
@@ -184,18 +218,18 @@ const ListOfItems = () => {
                             href={links?.GitHub?.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-8 w-fit rounded-lg bg-[#6366F1] px-4 py-2 text-lg font-bold text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC]"
+                            className="mt-8 w-fit rounded-lg bg-[#6366F1] px-4 py-2 text-lg text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC] flex items-center gap-2"
                         >
-                            GitHub
+                            <GitBranch />GitHub
                         </motion.a>
                         <div className="relative">
                             <motion.button
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleEmailClick}
-                                className="mt-8 w-fit rounded-lg bg-[#6366F1] px-4 py-2 text-lg font-bold text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC] cursor-pointer"
+                                className="mt-8 w-fit rounded-lg bg-[#6366F1] px-4 py-2 text-lg text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC] cursor-pointer flex items-center gap-2"
                             >
-                                Email
+                                <Mail />Email
                             </motion.button>
                             <AnimatePresence>
                                 {showCopied && (
@@ -204,7 +238,7 @@ const ListOfItems = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -10 }}
                                         transition={{ duration: 0.2 }}
-                                        className="absolute -top-2 -translate-x-1/2 px-3 py-1 bg-green-500 text-white text-sm font-medium rounded-md whitespace-nowrap"
+                                        className="absolute -top-2 -translate-x-1/2 px-4 py-1 bg-green-500 text-white text-sm font-medium rounded-md whitespace-nowrap"
                                     >
                                         Copied!
                                     </motion.div>
@@ -228,7 +262,6 @@ const ParallaxImg = ({
     children: React.ReactNode;
     as: 'div' | 'h1' | 'h2' | 'h3' | 'p' | 'span' | 'section';
 }) => {
-    const ref = useRef(null);
     const { scrollY } = useScroll();
 
     const backgroundSize = useTransform(
@@ -254,7 +287,6 @@ const ParallaxImg = ({
 
     return (
         <motion.div
-            ref={ref}
             style={set_styles}
         >
             <MotionComponent

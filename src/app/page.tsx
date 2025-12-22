@@ -1,9 +1,6 @@
-import HorizontalScrollCarousel, { HorizontalScrollCarouselExample } from "@/components/carousel/horizontalScrollCarousel/HorizontalScrollCarousel";
-import { Button } from "@/components/ui/button";
+import HorizontalScrollCarousel from "@/components/carousel/horizontalScrollCarousel/HorizontalScrollCarousel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SmoothScrollHero } from "@/components/hero/SmoothScrollHeroSection";
-import { Introduction } from "@/components/hero/Introduction";
-import { CenterImage } from "@/components/hero/SmoothScrollHeroSection";
 
 export default function Home() {
   return (
@@ -11,8 +8,7 @@ export default function Home() {
       <div className="mx-auto max-w-4xl space-y-8">
         {/* Header */}
         <header className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">My Portfolio</h1>
-          <Button variant="outline">Sign In</Button>
+          <h1 className="text-3xl font-bold">Bou-Dev</h1>
         </header>
 
         {/* Hero Section */}
