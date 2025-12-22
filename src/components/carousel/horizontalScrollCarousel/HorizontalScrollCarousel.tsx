@@ -6,6 +6,7 @@ import { motion, useTransform, useScroll } from "framer-motion";
 import { useRef } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
+import { Github, ExternalLink } from "lucide-react";
 
 export const HorizontalScrollCarouselExample = () => {
     return (
@@ -60,6 +61,7 @@ export const HorizontalScrollCarousel = () => {
 };
 
 const Card = ({ project }: { project: CardType }) => {
+
     return (
         <div
             key={project._id}
@@ -70,15 +72,45 @@ const Card = ({ project }: { project: CardType }) => {
                     <img src={project.storageId} alt={project.title} />
                 </div>
             </div>
-            <div className="absolute inset-0 z-10 grid place-content-center">
-                <p className="bg-gradient-to-br from-black/50 to-black/0 p-8 text-6xl font-black uppercase text-white backdrop-blur-lg">
-                    {project.title}
+            <div className="absolute inset-0 z-5 bg-black/40"></div>
+            <div className="absolute inset-0 z-10 flex flex-col justify-center items-start px-8">
+                <div className="flex items-center gap-4 w-full mb-4">
+                    <p className="bg-gradient-to-br from-black/50 to-black/20 p-8 text-5xl font-black uppercase text-white">    
+                        {project.title}
+                        
+                    </p>
+                    <div className="flex items-center gap-3">
+                        {project.repo && (
+                            <a
+                                href={project.repo}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-white hover:text-neutral-300 transition-colors"
+                            >
+                                <Github className="w-5 h-5" />
+                            </a>
+                        )}
+                        {project.link && (
+                            <a
+                                href={project.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-white hover:text-neutral-300 transition-colors"
+                            >
+                                <ExternalLink className="w-5 h-5" />
+                            </a>
+                        )}
+                <div className="flex-1 h-px bg-neutral-400/30"></div>
+                    </div>
+                </div>
+                <p className="text-sm font-medium text-[#6366F1] mb-4 ">
+                    {project.tags.join(" - ")}
                 </p>
-            </div>
-            <div className="absolute inset-0 z-10 grid place-content-center">
-                <p className="bg-gradient-to-br from-black/50 to-black/0 p-8 text-6xl font-black uppercase text-white backdrop-blur-lg">
-                    {project.tags.join(", ")}
-                </p>
+                {project.description && (
+                    <p className="text-white text-sm leading-relaxed max-w-md drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                        {project.description}
+                    </p>
+                )}
             </div>
         </div>
     );
@@ -92,4 +124,7 @@ type CardType = {
     title: string;
     description: string;
     tags: string[];
+    link?: string;
+    repo?: string;
+    dark_theme?: boolean;
 };
