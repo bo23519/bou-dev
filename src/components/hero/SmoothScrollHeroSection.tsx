@@ -33,6 +33,8 @@ export const SmoothScrollHero = () => {
     );
 };
 
+// From template
+// Quick jump to projects section
 const Nav = () => {
     return (
         <nav className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between px-6 py-3 text-white">
@@ -99,6 +101,8 @@ const ScrollIndicator = () => {
     );
 };
 
+// From template
+// Center image of the hero section
 export const CenterImage = () => {
     const { scrollY } = useScroll();
 
@@ -134,6 +138,7 @@ export const CenterImage = () => {
     );
 };
 
+// Items to display in the hero section
 const ListOfItems = () => {
     const links = useQuery(api.links.getLinks);
     const [showCopied, setShowCopied] = useState(false);
@@ -150,6 +155,7 @@ const ListOfItems = () => {
         <div 
             className="sticky top-0 z-10 mx-auto max-w-5xl px-4 pt-[200px]"
         >
+            {/* Texts */}
             <ParallaxImg
                 className="text-6xl md:text-8xl font-black tracking-tight text-white font-inter"
                 children={
@@ -188,8 +194,9 @@ const ListOfItems = () => {
                 }
                 as="p"
             />
+            {/* Links/Buttons */}
             <ParallaxImg
-                className="flex gap-4"
+                className="flex flex-wrap gap-4"
                 children={
                     <>
                         <motion.a
@@ -198,9 +205,9 @@ const ListOfItems = () => {
                             href={links?.Resume?.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-8 w-fit rounded-lg bg-[#6366F1] px-4 py-2 text-lg text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC] flex items-center gap-2"
+                            className="mt-8 w-fit rounded-lg bg-[#6366F1] px-3 sm:px-4 py-2 text-sm sm:text-lg text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC] flex items-center gap-2"
                         >
-                            <FileText/>Resume
+                            <FileText className="w-4 h-4 sm:w-5 sm:h-5"/>Resume
                         </motion.a>
                         <motion.a
                             whileHover={{ scale: 1.02 }}
@@ -208,9 +215,9 @@ const ListOfItems = () => {
                             href={links?.LinkedIn?.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-8 w-fit rounded-lg bg-[#6366F1] px-4 py-2 text-lg text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC] flex items-center gap-2"
+                            className="mt-8 w-fit rounded-lg bg-[#6366F1] px-3 sm:px-4 py-2 text-sm sm:text-lg text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC] flex items-center gap-2"
                         >
-                            <Linkedin />LinkedIn
+                            <Linkedin className="w-4 h-4 sm:w-5 sm:h-5" />LinkedIn
                         </motion.a>
                         <motion.a
                             whileHover={{ scale: 1.02 }}
@@ -218,18 +225,18 @@ const ListOfItems = () => {
                             href={links?.GitHub?.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-8 w-fit rounded-lg bg-[#6366F1] px-4 py-2 text-lg text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC] flex items-center gap-2"
+                            className="mt-8 w-fit rounded-lg bg-[#6366F1] px-3 sm:px-4 py-2 text-sm sm:text-lg text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC] flex items-center gap-2"
                         >
-                            <GitBranch />GitHub
+                            <GitBranch className="w-4 h-4 sm:w-5 sm:h-5" />GitHub
                         </motion.a>
                         <div className="relative">
                             <motion.button
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleEmailClick}
-                                className="mt-8 w-fit rounded-lg bg-[#6366F1] px-4 py-2 text-lg text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC] cursor-pointer flex items-center gap-2"
+                                className="mt-8 w-fit rounded-lg bg-[#6366F1] px-3 sm:px-4 py-2 text-sm sm:text-lg text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-[#5850EC] cursor-pointer flex items-center gap-2"
                             >
-                                <Mail />Email
+                                <Mail className="w-4 h-4 sm:w-5 sm:h-5" />Email
                             </motion.button>
                             <AnimatePresence>
                                 {showCopied && (
@@ -253,6 +260,8 @@ const ListOfItems = () => {
     );
 };
 
+// From template
+// Effect for the texts and buttons in the hero section
 const ParallaxImg = ({
     className,
     children,

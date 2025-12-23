@@ -1,11 +1,16 @@
 # Portfolio
 
-A modern personal portfolio built with Next.js 14, TypeScript, Tailwind CSS, ShadcnUI, and Convex.
+Currently only serving as portfolio, will expand to a lab/playground later.
+Sections to expand next:
+ 1. Interactive part, where keep tracks of views and likes
+ 2. Blog section, and for that I need Auth/Token
+A modern personal portfolio built with Next.js 14, TypeScript, Tailwind CSS, Framer Motion, and Convex.
 
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
 [![Convex](https://img.shields.io/badge/Convex-Backend-FF6B6B)](https://convex.dev/)
+[![Framer Motion](https://img.shields.io/badge/Framer%20Motion-12.23-0055FF?logo=framer)](https://www.framer.com/motion/)
 
 ---
 
@@ -45,7 +50,10 @@ flowchart LR
 | Layer | Technology | Purpose |
 |-------|------------|---------|
 | **Frontend** | Next.js 14 (App Router) | React framework with SSR/SSG |
-| **Styling** | Tailwind CSS + ShadcnUI | Utility-first CSS + accessible components |
+| **Styling** | Tailwind CSS | Utility-first CSS framework |
+| **Animation** | Framer Motion | Smooth scroll animations and parallax effects |
+| **Smooth Scroll** | Lenis | Smooth scrolling library |
+| **Icons** | Lucide React | Icon library |
 | **Language** | TypeScript | Type safety |
 | **Backend** | Convex | Real-time database + serverless functions |
 | **Deployment** | Vercel + Convex Cloud | Edge-optimized hosting |
@@ -98,19 +106,32 @@ These are automatically populated when running `npx convex dev`.
 ├── convex/                    # Convex backend
 │   ├── _generated/            # Auto-generated types & API
 │   ├── schema.ts              # Database schema
-│   └── tasks.ts               # Queries & mutations
+│   ├── links.ts               # Links queries
+│   └── projects.ts            # Projects queries
 ├── src/
 │   ├── app/                   # Next.js App Router
 │   │   ├── layout.tsx         # Root layout with providers
 │   │   ├── page.tsx           # Home page
 │   │   └── globals.css        # Global styles
 │   ├── components/
-│   │   ├── ui/                # ShadcnUI components
+│   │   ├── hero/              # Hero section components
+│   │   │   └── SmoothScrollHeroSection.tsx
+│   │   ├── carousel/          # Carousel components
+│   │   │   └── horizontalScrollCarousel/
+│   │   │       └── HorizontalScrollCarousel.tsx
+│   │   ├── Convex/            # Convex-specific components
+│   │   │   └── ConvexImage.tsx
+│   │   ├── ui/                # UI components
 │   │   │   ├── button.tsx
 │   │   │   └── card.tsx
 │   │   └── convex-provider.tsx
 │   └── lib/
 │       └── utils.ts           # Utility functions
+├── local/                     # Local data files for import
+│   ├── links.jsonl
+│   ├── links_prod.jsonl
+│   ├── projects.jsonl
+│   └── projects_prod.jsonl
 ├── tailwind.config.ts
 ├── next.config.mjs
 └── package.json
@@ -128,6 +149,8 @@ These are automatically populated when running `npx convex dev`.
 | `npm run lint` | Run ESLint |
 | `npx convex dev` | Start Convex dev server |
 | `npx convex deploy` | Deploy Convex to production |
+| `npx convex import --table <table> <file> --replace` | Import data from JSONL file |
+| `npx convex import --table <table> <file> --replace --prod` | Import data to production |
 
 ---
 
@@ -152,14 +175,39 @@ These are automatically populated when running `npx convex dev`.
 
 ## Features
 
-- [ ] **Authentication** — Sign in with OAuth providers
-- [ ] **Guestbook** — Real-time guestbook with optimistic UI
-- [ ] **Projects** — Showcase portfolio projects
-- [ ] **Blog** — MDX-powered blog posts
-- [ ] **Analytics** — View counts and visitor stats
+- [x] **Parallax Hero Section** — Smooth scrolling hero with parallax effects
+- [x] **Project Showcase** — Horizontal scroll carousel displaying portfolio projects
+- [x] **Dynamic Content** — Projects and links managed through Convex database
+- [x] **Responsive Design** — Mobile-optimized layouts and components
+- [x] **Smooth Animations** — Framer Motion powered scroll animations
+- [x] **Social Links** — Dynamic links to Resume, LinkedIn, GitHub, and Email
+
+---
+
+## Data Management
+
+### Importing Data
+
+Import projects and links from JSONL files:
+
+```bash
+# Import to dev deployment
+npx convex import --table projects local/projects.jsonl --replace
+npx convex import --table links local/links.jsonl --replace
+
+# Import to production deployment
+npx convex import --table projects local/projects_prod.jsonl --replace --prod
+npx convex import --table links local/links_prod.jsonl --replace --prod
+```
+
+### Schema
+
+The Convex schema includes:
+- **projects**: title, description, tags, link, repo, storageId, dark_theme
+- **links**: name, url (for Resume, LinkedIn, GitHub, Email)
 
 ---
 
 ## License
 
-MIT © [Your Name](https://github.com/yourusername)
+MIT © [Baian Ou](https://github.com/bo23519)
