@@ -10,6 +10,7 @@
 
 import type * as links from "../links.js";
 import type * as projects from "../projects.js";
+import type * as stats from "../stats.js";
 import type * as tasks from "../tasks.js";
 
 import type {
@@ -21,6 +22,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   links: typeof links;
   projects: typeof projects;
+  stats: typeof stats;
   tasks: typeof tasks;
 }>;
 

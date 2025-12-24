@@ -1,14 +1,28 @@
+"use client";
+
+import { useEffect } from "react";
+import { useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import HorizontalScrollCarousel from "@/components/carousel/horizontalScrollCarousel/HorizontalScrollCarousel";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SmoothScrollHero } from "@/components/hero/SmoothScrollHeroSection";
+import { LikeButton } from "@/components/likeButton/LikeButton";
 
 export default function Home() {
+  const addView = useMutation((api as any).stats.addView);
+
+  useEffect(() => {
+    addView();
+  }, [addView]);
+
   return (
     <main className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-4xl space-y-8">
         {/* Header */}
         <header className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Bou-Dev</h1>
+          <div className="flex items-center gap-2">
+            <LikeButton />
+          </div>
         </header>
 
         {/* Hero Section */}
@@ -20,18 +34,6 @@ export default function Home() {
           <HorizontalScrollCarousel />
         </div>
 
-        {/* Guestbook Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Guestbook</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* TODO: Implement Optimistic UI here */}
-            <p className="text-muted-foreground">
-              Guestbook entries will appear here.
-            </p>
-          </CardContent>
-        </Card>
       </div>
     </main>
   );

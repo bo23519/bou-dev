@@ -20,9 +20,8 @@ export default defineSchema({
     text: v.string(),
     isCompleted: v.boolean(),
   }),
-  guestbook: defineTable({
-    name: v.string(),
-    message: v.string(),
-    createdAt: v.number(),
+  stats: defineTable({
+    likes: v.number(),
+    views: v.number(),
   }),
 });
