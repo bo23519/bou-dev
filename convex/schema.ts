@@ -24,4 +24,11 @@ export default defineSchema({
     likes: v.number(),
     views: v.number(),
   }),
+  blogPosts: defineTable({
+    title: v.string(),
+    content: v.string(),
+    tags: v.array(v.string()),
+    publishedAt: v.optional(v.number()),
+    image: v.optional(v.string()),
+  }),
 });
