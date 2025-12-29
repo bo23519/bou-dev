@@ -1,3 +1,10 @@
+# TODO
+1. Highlight secion currently in
+2. Expand/fold login(since it is only personal use)
+
+# WIP
+Blog component with writing tools(tiptap)
+
 # Portfolio
 
 Currently only serving as portfolio, will expand to a lab/playground later.
