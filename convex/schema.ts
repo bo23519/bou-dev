@@ -28,7 +28,7 @@ export default defineSchema({
     title: v.string(),
     content: v.string(),
     tags: v.array(v.string()),
-    publishedAt: v.optional(v.number()),
+    updatedAt: v.optional(v.number()),
     image: v.optional(v.string()),
   }),
 });
