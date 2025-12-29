@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { Suspense, useTransition } from "react";
 import { useQuery } from "convex/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -21,7 +21,7 @@ const formatDate = (timestamp: number | undefined): string => {
   });
 };
 
-export default function BlogPage() {
+function BlogPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -80,6 +80,20 @@ export default function BlogPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function BlogPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-background p-8">
+        <div className="mx-auto max-w-4xl">
+          <div className="text-center text-muted-foreground">Loading...</div>
+        </div>
+      </main>
+    }>
+      <BlogPageContent />
+    </Suspense>
   );
 }
 
