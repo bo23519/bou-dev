@@ -79,7 +79,7 @@ const Card = ({ project }: { project: CardType }) => {
             <div className="absolute inset-0 z-10 flex flex-col justify-center items-start px-4 sm:px-8">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full mb-4">
                     {/* Title of the project */}
-                    <p className="bg-gradient-to-br from-black/50 to-black/20 p-4 sm:p-8 text-2xl sm:text-5xl font-black uppercase text-white">    
+                    <p className="bg-gradient-to-br from-black/50 to-black/10 p-4 sm:p-8 text-2xl sm:text-5xl font-black uppercase text-white">    
                         {project.title}
                     </p>
                     <div className="flex items-center gap-3 w-full sm:w-auto">

@@ -9,8 +9,6 @@ import {
     useScroll,
     useTransform,
 } from "framer-motion";
-import { SiSpacex } from "react-icons/si";
-import { FiArrowRight } from "react-icons/fi";
 import { useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import { useQuery } from "convex/react";
@@ -26,30 +24,9 @@ export const SmoothScrollHero = () => {
                     lerp: 0.05,
                 }}
             >
-                <Nav />
                 <Hero />
             </ReactLenis>
         </div>
-    );
-};
-
-// From template
-// Quick jump to projects section
-const Nav = () => {
-    return (
-        <nav className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between px-6 py-3 text-white">
-            <SiSpacex className="text-3xl mix-blend-difference" />
-            <button
-                onClick={() => {
-                    document.getElementById("projects")?.scrollIntoView({
-                        behavior: "smooth",
-                    });
-                }}
-                className="flex items-center gap-1 text-xs text-zinc-400"
-            >
-                Projects <FiArrowRight />
-            </button>
-        </nav>
     );
 };
 

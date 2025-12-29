@@ -5,7 +5,6 @@ import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import HorizontalScrollCarousel from "@/components/carousel/horizontalScrollCarousel/HorizontalScrollCarousel";
 import { SmoothScrollHero } from "@/components/hero/SmoothScrollHeroSection";
-import { LikeButton } from "@/components/likeButton/LikeButton";
 
 export default function Home() {
   const addView = useMutation((api as any).stats.addView);
@@ -15,18 +14,11 @@ export default function Home() {
   }, [addView]);
 
   return (
-    <main className="min-h-screen bg-background p-8">
-      <div className="mx-auto max-w-4xl space-y-8">
-        {/* Header */}
-        <header className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Bou-Dev</h1>
-          <div className="flex items-center gap-2">
-            <LikeButton />
-          </div>
-        </header>
-
-        {/* Hero Section */}
-        <SmoothScrollHero />
+    <main className="min-h-screen bg-background">
+      {/* Hero Section */}
+      <SmoothScrollHero />
+      
+      <div className="mx-auto max-w-4xl space-y-8 p-8">
 
         {/* Project showcases - Moved outside the max-w-4xl container */}
         <div className="mt-16" id="projects">

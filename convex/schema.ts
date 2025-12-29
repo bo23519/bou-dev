@@ -24,4 +24,22 @@ export default defineSchema({
     likes: v.number(),
     views: v.number(),
   }),
+  users: defineTable({
+    name: v.string(),
+    email: v.string(),
+    password: v.string(),
+    role: v.union(v.literal("admin"), v.literal("user")),
+  }),
+  sessions: defineTable({
+    userId: v.id("users"),
+    token: v.string(),
+    expiresAt: v.number(),
+  }),
+  blogPosts: defineTable({
+    title: v.string(),
+    content: v.string(),
+    tags: v.array(v.string()),
+    updatedAt: v.optional(v.number()),
+    image: v.optional(v.string()),
+  }),
 });
