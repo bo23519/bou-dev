@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { useQuery } from "convex/react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../../../convex/_generated/api";
 import { Pagination } from "@/components/blog/Pagination";
@@ -55,14 +56,18 @@ export default function BlogPage() {
             {isPending && (
               <div className="text-center text-muted-foreground">Loading...</div>
             )}
-            {posts.map((post: { Title: string; Tags: string[]; PublishedAt: number | undefined; Image: string | undefined }) => (
+            {posts.map((post: { Id: string; Title: string; Tags: string[]; PublishedAt: number | undefined; Image: string | undefined }) => (
               <motion.div
-                key={post.Title}
+                key={post.Id}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
               >
-                <h2 className="text-2xl font-bold">{post.Title}</h2>
+                <Link href={`/blog/${post.Id}`}>
+                  <h2 className="text-2xl font-bold hover:text-indigo-300 transition-colors cursor-pointer">
+                    {post.Title}
+                  </h2>
+                </Link>
                 <p className="text-lg text-muted-foreground">{post.Tags.join(", ")}</p>
                 <p className="text-lg text-muted-foreground">{formatDate(post.PublishedAt)}</p>
               </motion.div>

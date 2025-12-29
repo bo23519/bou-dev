@@ -40,11 +40,12 @@ export const getBlogPostByPage = query({
         const hasNextPage = endIndex < allPosts.length;
 
         return {
-            page: pagePosts.map((_id) => ({
-                Title: _id.title,
-                Tags: _id.tags,
-                PublishedAt: _id._creationTime,
-                Image: _id.image,
+            page: pagePosts.map((post) => ({
+                Id: post._id,
+                Title: post.title,
+                Tags: post.tags,
+                PublishedAt: post._creationTime,
+                Image: post.image,
             })),
             nextCursor: hasNextPage ? "has-more" : null,
         };
@@ -72,7 +73,7 @@ export const getAllBlogPosts = query({
 export const getBlogPostById = query({
     args: { id: v.id("blogPosts") },
     handler: async (ctx, args) => {
-        const blogPost = await ctx.db.get(args.id);
+        const blogPost = await ctx.db.query("blogPosts").filter((q) => q.eq(q.field("_id"), args.id)).first();
         return blogPost;
     },
 });
