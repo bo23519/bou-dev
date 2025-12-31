@@ -1,8 +1,10 @@
 import React from "react";
+import { cn } from "@/lib/utils";
 // https://www.hover.dev/components/buttons
 
 export const DrawOutlineButton = ({
   children,
+  className,
   ...rest
 }: React.DetailedHTMLProps<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
@@ -11,7 +13,7 @@ export const DrawOutlineButton = ({
   return (
     <button
       {...rest}
-      className="group relative px-4 py-2 font-medium text-slate-100 transition-colors duration-[400ms] hover:text-white-300"
+      className={cn("group relative px-4 py-2 font-medium text-slate-100 transition-colors duration-[400ms]", className)}
     >
       <span>{children}</span>
 
