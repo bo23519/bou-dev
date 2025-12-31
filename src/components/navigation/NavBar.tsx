@@ -149,10 +149,7 @@ export const NavBar = () => {
               ))}
               {isAdmin && (
                 <DrawOutlineButton
-                  onClick={() => {
-                    // Placeholder for content creation
-                    alert("Content creation coming soon!");
-                  }}
+                  onClick={() => router.push("/create")}
                   className="w-8 h-8 flex items-center justify-center p-0"
                   title="Create Content"
                 >

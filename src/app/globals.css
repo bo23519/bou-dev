@@ -59,3 +59,38 @@
     @apply bg-background text-foreground;
   }
 }
+
+.ProseMirror {
+  outline: none;
+  min-height: 350px;
+  color: white;
+}
+
+.ProseMirror p {
+  margin: 0.5em 0;
+}
+
+.ProseMirror h1 {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 0.5em 0;
+}
+
+.ProseMirror h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 0.5em 0;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.ProseMirror blockquote {
+  border-left: 4px solid #6366f1;
+  padding-left: 1em;
+  margin: 0.5em 0;
+  font-style: italic;
+}
