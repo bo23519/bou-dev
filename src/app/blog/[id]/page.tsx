@@ -4,7 +4,7 @@ import { useQuery } from "convex/react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import DOMPurify from "dompurify";
+import { Interweave } from "interweave";
 import { generateHTML } from "@tiptap/html";
 import StarterKit from "@tiptap/starter-kit";
 import { api } from "../../../../convex/_generated/api";
@@ -94,7 +94,7 @@ export default function BlogPostPage() {
               <p>{formatDate((post as any)._creationTime)}</p>
               {post.tags && post.tags.length > 0 && (
                 <div className="flex gap-2">
-                  {post.tags.map((tag, index) => (
+                  {post.tags.map((tag: string, index: number) => (
                     <span
                       key={index}
                       className="px-2 py-1 bg-zinc-800 rounded text-sm"
@@ -108,21 +108,19 @@ export default function BlogPostPage() {
           </header>
 
           <div className="prose prose-invert max-w-none">
-            <div
+            <Interweave
+              content={
+                (() => {
+                  try {
+                    const jsonContent = JSON.parse(post.content);
+                    return generateHTML(jsonContent, [StarterKit]);
+                  } catch {
+                    // Fallback for old HTML content format
+                    return post.content;
+                  }
+                })()
+              }
               className="text-lg leading-relaxed"
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(
-                  (() => {
-                    try {
-                      const jsonContent = JSON.parse(post.content);
-                      return generateHTML(jsonContent, [StarterKit]);
-                    } catch {
-                      // Fallback for old HTML content format
-                      return post.content;
-                    }
-                  })()
-                ),
-              }}
             />
           </div>
         </motion.article>
