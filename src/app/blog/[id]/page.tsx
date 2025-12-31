@@ -4,6 +4,9 @@ import { useQuery } from "convex/react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import DOMPurify from "dompurify";
+import { generateHTML } from "@tiptap/html";
+import StarterKit from "@tiptap/starter-kit";
 import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
 
@@ -105,9 +108,22 @@ export default function BlogPostPage() {
           </header>
 
           <div className="prose prose-invert max-w-none">
-            <div className="whitespace-pre-wrap text-lg leading-relaxed">
-              {post.content}
-            </div>
+            <div
+              className="text-lg leading-relaxed"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(
+                  (() => {
+                    try {
+                      const jsonContent = JSON.parse(post.content);
+                      return generateHTML(jsonContent, [StarterKit]);
+                    } catch {
+                      // Fallback for old HTML content format
+                      return post.content;
+                    }
+                  })()
+                ),
+              }}
+            />
           </div>
         </motion.article>
       </div>

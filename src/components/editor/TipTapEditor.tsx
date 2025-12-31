@@ -11,10 +11,17 @@ interface TipTapEditorProps {
 export const TipTapEditor = ({ content, onChange }: TipTapEditorProps) => {
   const editor = useEditor({
     extensions: [StarterKit],
-    content,
+    content: (() => {
+      if (!content || !content.trim()) return "";
+      try {
+        return JSON.parse(content);
+      } catch {
+        return "";
+      }
+    })(),
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      onChange(JSON.stringify(editor.getJSON()));
     },
   });
 
