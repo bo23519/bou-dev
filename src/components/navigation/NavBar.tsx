@@ -26,6 +26,30 @@ export const NavBar = () => {
   const logoutMutation = useMutation((api as any).auth.logout);
   const verifyTokenMutation = useMutation((api as any).auth.verifyToken);
 
+  const navLinks = [
+    { href: "/", label: "Home" },
+    { href: "/learning", label: "Learning" },
+    { href: "/blog", label: "Blog" },
+  ];
+
+  // Get the current browsing section
+  const [currentSection, setCurrentSection] = useState<string | null>(null);
+  useEffect(() => {
+    const getCurrentSection = (pathname: string) => {
+      const sections = ["/learning", "/blog"];
+      setCurrentSection("/");
+      for (const section of sections) {
+        if (pathname === section || pathname.startsWith(section + "/")) {
+          setCurrentSection(section);
+          break;
+        }
+      }
+    };
+    getCurrentSection(pathname);
+  }, [pathname]);
+
+  // Check if the user is logged in and has the admin role
+  // For now, only admin can create content
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem("authToken");
@@ -52,6 +76,7 @@ export const NavBar = () => {
     checkAuth();
   }, [verifyTokenMutation]);
 
+  // Hide the navbar when the user scrolls down
   useMotionValueEvent(scrollY, "change", (latest) => {
     const previous = lastScrollY;
     if (latest > previous && latest > 100) {
@@ -90,12 +115,6 @@ export const NavBar = () => {
     setIsAdmin(false);
   };
 
-  const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/learning", label: "Learning" },
-    { href: "/blog", label: "Blog" },
-  ];
-
   return (
     <>
       <motion.nav
@@ -123,17 +142,14 @@ export const NavBar = () => {
                 <DrawOutlineButton
                   key={link.href}
                   onClick={() => router.push(link.href)}
-                  className={pathname === link.href ? "text-white-300" : ""}
+                  className={currentSection === link.href ? "text-indigo-500 text-lg" : ""}
                 >
                   {link.label}
                 </DrawOutlineButton>
               ))}
               {isAdmin && (
                 <DrawOutlineButton
-                  onClick={() => {
-                    // Placeholder for content creation
-                    alert("Content creation coming soon!");
-                  }}
+                  onClick={() => router.push("/create")}
                   className="w-8 h-8 flex items-center justify-center p-0"
                   title="Create Content"
                 >

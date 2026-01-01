@@ -1,6 +1,5 @@
 # TODO
-1. Highlight secion currently in
-2. Expand/fold login(since it is only personal use)
+1. Expand/fold login(since it is only personal use) (but one button seems ok, leave it for now)
 
 # WIP
 Blog component with writing tools(tiptap)
