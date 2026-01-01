@@ -5,19 +5,27 @@ import { paginationOptsValidator } from "convex/server";
 export const getBlogPostPaginated = query({
     args: { paginationOpts: paginationOptsValidator },
     handler: async (ctx, args) => {
-      const result = await ctx.db
+      // Note: pagination doesn't support filtering, so we collect and filter manually
+      const allPosts = await ctx.db
         .query("blogPosts")
         .order("desc")
-        .paginate(args.paginationOpts);
+        .collect();
+      
+      const activePosts = allPosts.filter((post) => !post.deletedAt);
+      
+      // Manual pagination
+      const startIndex = 0;
+      const endIndex = Math.min(args.paginationOpts.numItems, activePosts.length);
+      const pagePosts = activePosts.slice(startIndex, endIndex);
 
         return {
-            page: result.page.map((_id) => ({
+            page: pagePosts.map((_id) => ({
                 Title: _id.title,
                 Tags: _id.tags,
                 PublishedAt: _id._creationTime,
                 Image: _id.image,
                 })),
-            nextCursor: result.continueCursor ?? null,
+            nextCursor: endIndex < activePosts.length ? "has-more" : null,
         };
     },
   });
@@ -25,19 +33,22 @@ export const getBlogPostPaginated = query({
 export const getBlogPostByPage = query({
     args: { page: v.number(), itemsPerPage: v.number() },
     handler: async (ctx, args) => {
-        // Fetch all posts once (single query)
+        // Fetch all posts once (single query), then filter out deleted posts
         const allPosts = await ctx.db
             .query("blogPosts")
             .order("desc")
             .collect();
         
+        // Filter out deleted posts (where deletedAt is not set/undefined)
+        const activePosts = allPosts.filter((post) => !post.deletedAt);
+        
         // Calculate pagination
         const startIndex = (args.page - 1) * args.itemsPerPage;
         const endIndex = startIndex + args.itemsPerPage;
-        const pagePosts = allPosts.slice(startIndex, endIndex);
+        const pagePosts = activePosts.slice(startIndex, endIndex);
         
         // Check if there's a next page
-        const hasNextPage = endIndex < allPosts.length;
+        const hasNextPage = endIndex < activePosts.length;
 
         return {
             page: pagePosts.map((post) => ({
@@ -56,7 +67,9 @@ export const getNumOfPages = query({
     args: { itemsPerPage: v.number() },
     handler: async (ctx, args) => {
         const allPosts = await ctx.db.query("blogPosts").collect();
-        const totalCount = allPosts.length;
+        // Filter out deleted posts
+        const activePosts = allPosts.filter((post) => !post.deletedAt);
+        const totalCount = activePosts.length;
         const numOfPages = Math.ceil(totalCount / args.itemsPerPage);
         return numOfPages;
     },
@@ -73,7 +86,14 @@ export const getAllBlogPosts = query({
 export const getBlogPostById = query({
     args: { id: v.id("blogPosts") },
     handler: async (ctx, args) => {
-        const blogPost = await ctx.db.query("blogPosts").filter((q) => q.eq(q.field("_id"), args.id)).first();
+        const blogPost = await ctx.db
+            .query("blogPosts")
+            .filter((q) => q.eq(q.field("_id"), args.id))
+            .first();
+        // Return null if post is deleted
+        if (blogPost && blogPost.deletedAt) {
+            return null;
+        }
         return blogPost;
     },
 });
@@ -106,6 +126,7 @@ export const updateBlogPost = mutation({
 export const deleteBlogPost = mutation({
     args: { id: v.id("blogPosts") },
     handler: async (ctx, args) => {
-        await ctx.db.delete(args.id);
+        // Soft delete: set deletedAt timestamp instead of deleting
+        await ctx.db.patch(args.id, { deletedAt: Date.now() });
     },
 });
