@@ -1,6 +1,7 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useState, useEffect } from "react";
+import { useQuery, useMutation } from "convex/react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -9,6 +10,7 @@ import { generateHTML } from "@tiptap/html";
 import StarterKit from "@tiptap/starter-kit";
 import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
+import { DrawOutlineButton } from "@/components/ui/button";
 
 const formatDate = (timestamp: number | undefined): string => {
   if (!timestamp) return "No date";
@@ -35,6 +37,33 @@ export default function BlogPostPage() {
     api.blogPosts.getBlogPostById,
     postId ? { id: postId } : "skip"
   );
+
+  const [isAdmin, setIsAdmin] = useState(false);
+  const verifyTokenMutation = useMutation((api as any).auth.verifyToken);
+
+  // Redirect immediately to blog list if post is deleted
+  useEffect(() => {
+    if (post === null && postId) {
+      router.push("/blog");
+    }
+  }, [post, postId, router]);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        try {
+          const result = await verifyTokenMutation({ token });
+          if (result?.valid && result.role === "admin") {
+            setIsAdmin(true);
+          }
+        } catch (error) {
+          setIsAdmin(false);
+        }
+      }
+    };
+    checkAuth();
+  }, [verifyTokenMutation]);
 
   if (!isValidId || !postId) {
     return (
@@ -63,10 +92,18 @@ export default function BlogPostPage() {
     return (
       <main className="min-h-screen bg-background p-8">
         <div className="mx-auto max-w-4xl">
-          <h1 className="text-4xl font-bold mb-4">Post Not Found</h1>
-          <Link href="/blog" className="text-indigo-300 hover:text-indigo-400">
-            ← Back to Blog
-          </Link>
+          <div className="text-center space-y-4">
+            <h1 className="text-4xl font-bold mb-4">Post Not Found or Deleted</h1>
+            <p className="text-zinc-400 mb-4">
+              This post has been deleted or doesn't exist.
+            </p>
+            <p className="text-zinc-500 text-sm">
+              Redirecting to blog page...
+            </p>
+            <Link href="/blog" className="inline-block text-indigo-300 hover:text-indigo-400">
+              ← Back to Blog
+            </Link>
+          </div>
         </div>
       </main>
     );
@@ -75,12 +112,28 @@ export default function BlogPostPage() {
   return (
     <main className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <Link
-          href="/blog"
-          className="inline-block text-indigo-300 hover:text-indigo-400 transition-colors mb-4"
-        >
-          ← Back to Blog
-        </Link>
+        <div className="flex items-center justify-between mb-4">
+          <Link
+            href="/blog"
+            className="inline-block text-indigo-300 hover:text-indigo-400 transition-colors"
+          >
+            ← Back to Blog
+          </Link>
+          {isAdmin && (
+            <div className="flex items-center gap-2">
+            <DrawOutlineButton onClick={() => router.push(`/blog/${postId}/edit`)}
+            className="text-indigo-300"
+            >
+              Edit
+            </DrawOutlineButton>
+            <DrawOutlineButton onClick={() => router.push(`/blog/${postId}/delete`)}
+            className="text-red-300"
+            >
+              Delete
+            </DrawOutlineButton>
+            </div>
+          )}
+        </div>
 
         <motion.article
           initial={{ opacity: 0, y: 20 }}

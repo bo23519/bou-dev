@@ -41,5 +41,6 @@ export default defineSchema({
     tags: v.array(v.string()),
     updatedAt: v.optional(v.number()),
     image: v.optional(v.string()),
+    deletedAt: v.optional(v.number()),
   }),
 });
