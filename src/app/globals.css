@@ -93,4 +93,40 @@
   padding-left: 1em;
   margin: 0.5em 0;
   font-style: italic;
+  background-color: rgba(99, 102, 241, 0.1);
+  padding: 1em;
+  border-radius: 4px;
+}
+
+.prose blockquote {
+  border-left: 4px solid #6366f1;
+  padding-left: 1em;
+  margin: 1em 0;
+  font-style: italic;
+  background-color: rgba(99, 102, 241, 0.1);
+  padding: 1em;
+  border-radius: 4px;
+  color: #e4e4e7;
+}
+
+.prose code {
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+.prose pre {
+  background-color: #1e1e1e;
+  padding: 1em;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+  color: #d4d4d4;
 }
