@@ -8,10 +8,12 @@ export const getBlogPostPaginated = query({
       // Note: pagination doesn't support filtering, so we collect and filter manually
       const allPosts = await ctx.db
         .query("blogPosts")
-        .order("desc")
         .collect();
       
-      const activePosts = allPosts.filter((post) => !post.deletedAt);
+      // Filter out deleted posts and sort by creation time (newest first)
+      const activePosts = allPosts
+        .filter((post) => !post.deletedAt)
+        .sort((a, b) => (b._creationTime || 0) - (a._creationTime || 0));
       
       // Manual pagination
       const startIndex = 0;
@@ -33,33 +35,53 @@ export const getBlogPostPaginated = query({
 export const getBlogPostByPage = query({
     args: { page: v.number(), itemsPerPage: v.number() },
     handler: async (ctx, args) => {
-        // Fetch all posts once (single query), then filter out deleted posts
-        const allPosts = await ctx.db
-            .query("blogPosts")
-            .order("desc")
-            .collect();
-        
-        // Filter out deleted posts (where deletedAt is not set/undefined)
-        const activePosts = allPosts.filter((post) => !post.deletedAt);
-        
-        // Calculate pagination
-        const startIndex = (args.page - 1) * args.itemsPerPage;
-        const endIndex = startIndex + args.itemsPerPage;
-        const pagePosts = activePosts.slice(startIndex, endIndex);
-        
-        // Check if there's a next page
-        const hasNextPage = endIndex < activePosts.length;
+        try {
+            // Fetch all posts once (single query), then filter out deleted posts
+            const allPosts = await ctx.db
+                .query("blogPosts")
+                .collect();
+            
+            // Filter out deleted posts (where deletedAt is not set/undefined)
+            const activePosts = allPosts
+                .filter((post) => {
+                    // Check if deletedAt exists and is a truthy value (timestamp)
+                    // If deletedAt is undefined, null, or 0, the post is active
+                    const deletedAt = post.deletedAt;
+                    return deletedAt === undefined || deletedAt === null || deletedAt === 0;
+                })
+                .sort((a, b) => {
+                    const timeA = a._creationTime ?? 0;
+                    const timeB = b._creationTime ?? 0;
+                    return timeB - timeA;
+                });
+            
+            // Calculate pagination
+            const startIndex = (args.page - 1) * args.itemsPerPage;
+            const endIndex = startIndex + args.itemsPerPage;
+            const pagePosts = activePosts.slice(startIndex, endIndex);
+            
+            // Check if there's a next page
+            const hasNextPage = endIndex < activePosts.length;
 
-        return {
-            page: pagePosts.map((post) => ({
-                Id: post._id,
-                Title: post.title,
-                Tags: post.tags,
-                PublishedAt: post._creationTime,
-                Image: post.image,
-            })),
-            nextCursor: hasNextPage ? "has-more" : null,
-        };
+            return {
+                page: pagePosts.map((post) => {
+                    if (!post || !post._id) {
+                        return null;
+                    }
+                    return {
+                        Id: post._id,
+                        Title: post.title || "",
+                        Tags: post.tags || [],
+                        PublishedAt: post._creationTime,
+                        Image: post.image || undefined,
+                    };
+                }).filter((post) => post !== null),
+                nextCursor: hasNextPage ? "has-more" : null,
+            };
+        } catch (error) {
+            console.error("Error in getBlogPostByPage:", error);
+            throw error;
+        }
     },
 });
 
@@ -68,7 +90,8 @@ export const getNumOfPages = query({
     handler: async (ctx, args) => {
         const allPosts = await ctx.db.query("blogPosts").collect();
         // Filter out deleted posts
-        const activePosts = allPosts.filter((post) => !post.deletedAt);
+        // Filter out deleted posts (where deletedAt is not set/undefined)
+      const activePosts = allPosts.filter((post) => !post.deletedAt);
         const totalCount = activePosts.length;
         const numOfPages = Math.ceil(totalCount / args.itemsPerPage);
         return numOfPages;

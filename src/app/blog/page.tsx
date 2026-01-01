@@ -6,6 +6,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../../../convex/_generated/api";
+import { Id } from "../../../convex/_generated/dataModel";
 import { Pagination } from "@/components/blog/Pagination";
 
 const ITEMS_PER_PAGE = 10;
@@ -36,7 +37,7 @@ function BlogPageContent() {
     itemsPerPage: ITEMS_PER_PAGE,
   });
 
-  const posts = result?.page || [];
+  const posts = (result?.page || []).filter((post): post is { Id: Id<"blogPosts">; Title: string; Tags: string[]; PublishedAt: number; Image: string | undefined } => post !== null);
   const totalPages = numOfPages || 1;
 
   return (
@@ -56,7 +57,7 @@ function BlogPageContent() {
             {isPending && (
               <div className="text-center text-muted-foreground">Loading...</div>
             )}
-            {posts.map((post: { Id: string; Title: string; Tags: string[]; PublishedAt: number | undefined; Image: string | undefined }) => (
+            {posts.map((post) => (
               <motion.div
                 key={post.Id}
                 initial={{ opacity: 0 }}

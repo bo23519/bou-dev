@@ -65,8 +65,10 @@ export const NavBar = () => {
             localStorage.removeItem("authToken");
           }
         } catch (error) {
+          // Silently fail - user is not logged in
           setIsLoggedIn(false);
           setIsAdmin(false);
+          localStorage.removeItem("authToken");
         }
       } else {
         setIsLoggedIn(false);
