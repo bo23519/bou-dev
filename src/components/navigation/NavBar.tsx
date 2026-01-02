@@ -151,7 +151,7 @@ export const NavBar = () => {
                       "px-4 py-2 rounded-lg font-medium transition-all duration-300",
                       isActive
                         ? "bg-[#EFF0EF] text-black"
-                        : "text-[#EFF0EF] hover:bg-zinc-800 hover:text-[#D8FA00]"
+                        : "text-[#787878] hover:bg-[#EFF0EF] hover:text-black"
                     )}
                   >
                     {link.label}
@@ -161,18 +161,29 @@ export const NavBar = () => {
               {isAdmin && (
                 <DrawOutlineButton
                   onClick={() => router.push("/create")}
-                  className="w-8 h-8 flex items-center justify-center p-0"
+                  className={cn(
+                    "px-4 py-2 rounded-lg font-medium transition-all duration-300 text-[#787878] hover:text-[#D8FA00]"
+                  )}
                   title="Create Content"
                 >
                   <Plus className="w-4 h-4" />
                 </DrawOutlineButton>
               )}
               {isLoggedIn ? (
-                <DrawOutlineButton onClick={handleLogout}>
-                  Logout
+                <DrawOutlineButton onClick={handleLogout}
+                className={cn(
+                  "px-4 py-2 rounded-lg font-medium transition-all duration-300 text-[#787878] hover:text-[#DB3C30]"
+                )}
+                color="#DB3C30"
+                >
+                Logout
                 </DrawOutlineButton>
               ) : (
-                <DrawOutlineButton onClick={() => setShowLoginModal(true)}>
+                <DrawOutlineButton 
+                onClick={() => setShowLoginModal(true)}
+                className={cn(
+                  "px-4 py-2 rounded-lg font-medium transition-all duration-300 text-[#787878] hover:text-[#D8FA00]"
+                )}>
                   Login
                 </DrawOutlineButton>
               )}
