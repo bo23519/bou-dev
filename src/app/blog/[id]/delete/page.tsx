@@ -203,7 +203,7 @@ export default function DeleteBlogPostPage() {
               setConfirmTitle(e.target.value);
               setError(null);
             }}
-            className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+            className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-red-500"
             placeholder="Type the blog post title to confirm"
             disabled={isDeleting}
           />
@@ -226,7 +226,7 @@ export default function DeleteBlogPostPage() {
             disabled={isDeleting || !isAdmin || !isTitleMatch}
             className={`${
               isDeleting || !isTitleMatch ? "opacity-50 cursor-not-allowed" : ""
-            } bg-red-600 hover:bg-red-700 text-white border-red-500`}
+            } bg-red-600 hover:bg-red-700 text-[#EFF0EF] border-red-500`}
           >
             {isDeleting ? "Deleting..." : "Delete Post"}
           </DrawOutlineButton>

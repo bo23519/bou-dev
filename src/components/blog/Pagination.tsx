@@ -56,7 +56,7 @@ export const Pagination = ({ totalPages, currentPage }: PaginationProps) => {
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={isPending}
-          className="px-4 py-2 rounded-lg border border-neutral-300 hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="zzz-button disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Previous
         </button>
@@ -66,7 +66,7 @@ export const Pagination = ({ totalPages, currentPage }: PaginationProps) => {
       {pageNumbers.map((page, index) => {
         if (page === "...") {
           return (
-            <span key={`ellipsis-${index}`} className="px-2 text-neutral-500">
+            <span key={`ellipsis-${index}`} className="px-2 text-muted-foreground">
               ...
             </span>
           );
@@ -80,10 +80,10 @@ export const Pagination = ({ totalPages, currentPage }: PaginationProps) => {
             key={pageNum}
             onClick={() => handlePageChange(pageNum)}
             disabled={isPending || isActive}
-            className={`px-4 py-2 rounded-lg border transition-colors disabled:cursor-not-allowed ${
+            className={`zzz-button min-w-[2.5rem] ${
               isActive
-                ? "bg-indigo-600 text-white border-indigo-600"
-                : "border-neutral-300 hover:bg-neutral-100 disabled:opacity-50"
+                ? "bg-[#D8FA00] text-black border-[#D8FA00] hover:bg-[#C8E600]"
+                : "disabled:opacity-50"
             }`}
           >
             {pageNum}
@@ -96,7 +96,7 @@ export const Pagination = ({ totalPages, currentPage }: PaginationProps) => {
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={isPending}
-          className="px-4 py-2 rounded-lg border border-neutral-300 hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="zzz-button disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Next
         </button>

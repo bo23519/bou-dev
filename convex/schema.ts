@@ -43,4 +43,14 @@ export default defineSchema({
     image: v.optional(v.string()),
     deletedAt: v.optional(v.number()),
   }),
+  files: defineTable({
+    name: v.string(),
+    url: v.string(),
+    type: v.string(),
+    size: v.number(),
+  }),
+  tags: defineTable({
+    name: v.string(),
+    color: v.string(),
+  }),
 });

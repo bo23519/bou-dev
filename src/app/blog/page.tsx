@@ -43,7 +43,7 @@ function BlogPageContent() {
   return (
     <main className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-4xl space-y-8">
-        <h1 className="text-4xl font-bold">Blog</h1>
+        <h1 className="text-4xl font-bold text-foreground">Blog</h1>
         
         <AnimatePresence mode="wait">
           <motion.div
@@ -51,8 +51,8 @@ function BlogPageContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="space-y-8"
+            transition={{ duration: 0.4 }}
+            className="space-y-6"
           >
             {isPending && (
               <div className="text-center text-muted-foreground">Loading...</div>
@@ -63,14 +63,24 @@ function BlogPageContent() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
+                className="zzz-card"
               >
                 <Link href={`/blog/${post.Id}`}>
-                  <h2 className="text-2xl font-bold hover:text-indigo-300 transition-colors cursor-pointer">
+                  <h2 className="text-white text-2xl font-bold text-foreground hover:text-[#D8FA00] transition-colors duration-300 cursor-pointer mb-2">
                     {post.Title}
                   </h2>
                 </Link>
-                <p className="text-lg text-muted-foreground">{post.Tags.join(", ")}</p>
-                <p className="text-lg text-muted-foreground">{formatDate(post.PublishedAt)}</p>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {post.Tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-1 text-xs font-medium text-muted-foreground border border-border rounded"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-sm text-muted-foreground">{formatDate(post.PublishedAt)}</p>
               </motion.div>
             ))}
           </motion.div>
