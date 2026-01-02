@@ -36,7 +36,7 @@ const Hero = () => {
     return (
             <div
                 style={{ height: `calc(${SECTION_HEIGHT}px + 100vh)` }}
-                className="relative w-full"
+                 className="relative w-full"
             >
             <CenterImage />
             <ScrollIndicator />
@@ -138,7 +138,7 @@ const ListOfItems = () => {
                 children={
                     <>
                         Hi, I&apos;m <span className="text-[#EFF0EF]">Baian Ou</span>
-                        <span className="text-[#D8FA00]">.</span>
+                        <span className="text-[#22C6CE]">.</span>
                         <br/>
                     </>
                 }
@@ -146,11 +146,11 @@ const ListOfItems = () => {
             />
 
             <ParallaxImg
-                className="text-3xl md:text-5xl font-bold tracking-tight text-[#94A3B8]"
+                className="text-3xl md:text-5xl font-bold tracking-tight text-[#E8E8E8]"
                 children={
                     <>
-                        I&apos;m a <span className="text-[#D8FA00]">Software Engineer</span><br />
-                        <span className="text-2xl md:text-4xl text-[#94A3B8]/80">
+                        I&apos;m a <span className="text-[#22C6CE]">Software Engineer</span><br />
+                        <span className="text-2xl md:text-4xl text-[#E8E8E8]/80">
                             Focused on Backend & Data Systems.
                         </span>
                         <br/>
@@ -162,9 +162,9 @@ const ListOfItems = () => {
                 className="max-w-2xl text-lg md:text-xl leading-relaxed text-[#B5B5B5] font-medium"
                 children={
                     <>
-                        2 years as a <span className="text-[#D8FA00]">Data Engineer</span> in Mastercard. <br />
-                        Recent <span className="text-[#D8FA00]">MSCS Graduate</span> from Brown University. <br />
-                        Working on <span className="text-[#D8FA00]">Full-stack/Backend</span> dev. <br /><br />
+                        2 years as a <span className="text-[#22C6CE]">Data Engineer</span> in Mastercard. <br />
+                        Recent <span className="text-[#22C6CE]">MSCS Graduate</span> from Brown University. <br />
+                        Working on <span className="text-[#22C6CE]">Full-stack/Backend</span> dev. <br /><br />
                         If you are interested in learning more, let&apos;s connect!
                         <br/>
                     </>
@@ -182,7 +182,7 @@ const ListOfItems = () => {
                             href={links?.Resume?.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="zzz-button mt-8 flex items-center gap-2"
+                            className="zzz-button zzz-button-miyabi mt-8 flex items-center gap-2"
                         >
                             <FileText className="w-4 h-4 sm:w-5 sm:h-5"/>Resume
                         </motion.a>
@@ -192,7 +192,7 @@ const ListOfItems = () => {
                             href={links?.LinkedIn?.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="zzz-button mt-8 flex items-center gap-2"
+                            className="zzz-button zzz-button-miyabi mt-8 flex items-center gap-2"
                         >
                             <Linkedin className="w-4 h-4 sm:w-5 sm:h-5" />LinkedIn
                         </motion.a>
@@ -202,7 +202,7 @@ const ListOfItems = () => {
                             href={links?.GitHub?.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="zzz-button mt-8 flex items-center gap-2"
+                            className="zzz-button zzz-button-miyabi mt-8 flex items-center gap-2"
                         >
                             <GitBranch className="w-4 h-4 sm:w-5 sm:h-5" />GitHub
                         </motion.a>
@@ -211,7 +211,7 @@ const ListOfItems = () => {
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleEmailClick}
-                                className="zzz-button mt-8 cursor-pointer flex items-center gap-2"
+                                className="zzz-button zzz-button-miyabi mt-8 cursor-pointer flex items-center gap-2 color-[#22C6CE]"
                             >
                                 <Mail className="w-4 h-4 sm:w-5 sm:h-5" />Email
                             </motion.button>
@@ -222,7 +222,7 @@ const ListOfItems = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -10 }}
                                         transition={{ duration: 0.2 }}
-                                        className="absolute -top-2 -translate-x-1/2 px-4 py-1 bg-green-500 text-[#EFF0EF] text-sm font-medium rounded-md whitespace-nowrap"
+                                        className="absolute -top-2 -translate-x-1/2 px-4 py-1 bg-green-500 text-[#22C6CE] text-sm font-medium rounded-md whitespace-nowrap"
                                     >
                                         Copied!
                                     </motion.div>

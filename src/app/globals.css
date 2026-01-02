@@ -5,34 +5,34 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
+    --background: 0 0% 9.4%; /* #181818 - matches diagonal stripe base */
+    --foreground: 0 0% 84%; /* #d6d6d6 */
+    --card: 0 0% 9.4%; /* #181818 */
+    --card-foreground: 0 0% 84%;
+    --popover: 0 0% 9.4%; /* #181818 */
+    --popover-foreground: 0 0% 84%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 84%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 46.3%; /* #767678 */
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
+    --border: 0 0% 46.3%; /* #767678 */
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 0 0% 7.1%; /* #121212 */
+    --background: 0 0% 9.4%; /* #181818 - matches diagonal stripe base */
     --foreground: 0 0% 84%; /* #d6d6d6 */
-    --card: 0 0% 7.1%;
+    --card: 0 0% 9.4%; /* #181818 */
     --card-foreground: 0 0% 84%;
-    --popover: 0 0% 7.1%;
+    --popover: 0 0% 9.4%; /* #181818 */
     --popover-foreground: 0 0% 84%;
     --primary: 0 0% 98%;
     --primary-foreground: 0 0% 9%;
@@ -56,8 +56,17 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, "Segoe UI", Arial, Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
+    background-color: #181818;
+    background-image: repeating-linear-gradient(
+      45deg,
+      #181818,
+      #181818 15px,
+      #1a1a1a 15px,
+      #1a1a1a 30px
+    );
+    min-height: 100vh;
   }
 }
 
@@ -145,7 +154,14 @@
     text-align: center;
     border: 1px solid #767678;
     border-radius: 0.4rem;
-    background-color: #121212;
+    background-color: #181818;
+    background-image: repeating-linear-gradient(
+      45deg,
+      #181818,
+      #181818 2px,
+      #1a1a1a 2px,
+      #1a1a1a 4px
+    );
     cursor: pointer;
     transition: all 300ms;
   }
@@ -161,8 +177,34 @@
     transform: scale(0.98);
   }
 
+  /* Variant classes for different colors */
+  .zzz-button-billy:hover {
+    border-color: #D74441;
+    color: #D74441;
+    box-shadow: 0 0 8px #D74441/20;
+  }
+
+  .zzz-button-miyabi:hover {
+    border-color: #22C6CE;
+    color: #22C6CE;
+    box-shadow: 0 0 8px #22C6CE/20;
+  }
+
+  /* .zzz-button-purple:hover {
+    border-color: #a855f7;
+    color: #a855f7;
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.2);
+  } */
+
   .zzz-card {
-    background-color: #121212;
+    background-color: #181818;
+    background-image: repeating-linear-gradient(
+      45deg,
+      #181818,
+      #181818 2px,
+      #1a1a1a 2px,
+      #1a1a1a 4px
+    );
     border: 1px solid #767678;
     border-radius: 0.5rem;
     padding: 1.5rem;
@@ -172,6 +214,13 @@
   .zzz-card:hover {
     border-color: #9ca3af;
     background-color: #1a1a1a;
+    background-image: repeating-linear-gradient(
+      45deg,
+      #1a1a1a,
+      #1a1a1a 2px,
+      #1c1c1c 2px,
+      #1c1c1c 4px
+    );
   }
 
   .zzz-text-primary {
@@ -182,7 +231,51 @@
     color: #767678;
   }
 
+  .zzz-white-grey{
+    color: #E8E8E8;
+  }
+
+  .zzz-grey{
+    color: #222122;
+  }
+
+  .zzz-dark-grey{
+    background-color: #181818;
+    /* background-image: repeating-linear-gradient(
+      45deg,
+      #181818,
+      #181818 2px,
+      #1a1a1a 2px,
+      #1a1a1a 4px
+    ); */
+  }
+
+  .zzz-miyabi-blue{
+    color: #22C6CE;
+  }
+
+  .zzz-billy-red{
+    color: #D74441;
+  }
+
+  .zzz-green{
+    color: #D8FA00;
+  }
+
+
   .zzz-gradient-overlay {
     background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+  }
+
+  /* Apply diagonal stripe pattern to bg-background utility */
+  .bg-background {
+    background-color: #181818 !important;
+    background-image: repeating-linear-gradient(
+      45deg,
+      #181818,
+      #181818 2px,
+      #1a1a1a 2px,
+      #1a1a1a 4px
+    ) !important;
   }
 }

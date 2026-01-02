@@ -66,7 +66,7 @@ function BlogPageContent() {
                 className="zzz-card"
               >
                 <Link href={`/blog/${post.Id}`}>
-                  <h2 className="text-2xl font-bold text-foreground hover:text-[#D8FA00] transition-colors duration-300 cursor-pointer mb-2">
+                  <h2 className="text-white text-2xl font-bold text-foreground hover:text-[#D8FA00] transition-colors duration-300 cursor-pointer mb-2">
                     {post.Title}
                   </h2>
                 </Link>

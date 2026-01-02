@@ -1,12 +1,16 @@
 # TODO
-1. Expand/fold login(since it is only personal use) (but one button seems ok, leave it for now)
+1. Customized tag with color for blog
+2. Image/Cover/Gif for resources
+3. Way to creat and
 
 # WIP
-Blog component with writing tools(tiptap)
+Done with basic color scheme
+Working on Commission Board(ZZZ-style comissions assigned to myself)
 
 # Portfolio
 
 Currently only serving as portfolio, will expand to a lab/playground later.
+Color Scheme from the game Zenless Zone Zero
 Sections to expand next:
  1. Interactive part, where keep tracks of views and likes
  2. Blog section, and for that I need Auth/Token
