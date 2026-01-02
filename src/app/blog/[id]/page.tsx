@@ -11,17 +11,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { DrawOutlineButton } from "@/components/ui/button";
-
-const formatDate = (timestamp: number | undefined): string => {
-  if (!timestamp) return "No date";
-  const date = new Date(timestamp);
-  return date.toLocaleDateString("en-US", {
-    timeZone: "America/New_York",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
+import { formatBlogDate } from "@/lib/blog-utils";
 
 export default function BlogPostPage() {
   const params = useParams();
@@ -144,7 +134,7 @@ export default function BlogPostPage() {
           <header className="space-y-4 mb-8">
             <h1 className="text-4xl font-bold text-foreground">{post.title}</h1>
             <div className="flex items-center gap-4 flex-wrap">
-              <p className="text-sm text-muted-foreground">{formatDate((post as any)._creationTime)}</p>
+              <p className="text-sm text-muted-foreground">{formatBlogDate((post as any)._creationTime)}</p>
               {post.tags && post.tags.length > 0 && (
                 <div className="flex gap-2 flex-wrap">
                   {post.tags.map((tag: string, index: number) => (

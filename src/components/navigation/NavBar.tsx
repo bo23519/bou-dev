@@ -227,7 +227,7 @@ export const NavBar = () => {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
+                    className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-[var(--zzz-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--zzz-neon-green)]"
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && username && password) {
                         handleLogin();
@@ -243,7 +243,7 @@ export const NavBar = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
+                    className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-[var(--zzz-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--zzz-neon-green)]"
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && username && password) {
                         handleLogin();

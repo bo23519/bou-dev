@@ -1,7 +1,8 @@
 # TODO
 1. Customized tag with color for blog
 2. Image/Cover/Gif for resources
-3. Way to creat and
+3. Way to create projects purely on the site
+4. shortcuts in blog writing(tab to content instad of fonts)
 
 # WIP
 Done with basic color scheme

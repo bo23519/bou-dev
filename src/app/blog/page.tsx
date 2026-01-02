@@ -8,19 +8,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { Pagination } from "@/components/blog/Pagination";
+import { formatBlogDate, BLOG_CONSTANTS } from "@/lib/blog-utils";
 
-const ITEMS_PER_PAGE = 10;
-
-const formatDate = (timestamp: number | undefined): string => {
-  if (!timestamp) return "No date";
-  const date = new Date(timestamp);
-  return date.toLocaleDateString("en-US", {
-    timeZone: "America/New_York",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
+const ITEMS_PER_PAGE = BLOG_CONSTANTS.ITEMS_PER_PAGE;
 
 function BlogPageContent() {
   const searchParams = useSearchParams();
@@ -80,7 +70,7 @@ function BlogPageContent() {
                     </span>
                   ))}
                 </div>
-                <p className="text-sm text-muted-foreground">{formatDate(post.PublishedAt)}</p>
+                <p className="text-sm text-muted-foreground">{formatBlogDate(post.PublishedAt)}</p>
               </motion.div>
             ))}
           </motion.div>

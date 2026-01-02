@@ -47,6 +47,30 @@
     --border: 0 0% 46.3%; /* #767678 */
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
+    
+    /* ZZZ Color Variables */
+    --zzz-dark-grey: #181818;
+    --zzz-dark-grey-light: #1a1a1a;
+    --zzz-dark-grey-lighter: #1c1c1c;
+    --zzz-text-primary: #EFF0EF;
+    --zzz-text-secondary: #787878;
+    --zzz-text-muted: #767678;
+    --zzz-neon-green: #D8FA00;
+    --zzz-neon-green-hover: #C8E600;
+    --zzz-miyabi-blue: #22C6CE;
+    --zzz-billy-red: #D74441;
+    --zzz-border-grey: #767678;
+    --zzz-border-grey-hover: #9ca3af;
+    
+    /* Diagonal Stripe Pattern */
+    --zzz-stripe-width: 6px;
+    --zzz-stripe-pattern: repeating-linear-gradient(
+      45deg,
+      var(--zzz-dark-grey),
+      var(--zzz-dark-grey) var(--zzz-stripe-width),
+      var(--zzz-dark-grey-light) var(--zzz-stripe-width),
+      var(--zzz-dark-grey-light) calc(var(--zzz-stripe-width) * 2)
+    );
   }
 }
 
@@ -150,26 +174,20 @@
     padding: 0.5rem 1.2rem;
     font-size: 0.875rem;
     font-weight: 500;
-    color: #EFF0EF;
+    color: var(--zzz-text-primary);
     text-align: center;
-    border: 1px solid #767678;
+    border: 1px solid var(--zzz-border-grey);
     border-radius: 0.4rem;
-    background-color: #181818;
-    background-image: repeating-linear-gradient(
-      45deg,
-      #181818,
-      #181818 2px,
-      #1a1a1a 2px,
-      #1a1a1a 4px
-    );
+    background-color: var(--zzz-dark-grey);
+    background-image: var(--zzz-stripe-pattern);
     cursor: pointer;
     transition: all 300ms;
   }
 
   .zzz-button:hover {
-    background-color: #1a1a1a;
-    border-color: #D8FA00;
-    color: #D8FA00;
+    background-color: var(--zzz-dark-grey-light);
+    border-color: var(--zzz-neon-green);
+    color: var(--zzz-neon-green);
     box-shadow: 0 0 8px rgba(216, 250, 0, 0.2);
   }
 
@@ -179,15 +197,15 @@
 
   /* Variant classes for different colors */
   .zzz-button-billy:hover {
-    border-color: #D74441;
-    color: #D74441;
-    box-shadow: 0 0 8px #D74441/20;
+    border-color: var(--zzz-billy-red);
+    color: var(--zzz-billy-red);
+    box-shadow: 0 0 8px rgba(215, 68, 65, 0.2);
   }
 
   .zzz-button-miyabi:hover {
-    border-color: #22C6CE;
-    color: #22C6CE;
-    box-shadow: 0 0 8px #22C6CE/20;
+    border-color: var(--zzz-miyabi-blue);
+    color: var(--zzz-miyabi-blue);
+    box-shadow: 0 0 8px rgba(34, 198, 206, 0.2);
   }
 
   /* .zzz-button-purple:hover {
@@ -197,69 +215,57 @@
   } */
 
   .zzz-card {
-    background-color: #181818;
-    background-image: repeating-linear-gradient(
-      45deg,
-      #181818,
-      #181818 2px,
-      #1a1a1a 2px,
-      #1a1a1a 4px
-    );
-    border: 1px solid #767678;
+    background-color: var(--zzz-dark-grey);
+    background-image: var(--zzz-stripe-pattern);
+    border: 1px solid var(--zzz-border-grey);
     border-radius: 0.5rem;
     padding: 1.5rem;
     transition: all 300ms;
   }
 
   .zzz-card:hover {
-    border-color: #9ca3af;
-    background-color: #1a1a1a;
+    border-color: var(--zzz-border-grey-hover);
+    background-color: var(--zzz-dark-grey-light);
     background-image: repeating-linear-gradient(
       45deg,
-      #1a1a1a,
-      #1a1a1a 2px,
-      #1c1c1c 2px,
-      #1c1c1c 4px
+      var(--zzz-dark-grey-light),
+      var(--zzz-dark-grey-light) var(--zzz-stripe-width),
+      var(--zzz-dark-grey-lighter) var(--zzz-stripe-width),
+      var(--zzz-dark-grey-lighter) calc(var(--zzz-stripe-width) * 2)
     );
   }
 
   .zzz-text-primary {
-    color: #d6d6d6;
+    color: var(--zzz-text-primary);
   }
 
   .zzz-text-secondary {
-    color: #767678;
+    color: var(--zzz-text-muted);
   }
 
-  .zzz-white-grey{
-    color: #E8E8E8;
+  .zzz-white-grey {
+    color: var(--zzz-text-primary);
   }
 
-  .zzz-grey{
+  .zzz-grey {
     color: #222122;
   }
 
-  .zzz-dark-grey{
-    background-color: #181818;
-    /* background-image: repeating-linear-gradient(
-      45deg,
-      #181818,
-      #181818 2px,
-      #1a1a1a 2px,
-      #1a1a1a 4px
-    ); */
+  .zzz-dark-grey {
+    background-color: var(--zzz-dark-grey);
+    background-image: var(--zzz-stripe-pattern);
   }
 
-  .zzz-miyabi-blue{
-    color: #22C6CE;
+  .zzz-miyabi-blue {
+    color: var(--zzz-miyabi-blue);
   }
 
-  .zzz-billy-red{
-    color: #D74441;
+  .zzz-billy-red {
+    color: var(--zzz-billy-red);
   }
 
-  .zzz-green{
-    color: #D8FA00;
+  .zzz-green {
+    color: var(--zzz-neon-green);
   }
 
 
@@ -269,13 +275,7 @@
 
   /* Apply diagonal stripe pattern to bg-background utility */
   .bg-background {
-    background-color: #181818 !important;
-    background-image: repeating-linear-gradient(
-      45deg,
-      #181818,
-      #181818 2px,
-      #1a1a1a 2px,
-      #1a1a1a 4px
-    ) !important;
+    background-color: var(--zzz-dark-grey) !important;
+    background-image: var(--zzz-stripe-pattern) !important;
   }
 }
