@@ -9,6 +9,7 @@ import { api } from "../../../convex/_generated/api";
 import { LikeButton } from "../likeButton/LikeButton";
 import { DrawOutlineButton } from "../ui/button";
 import { X, Plus } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const NavBar = () => {
   const pathname = usePathname();
@@ -132,23 +133,31 @@ export const NavBar = () => {
           <div className="bg-gradient-to-br from-black/50 to-black/20 rounded-t-2xl px-6 py-4 flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center">
-              <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center">
+              <div className="w-8 h-8 bg-[#EFF0EF] rounded-sm flex items-center justify-center">
                 <span className="text-black font-bold text-lg">BOU</span>
               </div>
             </Link>
 
             {/* Navigation Links */}
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-4">
               <LikeButton />
-              {navLinks.map((link) => (
-                <DrawOutlineButton
-                  key={link.href}
-                  onClick={() => router.push(link.href)}
-                  className={currentSection === link.href ? "text-indigo-500 text-lg" : ""}
-                >
-                  {link.label}
-                </DrawOutlineButton>
-              ))}
+              {navLinks.map((link) => {
+                const isActive = currentSection === link.href;
+                return (
+                  <button
+                    key={link.href}
+                    onClick={() => router.push(link.href)}
+                    className={cn(
+                      "px-4 py-2 rounded-lg font-medium transition-all duration-300",
+                      isActive
+                        ? "bg-[#EFF0EF] text-black"
+                        : "text-[#EFF0EF] hover:bg-zinc-800 hover:text-[#D8FA00]"
+                    )}
+                  >
+                    {link.label}
+                  </button>
+                );
+              })}
               {isAdmin && (
                 <DrawOutlineButton
                   onClick={() => router.push("/create")}
@@ -190,10 +199,10 @@ export const NavBar = () => {
               className="bg-zinc-900 rounded-lg p-6 w-full max-w-md mx-4 border border-zinc-800"
             >
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-white">Login</h2>
+                <h2 className="text-xl font-bold text-[#EFF0EF]">Login</h2>
                 <button
                   onClick={() => setShowLoginModal(false)}
-                  className="text-zinc-400 hover:text-white transition-colors"
+                  className="text-zinc-400 hover:text-[#EFF0EF] transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -207,7 +216,7 @@ export const NavBar = () => {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && username && password) {
                         handleLogin();
@@ -223,7 +232,7 @@ export const NavBar = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && username && password) {
                         handleLogin();
@@ -234,7 +243,7 @@ export const NavBar = () => {
                 <button
                   onClick={handleLogin}
                   disabled={!username || !password}
-                  className="w-full px-4 py-2 bg-indigo-600 hover:bg-white-700 disabled:bg-zinc-700 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+                  className="w-full px-4 py-2 bg-[#D8FA00] hover:bg-[#C8E600] disabled:bg-zinc-700 disabled:cursor-not-allowed text-black font-medium rounded-lg transition-colors"
                 >
                   Login
                 </button>

@@ -25,8 +25,8 @@ export const LikeButton = () => {
         <div>
         <DrawOutlineButton onClick={() => HandleLike()}>
             <div className="flex items-center gap-2">
-                <ThumbsUpIcon className="w-4 h-4 text-[#6366F1]"/>
-                <span className="text-[#6366F1]">{likes}</span>
+                <ThumbsUpIcon className="w-4 h-4 text-[#D8FA00]"/>
+                <span className="text-[#D8FA00]">{likes}</span>
             </div>
         </DrawOutlineButton>
             <AnimatePresence>
@@ -36,9 +36,9 @@ export const LikeButton = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute -top-0 -translate-x-1/10 px-4 py-1 text-white text-sm font-medium rounded-md whitespace-nowrap"
+                    className="absolute -top-0 -translate-x-1/10 px-4 py-1 text-[#EFF0EF] text-sm font-medium rounded-md whitespace-nowrap"
                 >
-                    <ThumbsUpIcon className="w-4 h-4 text-[#6366F1]"/>
+                    <ThumbsUpIcon className="w-4 h-4 text-[#D8FA00]"/>
                 </motion.div>
                 }
             </AnimatePresence>

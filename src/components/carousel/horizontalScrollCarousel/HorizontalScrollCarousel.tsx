@@ -79,7 +79,7 @@ const Card = ({ project }: { project: CardType }) => {
             <div className="absolute inset-0 z-10 flex flex-col justify-center items-start px-4 sm:px-8">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full mb-4">
                     {/* Title of the project */}
-                    <p className="bg-gradient-to-br from-black/50 to-black/10 p-4 sm:p-8 text-2xl sm:text-5xl font-black uppercase text-white">    
+                    <p className="bg-gradient-to-br from-black/50 to-black/10 p-4 sm:p-8 text-2xl sm:text-5xl font-black uppercase text-[#EFF0EF]">    
                         {project.title}
                     </p>
                     <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -90,7 +90,7 @@ const Card = ({ project }: { project: CardType }) => {
                                     href={project.repo}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-white hover:text-neutral-300 transition-colors"
+                                    className="text-[#EFF0EF] hover:text-neutral-300 transition-colors"
                                 >
                                     <Github className="w-5 h-5" />
                                 </a>
@@ -100,7 +100,7 @@ const Card = ({ project }: { project: CardType }) => {
                                     href={project.link}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-white hover:text-neutral-300 transition-colors"
+                                    className="text-[#EFF0EF] hover:text-neutral-300 transition-colors"
                                 >
                                     <ExternalLink className="w-5 h-5" />
                                 </a>
@@ -110,12 +110,12 @@ const Card = ({ project }: { project: CardType }) => {
                     </div>
                 </div>
                 {/* Tags of the project */}
-                <p className="text-sm font-medium text-[#6366F1] mb-4 ">
+                <p className="text-sm font-medium text-[#D8FA00] mb-4 ">
                     {project.tags.join(" - ")}
                 </p>
                 {/* Description of the project */}
                 {project.description && (
-                    <p className="text-white text-sm leading-relaxed max-w-md drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                    <p className="text-[#EFF0EF] text-sm leading-relaxed max-w-md drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
                         {project.description}
                     </p>
                 )}

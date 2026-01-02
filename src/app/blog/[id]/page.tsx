@@ -70,7 +70,7 @@ export default function BlogPostPage() {
       <main className="min-h-screen bg-background p-8">
         <div className="mx-auto max-w-4xl">
           <h1 className="text-4xl font-bold mb-4">Invalid Post ID</h1>
-          <Link href="/blog" className="text-indigo-300 hover:text-indigo-400">
+            <Link href="/blog" className="text-[#D8FA00] hover:text-[#C8E600]">
             ← Back to Blog
           </Link>
         </div>
@@ -100,7 +100,7 @@ export default function BlogPostPage() {
             <p className="text-zinc-500 text-sm">
               Redirecting to blog page...
             </p>
-            <Link href="/blog" className="inline-block text-indigo-300 hover:text-indigo-400">
+            <Link href="/blog" className="inline-block text-[#D8FA00] hover:text-[#C8E600]">
               ← Back to Blog
             </Link>
           </div>
@@ -115,14 +115,14 @@ export default function BlogPostPage() {
         <div className="flex items-center justify-between mb-4">
           <Link
             href="/blog"
-            className="inline-block text-indigo-300 hover:text-indigo-400 transition-colors"
+            className="inline-block text-[#D8FA00] hover:text-[#C8E600] transition-colors"
           >
             ← Back to Blog
           </Link>
           {isAdmin && (
             <div className="flex items-center gap-2">
             <DrawOutlineButton onClick={() => router.push(`/blog/${postId}/edit`)}
-            className="text-indigo-300"
+            className="text-[#D8FA00]"
             >
               Edit
             </DrawOutlineButton>
@@ -141,16 +141,16 @@ export default function BlogPostPage() {
           transition={{ duration: 0.3 }}
           className="space-y-6"
         >
-          <header className="space-y-4">
-            <h1 className="text-4xl font-bold">{post.title}</h1>
-            <div className="flex items-center gap-4 text-muted-foreground">
-              <p>{formatDate((post as any)._creationTime)}</p>
+          <header className="space-y-4 mb-8">
+            <h1 className="text-4xl font-bold text-foreground">{post.title}</h1>
+            <div className="flex items-center gap-4 flex-wrap">
+              <p className="text-sm text-muted-foreground">{formatDate((post as any)._creationTime)}</p>
               {post.tags && post.tags.length > 0 && (
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   {post.tags.map((tag: string, index: number) => (
                     <span
                       key={index}
-                      className="px-2 py-1 bg-zinc-800 rounded text-sm"
+                      className="px-2 py-1 text-xs font-medium text-muted-foreground border border-border rounded"
                     >
                       {tag}
                     </span>
