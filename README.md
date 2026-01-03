@@ -3,6 +3,7 @@
 2. Image/Cover/Gif for resources
 3. Way to create projects purely on the site
 4. shortcuts in blog writing(tab to content instad of fonts)
+5. Highlight md syntax & better md support for writing blog
 
 # WIP
 Done with basic color scheme

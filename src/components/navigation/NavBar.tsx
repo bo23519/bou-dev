@@ -33,6 +33,11 @@ export const NavBar = () => {
     { href: "/blog", label: "Blog" },
   ];
 
+  // Scroll to top when pathname changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [pathname]);
+
   // Get the current browsing section
   const [currentSection, setCurrentSection] = useState<string | null>(null);
   useEffect(() => {
@@ -82,7 +87,7 @@ export const NavBar = () => {
   // Hide the navbar when the user scrolls down
   useMotionValueEvent(scrollY, "change", (latest) => {
     const previous = lastScrollY;
-    if (latest > previous && latest > 100) {
+    if (latest > previous && latest > 75) {
       setHidden(true);
     } else {
       setHidden(false);
@@ -130,7 +135,7 @@ export const NavBar = () => {
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
         <div className="mx-auto max-w-7xl">
-          <div className="bg-gradient-to-br from-black/50 to-black/20 rounded-t-2xl px-6 py-4 flex items-center justify-between">
+          <div className="bg-black/70 backdrop-blur-sm rounded-t-2xl px-6 py-4 flex items-center justify-between border-b border-white/10">
             {/* Logo */}
             <Link href="/" className="flex items-center">
               <div className="w-8 h-8 bg-[#EFF0EF] rounded-sm flex items-center justify-center">
@@ -150,8 +155,8 @@ export const NavBar = () => {
                     className={cn(
                       "px-4 py-2 rounded-lg font-medium transition-all duration-300",
                       isActive
-                        ? "bg-[#EFF0EF] text-black"
-                        : "text-[#787878] hover:bg-[#EFF0EF] hover:text-black"
+                        ? "text-black breathe"
+                        : "text-[#787878] hover:bg-[#D8FA00] hover:text-[#181818]"
                     )}
                   >
                     {link.label}
@@ -160,7 +165,7 @@ export const NavBar = () => {
               })}
               {isAdmin && (
                 <DrawOutlineButton
-                  onClick={() => router.push("/create")}
+                  onClick={() => router.push("/blog/create")}
                   className={cn(
                     "px-4 py-2 rounded-lg font-medium transition-all duration-300 text-[#787878] hover:text-[#D8FA00]"
                   )}

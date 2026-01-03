@@ -20,7 +20,7 @@ export const DrawOutlineButton = ({
   return (
     <button
       {...rest}
-      className={cn("group relative px-4 py-2 font-medium text-slate-100 transition-colors duration-[400ms]", className)}
+      className={cn("draw-outline-btn group relative px-4 py-2 font-medium text-slate-100 transition-colors duration-[400ms]", className)}
     >
       <span>{children}</span>
 

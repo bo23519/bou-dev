@@ -88,7 +88,11 @@ function jsonToMarkdown(json: any): string {
 // Convert markdown to TipTap JSON
 function markdownToJson(markdown: string): string {
   try {
-    const html = marked.parse(markdown) as string;
+    // Configure marked to use <strong> and <em> tags
+    const html = marked.parse(markdown, {
+      breaks: false,
+      gfm: true,
+    }) as string;
     const json = generateJSON(html, [StarterKit]);
     return JSON.stringify(json);
   } catch (error) {

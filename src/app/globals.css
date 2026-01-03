@@ -132,6 +132,30 @@
   border-radius: 4px;
 }
 
+.prose p {
+  margin: 1em 0;
+  line-height: 1.75;
+}
+
+.prose p:first-child {
+  margin-top: 0;
+}
+
+.prose p:last-child {
+  margin-bottom: 0;
+}
+
+.prose strong,
+.prose b {
+  font-weight: 700;
+  color: var(--zzz-text-primary);
+}
+
+.prose em,
+.prose i {
+  font-style: italic;
+}
+
 .prose blockquote {
   border-left: 4px solid #D8FA00;
   padding-left: 1em;
@@ -166,7 +190,25 @@
 }
 
 /* ZZZ-inspired utility classes */
+@keyframes breathe {
+  0%, 100% {
+    background-color: #D8FA00;
+    transform: scale(1);
+  }
+  25%, 75% {
+    transform: scale(1.05);
+  }
+  50% {
+    background-color: yellow;
+    transform: scale(1);
+  }
+}
+
 @layer utilities {
+  .breathe {
+    animation: breathe 3s ease-in-out infinite;
+  }
+
   .zzz-button {
     display: flex;
     justify-content: center;
@@ -185,10 +227,7 @@
   }
 
   .zzz-button:hover {
-    background-color: var(--zzz-dark-grey-light);
-    border-color: var(--zzz-neon-green);
-    color: var(--zzz-neon-green);
-    box-shadow: 0 0 8px rgba(216, 250, 0, 0.2);
+    animation: breathe 1s ease-in-out infinite;
   }
 
   .zzz-button:active {

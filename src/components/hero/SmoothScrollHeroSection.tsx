@@ -182,7 +182,7 @@ const ListOfItems = () => {
                             href={links?.Resume?.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="zzz-button zzz-button-miyabi mt-8 flex items-center gap-2"
+                            className="zzz-button zzz-button-miyabi mt-8 flex items-center gap-2 hover:text-[#181818]"
                         >
                             <FileText className="w-4 h-4 sm:w-5 sm:h-5"/>Resume
                         </motion.a>
@@ -192,7 +192,7 @@ const ListOfItems = () => {
                             href={links?.LinkedIn?.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="zzz-button zzz-button-miyabi mt-8 flex items-center gap-2"
+                            className="zzz-button zzz-button-miyabi mt-8 flex items-center gap-2 hover:text-[#181818]"
                         >
                             <Linkedin className="w-4 h-4 sm:w-5 sm:h-5" />LinkedIn
                         </motion.a>
@@ -202,7 +202,7 @@ const ListOfItems = () => {
                             href={links?.GitHub?.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="zzz-button zzz-button-miyabi mt-8 flex items-center gap-2"
+                            className="zzz-button zzz-button-miyabi mt-8 flex items-center gap-2 hover:text-[#181818]"
                         >
                             <GitBranch className="w-4 h-4 sm:w-5 sm:h-5" />GitHub
                         </motion.a>
@@ -211,7 +211,7 @@ const ListOfItems = () => {
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleEmailClick}
-                                className="zzz-button zzz-button-miyabi mt-8 cursor-pointer flex items-center gap-2 color-[#22C6CE]"
+                                className="zzz-button zzz-button-miyabi mt-8 cursor-pointer flex items-center gap-2 color-[#22C6CE] hover:text-[#181818]"
                             >
                                 <Mail className="w-4 h-4 sm:w-5 sm:h-5" />Email
                             </motion.button>
