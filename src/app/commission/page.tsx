@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
+import { DrawOutlineButton } from "@/components/ui/button";
 
 interface Commission {
   _id: Id<"commissions">;
@@ -17,9 +19,11 @@ interface Commission {
 
 interface CommissionCardProps {
   commission: Commission;
+  isAdmin: boolean;
+  router: any;
 }
 
-const CommissionCard = ({ commission }: CommissionCardProps) => {
+const CommissionCard = ({ commission, isAdmin, router }: CommissionCardProps) => {
   const [aspectRatio, setAspectRatio] = useState<number | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -111,7 +115,31 @@ const CommissionCard = ({ commission }: CommissionCardProps) => {
 };
 
 export default function CommissionPage() {
+  const router = useRouter();
   const commissions = useQuery(api.commissions.getCommissions);
+  const verifyTokenMutation = useMutation((api as any).auth.verifyToken);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        try {
+          const result = await verifyTokenMutation({ token });
+          if (result?.valid && result.role === "admin") {
+            setIsAdmin(true);
+          } else {
+            setIsAdmin(false);
+          }
+        } catch (error) {
+          setIsAdmin(false);
+        }
+      } else {
+        setIsAdmin(false);
+      }
+    };
+    checkAuth();
+  }, [verifyTokenMutation]);
 
   if (commissions === undefined) {
     return (
@@ -130,7 +158,14 @@ export default function CommissionPage() {
   return (
     <main className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-7xl">
-        <h1 className="text-4xl font-bold text-foreground mb-8">Commissions</h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-4xl font-bold text-foreground">Commissions</h1>
+          {isAdmin && (
+            <DrawOutlineButton onClick={() => router.push("/commission/create")}>
+              Create Commission
+            </DrawOutlineButton>
+          )}
+        </div>
         {filteredCommissions.length === 0 ? (
           <div className="text-center text-muted-foreground py-16">
             No commissions found.
@@ -143,7 +178,7 @@ export default function CommissionPage() {
             }}
           >
             {filteredCommissions.map((commission) => (
-              <CommissionCard key={commission._id} commission={commission} />
+              <CommissionCard key={commission._id} commission={commission} isAdmin={isAdmin} router={router} />
             ))}
           </div>
         )}
