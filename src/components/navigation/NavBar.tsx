@@ -29,7 +29,7 @@ export const NavBar = () => {
 
   const navLinks = [
     { href: "/", label: "Home" },
-    { href: "/learning", label: "Learning" },
+    { href: "/commission", label: "Commission" },
     { href: "/blog", label: "Blog" },
   ];
 

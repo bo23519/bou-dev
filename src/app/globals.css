@@ -227,7 +227,7 @@
   }
 
   .zzz-button:hover {
-    animation: breathe 1s ease-in-out infinite;
+    animation: breathe 2s ease-in-out infinite;
   }
 
   .zzz-button:active {
