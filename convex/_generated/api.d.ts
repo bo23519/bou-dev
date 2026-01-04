@@ -10,10 +10,10 @@
 
 import type * as auth from "../auth.js";
 import type * as blogPosts from "../blogPosts.js";
+import type * as commissions from "../commissions.js";
 import type * as links from "../links.js";
 import type * as projects from "../projects.js";
 import type * as stats from "../stats.js";
-import type * as tasks from "../tasks.js";
 
 import type {
   ApiFromModules,
@@ -24,10 +24,10 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   blogPosts: typeof blogPosts;
+  commissions: typeof commissions;
   links: typeof links;
   projects: typeof projects;
   stats: typeof stats;
-  tasks: typeof tasks;
 }>;
 
 /**

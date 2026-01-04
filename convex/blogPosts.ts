@@ -74,7 +74,7 @@ export const getBlogPostByPage = query({
                         Tags: post.tags || [],
                         PublishedAt: post._creationTime,
                         Image: post.image || undefined,
-                    };
+        };
                 }).filter((post) => post !== null),
                 nextCursor: hasNextPage ? "has-more" : null,
             };
@@ -83,7 +83,7 @@ export const getBlogPostByPage = query({
             throw error;
         }
     },
-});
+  });
 
 export const getNumOfPages = query({
     args: { itemsPerPage: v.number() },

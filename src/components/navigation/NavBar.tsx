@@ -42,7 +42,7 @@ export const NavBar = () => {
   const [currentSection, setCurrentSection] = useState<string | null>(null);
   useEffect(() => {
     const getCurrentSection = (pathname: string) => {
-      const sections = ["/learning", "/blog"];
+      const sections = ["/commission", "/blog"];
       setCurrentSection("/");
       for (const section of sections) {
         if (pathname === section || pathname.startsWith(section + "/")) {
