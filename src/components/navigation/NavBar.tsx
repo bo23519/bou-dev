@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from "framer-motion";
@@ -20,8 +20,10 @@ export const NavBar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showCreateDropdown, setShowCreateDropdown] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const loginMutation = useMutation((api as any).auth.login);
   const logoutMutation = useMutation((api as any).auth.logout);
@@ -37,6 +39,19 @@ export const NavBar = () => {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [pathname]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowCreateDropdown(false);
+      }
+    };
+    if (showCreateDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showCreateDropdown]);
 
   // Get the current browsing section
   const [currentSection, setCurrentSection] = useState<string | null>(null);
@@ -164,15 +179,47 @@ export const NavBar = () => {
                 );
               })}
               {isAdmin && (
-                <DrawOutlineButton
-                  onClick={() => router.push("/blog/create")}
-                  className={cn(
-                    "px-4 py-2 rounded-lg font-medium transition-all duration-300 text-[#787878] hover:text-[#D8FA00]"
-                  )}
-                  title="Create Content"
-                >
-                  <Plus className="w-4 h-4" />
-                </DrawOutlineButton>
+                <div className="relative" ref={dropdownRef}>
+                  <DrawOutlineButton
+                    onClick={() => setShowCreateDropdown(!showCreateDropdown)}
+                    className={cn(
+                      "px-4 py-2 rounded-lg font-medium transition-all duration-300 text-[#787878] hover:text-[#D8FA00]"
+                    )}
+                    title="Create Content"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </DrawOutlineButton>
+                  <AnimatePresence>
+                    {showCreateDropdown && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute right-0 mt-2 w-48 bg-black border rounded-lg shadow-lg overflow-hidden z-50"
+                      >
+                        <button
+                          onClick={() => {
+                            router.push("/blog/create");
+                            setShowCreateDropdown(false);
+                          }}
+                          className="w-full px-4 py-3 text-left text-[#EFF0EF] hover:bg-[#D8FA00] hover:text-[#181818] transition-colors duration-200 flex items-center gap-2"
+                        >
+                          <span>New Blog Post</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            router.push("/commission/create");
+                            setShowCreateDropdown(false);
+                          }}
+                          className="w-full px-4 py-3 text-left text-[#EFF0EF] hover:bg-[#D8FA00] hover:text-[#181818] transition-colors duration-200 flex items-center gap-2 border-t border-zinc-700"
+                        >
+                          <span>New Commission</span>
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               )}
               {isLoggedIn ? (
                 <DrawOutlineButton onClick={handleLogout}
