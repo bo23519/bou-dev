@@ -129,7 +129,7 @@ const ListOfItems = () => {
 
     return (
         <div 
-            className="sticky top-0 z-10 mx-auto max-w-5xl px-4 pt-[200px]"
+            className="sticky top-0 z-10 ml-auto max-w-5xl right-0 px-4 pr-8 md:pr-16 lg:pr-24 pt-[200px]"
         >
             {/* Texts */}
             <ParallaxImg
