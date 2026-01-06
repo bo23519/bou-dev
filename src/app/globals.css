@@ -133,8 +133,14 @@
 }
 
 .prose p {
-  margin: 1em 0;
+  margin: 1.5em 0;
   line-height: 1.75;
+}
+
+.prose br {
+  display: block;
+  margin: 0.75em 0;
+  content: "";
 }
 
 .prose p:first-child {
@@ -154,6 +160,75 @@
 .prose em,
 .prose i {
   font-style: italic;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  font-weight: 700 !important;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  line-height: 1.2;
+  color: #EFF0EF;
+}
+
+.prose h1 {
+  font-size: 2em !important;
+}
+
+.prose h2 {
+  font-size: 1.75em !important;
+}
+
+.prose h3 {
+  font-size: 1.5em !important;
+}
+
+.prose h4 {
+  font-size: 1.25em !important;
+}
+
+.prose h5 {
+  font-size: 1.125em !important;
+}
+
+.prose h6 {
+  font-size: 1em !important;
+}
+
+.prose p {
+  font-size: 1.125em;
+}
+
+.prose ul,
+.prose ol {
+  margin: 1em 0;
+  padding-left: 2em;
+  color: #EFF0EF;
+}
+
+.prose li {
+  margin: 0.5em 0;
+  line-height: 1.75;
+}
+
+.prose ul {
+  list-style-type: disc;
+}
+
+.prose ol {
+  list-style-type: decimal;
+}
+
+.prose ul ul,
+.prose ol ol,
+.prose ul ol,
+.prose ol ul {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
 }
 
 .prose blockquote {
