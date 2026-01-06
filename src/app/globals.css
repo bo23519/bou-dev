@@ -271,7 +271,7 @@
     transform: scale(1);
   }
   25%, 75% {
-    transform: scale(1.05);
+    transform: scale(1.02);
   }
   50% {
     background-color: yellow;
@@ -279,9 +279,34 @@
   }
 }
 
+@keyframes breathe-border {
+  0%, 100% {
+    border-color: #D8FA00;
+    box-shadow: 0 0 0 3px #D8FA00;
+  }
+  25%, 75% {
+    border-color: #E8FF20;
+    box-shadow: 0 0 0 4px #E8FF20;
+  }
+  50% {
+    border-color: yellow;
+    box-shadow: 0 0 0 3px yellow;
+  }
+}
+
 @layer utilities {
   .breathe {
     animation: breathe 3s ease-in-out infinite;
+  }
+
+  .zzz-border {
+    border: 2px solid black;
+    box-shadow: 0 0 0 1px black;
+  }
+
+  .zzz-border:hover {
+    border-color: #D8FA00;
+    animation: breathe-border 3s ease-in-out infinite;
   }
 
   .zzz-button {
@@ -302,7 +327,7 @@
   }
 
   .zzz-button:hover {
-    animation: breathe 2s ease-in-out infinite;
+    animation: breathe 4s ease-in-out infinite;
   }
 
   .zzz-button:active {

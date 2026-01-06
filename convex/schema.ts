@@ -22,6 +22,7 @@ export default defineSchema({
     tags: v.array(v.string()),
     cover: v.optional(v.string()),
     deletedAt: v.optional(v.number()),
+    updatedAt: v.optional(v.number()),
     status: v.union(v.literal("Backlog"), v.literal("Todo"), v.literal("In progress"), v.literal("Done"),
     v.literal("Cancelled"), v.literal("Duplicate")),
   }),

@@ -105,6 +105,7 @@ export default function EditCommissionPage() {
         id: commissionId,
         title: title.trim(),
         description: description.trim(),
+        updatedAt: Date.now(),
         tags: tagsArray,
         status,
         cover: coverStorageId,

@@ -1,16 +1,18 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { paginationOptsValidator } from "convex/server";
 
 export const getCommissions = query({
-  args: {},
-  handler: async (ctx) => {
-    const allCommissions = await ctx.db.query("commissions").collect();
-    const commissions = allCommissions.filter(
-      (c) => c.deletedAt === undefined || c.deletedAt === null
-    );
+  args: { paginationOpts: paginationOptsValidator },
+  handler: async (ctx, args) => {
+    const results = await ctx.db
+      .query("commissions")
+      .filter((q) => q.eq(q.field("deletedAt"), undefined))
+      .order("desc")
+      .paginate(args.paginationOpts);
 
-    return Promise.all(
-      commissions.map(async (commission) => {
+    const commissionsWithUrls = await Promise.all(
+      results.page.map(async (commission) => {
         let coverUrl: string | null = null;
         if (commission.cover) {
           try {
@@ -26,6 +28,11 @@ export const getCommissions = query({
         };
       })
     );
+
+    return {
+      ...results,
+      page: commissionsWithUrls,
+    };
   },
 });
 
@@ -82,6 +89,7 @@ export const updateCommission = mutation({
     description: v.string(),
     tags: v.array(v.string()),
     cover: v.optional(v.string()),
+    updatedAt: v.optional(v.number()),
     status: v.union(
       v.literal("Backlog"),
       v.literal("Todo"),
@@ -92,8 +100,11 @@ export const updateCommission = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const { id, ...updateData } = args;
-    await ctx.db.patch(id, updateData);
+    const { id, updatedAt, ...updateData } = args;
+    await ctx.db.patch(id, {
+      ...updateData,
+      updatedAt: Date.now(),
+    });
   },
 });
 

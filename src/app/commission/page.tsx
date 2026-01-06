@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { usePaginatedQuery, useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { DrawOutlineButton } from "@/components/ui/button";
+import { CommissionDetailModal } from "@/components/commission/CommissionDetailModal";
 
 interface Commission {
   _id: Id<"commissions">;
@@ -21,6 +22,7 @@ interface CommissionCardProps {
   commission: Commission;
   isAdmin: boolean;
   router: any;
+  onClick: () => void;
 }
 
 const calculateColumnsFromAspectRatio = (aspectRatio: number, width: number): number => {
@@ -54,7 +56,7 @@ const calculateColumnsFromAspectRatio = (aspectRatio: number, width: number): nu
   return 1;
 };
 
-const CommissionCard = ({ commission, isAdmin, router }: CommissionCardProps) => {
+const CommissionCard = ({ commission, isAdmin, router, onClick }: CommissionCardProps) => {
   const [aspectRatio, setAspectRatio] = useState<number | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -89,7 +91,7 @@ const CommissionCard = ({ commission, isAdmin, router }: CommissionCardProps) =>
   if (!imageLoaded) {
     return (
       <div
-        className="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 animate-pulse"
+        className="bg-zinc-900 rounded-lg overflow-hidden border border-black-800 animate-pulse"
         style={{ gridColumn: `span ${gridColumnSpan}` }}
       >
         <div className="aspect-video bg-zinc-800" />
@@ -106,7 +108,8 @@ const CommissionCard = ({ commission, isAdmin, router }: CommissionCardProps) =>
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 hover:border-[#D8FA00] transition-colors duration-300 cursor-pointer"
+      onClick={onClick}
+      className="bg-black-900 rounded-lg overflow-hidden border border-black border-4 zzz-border transition-colors duration-300 cursor-pointer"
       style={{ gridColumn: `span ${gridColumnSpan}` }}
     >
       {commission.cover && (
@@ -147,10 +150,16 @@ const CommissionCard = ({ commission, isAdmin, router }: CommissionCardProps) =>
 
 export default function CommissionPage() {
   const router = useRouter();
-  const commissions = useQuery(api.commissions.getCommissions);
+  const { results: commissions, status, loadMore, isLoading } = usePaginatedQuery(
+    api.commissions.getCommissions,
+    {},
+    { initialNumItems: 30 }
+  );
   const verifyTokenMutation = useMutation((api as any).auth.verifyToken);
   const [isAdmin, setIsAdmin] = useState(false);
   const [numOfColumns, setNumOfColumns] = useState(5);
+  const [selectedCommission, setSelectedCommission] = useState<Commission | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const calculateColumns = () => {
@@ -187,23 +196,35 @@ export default function CommissionPage() {
     checkAuth();
   }, [verifyTokenMutation]);
 
-  const filteredCommissions = useMemo(() => {
-    if (!commissions) return [];
-    return commissions.filter(
-      (c) => c.deletedAt === undefined || c.deletedAt === null
-    );
-  }, [commissions]);
-
   const colOfCards = useMemo(() => {
+    if (!commissions) return [];
     const columns: Commission[][] = Array(numOfColumns).fill(null).map(() => []);
-    filteredCommissions.forEach((commission, index) => {
+    commissions.forEach((commission, index) => {
       const columnIndex = index % numOfColumns;
       columns[columnIndex].push(commission);
     });
     return columns;
-  }, [filteredCommissions, numOfColumns]);
+  }, [commissions, numOfColumns]);
 
-  if (commissions === undefined) {
+  const handleScroll = useCallback(() => {
+    if (status !== "CanLoadMore") return;
+
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const scrollHeight = document.documentElement.scrollHeight;
+    const clientHeight = document.documentElement.clientHeight;
+    const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
+
+    if (scrollPercentage >= 0.75) {
+      loadMore(30);
+    }
+  }, [status, loadMore]);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
+
+  if (isLoading && commissions === undefined) {
     return (
       <main className="min-h-screen bg-background p-8">
         <div className="mx-auto max-w-7xl">
@@ -216,36 +237,75 @@ export default function CommissionPage() {
   return (
     <main className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-7xl">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-bold text-foreground">Commissions</h1>
-          {isAdmin && (
-            <DrawOutlineButton onClick={() => router.push("/commission/create")}>
-              Create Commission
-            </DrawOutlineButton>
-          )}
-        </div>
-        {filteredCommissions.length === 0 ? (
+        {!commissions || commissions.length === 0 ? (
           <div className="text-center text-muted-foreground py-16">
             No commissions found.
           </div>
         ) : (
-          <div
-            className="grid gap-4"
-            style={{
-              gridTemplateColumns: `repeat(${numOfColumns}, minmax(0, 1fr))`,
-              gridAutoRows: "min-content",
-            }}
-          >
-            {colOfCards.map((column, colIndex) => (
-              <div key={colIndex} className="flex flex-col gap-4">
-                {column.map((commission) => (
-                  <CommissionCard key={commission._id} commission={commission} isAdmin={isAdmin} router={router} />
-                ))}
+          <>
+            <div
+              className="grid gap-4"
+              style={{
+                gridTemplateColumns: `repeat(${numOfColumns}, minmax(0, 1fr))`,
+                gridAutoRows: "min-content",
+              }}
+            >
+              {colOfCards.map((column, colIndex) => (
+                <div key={colIndex} className="flex flex-col gap-4">
+                  {column.map((commission) => (
+                    <CommissionCard
+                      key={commission._id}
+                      commission={commission}
+                      isAdmin={isAdmin}
+                      router={router}
+                      onClick={() => {
+                        setSelectedCommission(commission);
+                        setIsModalOpen(true);
+                      }}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+            {status === "LoadingMore" && (
+              <div className="text-center text-muted-foreground py-8">
+                Loading more...
               </div>
-            ))}
-          </div>
+            )}
+            {status === "Exhausted" && (
+              <div className="text-center text-muted-foreground py-8">
+                At the end
+              </div>
+            )}
+          </>
         )}
       </div>
+
+      <CommissionDetailModal
+        commission={selectedCommission}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedCommission(null);
+        }}
+        isAdmin={isAdmin}
+        onEdit={
+          selectedCommission
+            ? () => {
+                setIsModalOpen(false);
+                router.push(`/commission/${selectedCommission._id}/edit`);
+              }
+            : undefined
+        }
+        onDelete={
+          selectedCommission
+            ? () => {
+                setIsModalOpen(false);
+                router.push(`/commission/${selectedCommission._id}/delete`);
+              }
+            : undefined
+        }
+      />
     </main>
   );
 }
