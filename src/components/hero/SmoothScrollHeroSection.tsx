@@ -41,8 +41,6 @@ const Hero = () => {
             <CenterImage />
             <ScrollIndicator />
             <ListOfItems />
-
-            <div className="absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-b from-zinc-950/0 to-zinc-950" />
             </div>
     );
 };
@@ -82,6 +80,8 @@ const ScrollIndicator = () => {
 // Center image of the hero section
 export const CenterImage = () => {
     const { scrollY } = useScroll();
+    const assets = useQuery(api.assets.getAssets);
+    const backgroundUrl = assets?.heroBackground?.url;
 
     const clip1 = useTransform(scrollY, [0, 1500], [25, 0]);
     const clip2 = useTransform(scrollY, [0, 1500], [75, 100]);
@@ -96,7 +96,7 @@ export const CenterImage = () => {
     const opacity = useTransform(
         scrollY,
         [SECTION_HEIGHT, SECTION_HEIGHT + 500],
-        [0.2, 0]
+        [0.5, 0]
     );
 
     return (
@@ -106,8 +106,7 @@ export const CenterImage = () => {
                 clipPath,
                 backgroundSize,
                 opacity,
-                backgroundImage:
-                    "url(https://images.unsplash.com/photo-1460186136353-977e9d6085a1?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)",
+                backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : undefined,
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
             }}
