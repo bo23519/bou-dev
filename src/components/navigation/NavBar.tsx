@@ -8,8 +8,10 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { LikeButton } from "../likeButton/LikeButton";
 import { DrawOutlineButton } from "../ui/button";
-import { X, Plus } from "lucide-react";
+import { X, Plus, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useFileUpload } from "@/hooks/useFileUpload";
+import { AssetUploadModal } from "../admin/AssetUploadModal";
 
 export const NavBar = () => {
   const pathname = usePathname();
@@ -21,6 +23,7 @@ export const NavBar = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showCreateDropdown, setShowCreateDropdown] = useState(false);
+  const [showAssetUploadModal, setShowAssetUploadModal] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -28,6 +31,11 @@ export const NavBar = () => {
   const loginMutation = useMutation((api as any).auth.login);
   const logoutMutation = useMutation((api as any).auth.logout);
   const verifyTokenMutation = useMutation((api as any).auth.verifyToken);
+  const setAssetMutation = useMutation(api.assets.setAsset);
+  const { uploadFile, isUploading } = useFileUpload();
+
+  const assets = useQuery(api.assets.getAssets);
+  const iconUrl = assets?.logo?.url;
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -153,8 +161,16 @@ export const NavBar = () => {
           <div className="bg-black/70 backdrop-blur-sm rounded-t-2xl px-4 sm:px-6 py-4 flex items-center justify-between border-b border-white/10">
             {/* Logo */}
             <Link href="/" className="flex items-center flex-shrink-0">
-              <div className="w-8 h-8 bg-[#EFF0EF] rounded-sm flex items-center justify-center">
-                <span className="text-black font-bold text-lg">BOU</span>
+              <div className="w-12 h-12 rounded-sm flex items-center justify-center overflow-hidden">
+                {iconUrl ? (
+                  <img 
+                    src={iconUrl} 
+                    alt="Logo" 
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-zinc-800 animate-pulse" />
+                )}
               </div>
             </Link>
 
@@ -224,6 +240,16 @@ export const NavBar = () => {
                           className="w-full px-4 py-3 text-left text-[#EFF0EF] hover:bg-[#D8FA00] hover:text-[#181818] transition-colors duration-200 flex items-center gap-2 border-t border-zinc-700"
                         >
                           <span>New Commission</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowAssetUploadModal(true);
+                            setShowCreateDropdown(false);
+                          }}
+                          className="w-full px-4 py-3 text-left text-[#EFF0EF] hover:bg-[#D8FA00] hover:text-[#181818] transition-colors duration-200 flex items-center gap-2 border-t border-zinc-700"
+                        >
+                          <ImageIcon className="w-4 h-4" />
+                          <span>Upload Asset</span>
                         </button>
                       </motion.div>
                     )}
@@ -324,6 +350,25 @@ export const NavBar = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AssetUploadModal
+        isOpen={showAssetUploadModal}
+        onClose={() => setShowAssetUploadModal(false)}
+        onUpload={async (assetKey: string, file: File) => {
+          try {
+            const storageId = await uploadFile(file);
+            await setAssetMutation({
+              key: assetKey,
+              storageId,
+            });
+            setShowAssetUploadModal(false);
+          } catch (error) {
+            console.error("Failed to upload asset:", error);
+            alert("Failed to upload asset");
+          }
+        }}
+        isUploading={isUploading}
+      />
     </>
   );
 };
