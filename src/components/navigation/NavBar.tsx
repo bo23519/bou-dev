@@ -150,34 +150,43 @@ export const NavBar = () => {
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
         <div className="mx-auto max-w-7xl">
-          <div className="bg-black/70 backdrop-blur-sm rounded-t-2xl px-6 py-4 flex items-center justify-between border-b border-white/10">
+          <div className="bg-black/70 backdrop-blur-sm rounded-t-2xl px-4 sm:px-6 py-4 flex items-center justify-between border-b border-white/10">
             {/* Logo */}
-            <Link href="/" className="flex items-center">
+            <Link href="/" className="flex items-center flex-shrink-0">
               <div className="w-8 h-8 bg-[#EFF0EF] rounded-sm flex items-center justify-center">
                 <span className="text-black font-bold text-lg">BOU</span>
               </div>
             </Link>
 
-            {/* Navigation Links */}
-            <div className="flex items-center gap-4">
-              <LikeButton />
-              {navLinks.map((link) => {
-                const isActive = currentSection === link.href;
-                return (
-                  <button
-                    key={link.href}
-                    onClick={() => router.push(link.href)}
-                    className={cn(
-                      "px-4 py-2 rounded-lg font-medium transition-all duration-300",
-                      isActive
-                        ? "text-black breathe"
-                        : "text-[#787878] hover:bg-[#D8FA00] hover:text-[#181818]"
-                    )}
-                  >
-                    {link.label}
-                  </button>
-                );
-              })}
+            {/* Right side: Navigation Links (swipeable) + Buttons */}
+            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+              {/* Navigation Links - Swipeable on mobile */}
+              <div 
+                className="flex items-center gap-2 sm:gap-4 overflow-x-auto scrollbar-hide flex-1 min-w-0 max-w-[calc(100vw-200px)] sm:max-w-none sm:overflow-visible" 
+                style={{ WebkitOverflowScrolling: 'touch' }}
+              >
+                <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+                  <LikeButton />
+                  {navLinks.map((link) => {
+                    const isActive = currentSection === link.href;
+                    return (
+                      <button
+                        key={link.href}
+                        type="button"
+                        onClick={() => router.push(link.href)}
+                        className={cn(
+                          "px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-300 whitespace-nowrap flex-shrink-0",
+                          isActive
+                            ? "text-black breathe"
+                            : "text-[#787878] hover:bg-[#D8FA00] hover:text-[#181818]"
+                        )}
+                      >
+                        {link.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
               {isAdmin && (
                 <div className="relative" ref={dropdownRef}>
                   <DrawOutlineButton
