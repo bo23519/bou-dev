@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -22,6 +22,37 @@ interface CommissionCardProps {
   isAdmin: boolean;
   router: any;
 }
+
+const calculateColumnsFromAspectRatio = (aspectRatio: number, width: number): number => {
+  // Map aspect ratios to column counts
+  // 32:9 (3.56) => 7 columns
+  // 21:9 (2.33) => 5 columns
+  // 16:9 (1.78) => 4 columns
+  
+  // Mobile fallback: use 1 column on small screens
+  if (width < 640) return 1;
+  
+  // Use exact aspect ratio values
+  const AR_32_9 = 32 / 9; // ≈ 3.556
+  const AR_21_9 = 21 / 9; // ≈ 2.333
+  const AR_16_9 = 16 / 9; // ≈ 1.778
+  
+  if (aspectRatio >= AR_32_9) return 7;
+  if (aspectRatio >= AR_21_9) {
+    // Interpolate between 21:9 (5) and 32:9 (7)
+    const ratio = (aspectRatio - AR_21_9) / (AR_32_9 - AR_21_9);
+    return Math.round(4 + ratio * 2);
+  }
+  if (aspectRatio >= AR_16_9) {
+    // Interpolate between 16:9 (4) and 21:9 (5)
+    const ratio = (aspectRatio - AR_16_9) / (AR_21_9 - AR_16_9);
+    return Math.round(4 + ratio * 1);
+  }
+  // For narrower screens, use fewer columns
+  if (aspectRatio >= 1.5) return 3;
+  if (aspectRatio >= 1.2) return 2;
+  return 1;
+};
 
 const CommissionCard = ({ commission, isAdmin, router }: CommissionCardProps) => {
   const [aspectRatio, setAspectRatio] = useState<number | null>(null);
@@ -119,6 +150,21 @@ export default function CommissionPage() {
   const commissions = useQuery(api.commissions.getCommissions);
   const verifyTokenMutation = useMutation((api as any).auth.verifyToken);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [numOfColumns, setNumOfColumns] = useState(5);
+
+  useEffect(() => {
+    const calculateColumns = () => {
+      if (typeof window === "undefined") return;
+      const width = window.innerWidth;
+      const aspectRatio = width / window.innerHeight;
+      const columns = calculateColumnsFromAspectRatio(aspectRatio, width);
+      setNumOfColumns(columns);
+    };
+
+    calculateColumns();
+    window.addEventListener("resize", calculateColumns);
+    return () => window.removeEventListener("resize", calculateColumns);
+  }, []);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -141,6 +187,22 @@ export default function CommissionPage() {
     checkAuth();
   }, [verifyTokenMutation]);
 
+  const filteredCommissions = useMemo(() => {
+    if (!commissions) return [];
+    return commissions.filter(
+      (c) => c.deletedAt === undefined || c.deletedAt === null
+    );
+  }, [commissions]);
+
+  const colOfCards = useMemo(() => {
+    const columns: Commission[][] = Array(numOfColumns).fill(null).map(() => []);
+    filteredCommissions.forEach((commission, index) => {
+      const columnIndex = index % numOfColumns;
+      columns[columnIndex].push(commission);
+    });
+    return columns;
+  }, [filteredCommissions, numOfColumns]);
+
   if (commissions === undefined) {
     return (
       <main className="min-h-screen bg-background p-8">
@@ -150,10 +212,6 @@ export default function CommissionPage() {
       </main>
     );
   }
-
-  const filteredCommissions = commissions.filter(
-    (c) => c.deletedAt === undefined || c.deletedAt === null
-  );
 
   return (
     <main className="min-h-screen bg-background p-8">
@@ -172,13 +230,18 @@ export default function CommissionPage() {
           </div>
         ) : (
           <div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4"
+            className="grid gap-4"
             style={{
+              gridTemplateColumns: `repeat(${numOfColumns}, minmax(0, 1fr))`,
               gridAutoRows: "min-content",
             }}
           >
-            {filteredCommissions.map((commission) => (
-              <CommissionCard key={commission._id} commission={commission} isAdmin={isAdmin} router={router} />
+            {colOfCards.map((column, colIndex) => (
+              <div key={colIndex} className="flex flex-col gap-4">
+                {column.map((commission) => (
+                  <CommissionCard key={commission._id} commission={commission} isAdmin={isAdmin} router={router} />
+                ))}
+              </div>
             ))}
           </div>
         )}

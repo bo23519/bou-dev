@@ -1,11 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
-import { Id } from "../../../../convex/_generated/dataModel";
 import { DrawOutlineButton } from "@/components/ui/button";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { useFileUpload } from "@/hooks/useFileUpload";
+import { PageHeader } from "@/components/admin/PageHeader";
+import { FileUpload } from "@/components/admin/FileUpload";
+import { LoadingState } from "@/components/admin/LoadingState";
 
 const STATUS_OPTIONS = [
   "Backlog",
@@ -19,12 +23,9 @@ const STATUS_OPTIONS = [
 export default function CreateCommissionPage() {
   const router = useRouter();
   const addCommission = useMutation(api.commissions.addCommission);
-  const verifyTokenMutation = useMutation((api as any).auth.verifyToken);
-  const generateUploadUrl = useMutation((api as any).files.generateUploadUrl);
-  const saveFileRecord = useMutation((api as any).files.saveFileRecord);
+  const { isAdmin, isLoading: authLoading } = useAdminAuth({ redirectTo: "/commission", requireAuth: true });
+  const { uploadFile, isUploading } = useFileUpload();
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState("");
@@ -32,46 +33,21 @@ export default function CreateCommissionPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem("authToken");
-      if (token) {
-        try {
-          const result = await verifyTokenMutation({ token });
-          if (result?.valid && result.role === "admin") {
-            setIsAdmin(true);
-          } else {
-            router.push("/commission");
-          }
-        } catch (error) {
-          router.push("/commission");
-        }
-      } else {
-        router.push("/commission");
-      }
-    };
-    checkAuth();
-  }, [verifyTokenMutation, router]);
+  if (authLoading) {
+    return <LoadingState />;
+  }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileSelect = (file: File | null) => {
+    setSelectedFile(file);
     if (file) {
-      setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setCoverPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-    }
-  };
-
-  const handleRemoveFile = () => {
-    setSelectedFile(null);
-    setCoverPreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    } else {
+      setCoverPreview(null);
     }
   };
 
@@ -83,28 +59,12 @@ export default function CreateCommissionPage() {
     }
 
     setIsSubmitting(true);
-    setIsUploading(selectedFile !== null);
 
     try {
       let coverStorageId: string | undefined = undefined;
 
       if (selectedFile) {
-        const uploadUrl = await generateUploadUrl();
-        const result = await fetch(uploadUrl, {
-          method: "POST",
-          headers: { "Content-Type": selectedFile.type },
-          body: selectedFile,
-        });
-        const { storageId } = await result.json();
-
-        await saveFileRecord({
-          storageId: storageId as string,
-          name: selectedFile.name,
-          type: selectedFile.type,
-          size: selectedFile.size,
-        });
-
-        coverStorageId = storageId;
+        coverStorageId = await uploadFile(selectedFile);
       }
 
       const tagsArray = tags
@@ -126,7 +86,6 @@ export default function CreateCommissionPage() {
       alert("Failed to create commission");
     } finally {
       setIsSubmitting(false);
-      setIsUploading(false);
     }
   };
 
@@ -143,12 +102,7 @@ export default function CreateCommissionPage() {
   return (
     <main className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-4xl font-bold text-foreground">Create Commission</h1>
-          <DrawOutlineButton onClick={() => router.push("/commission")}>
-            Cancel
-          </DrawOutlineButton>
-        </div>
+        <PageHeader title="Create Commission" cancelHref="/commission" />
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -209,34 +163,11 @@ export default function CreateCommissionPage() {
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
-              Cover Image
-            </label>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#D8FA00] file:text-black hover:file:bg-[#C8E600]"
-            />
-            {coverPreview && (
-              <div className="mt-4 relative">
-                <img
-                  src={coverPreview}
-                  alt="Cover preview"
-                  className="max-w-full max-h-64 rounded-lg border border-zinc-700"
-                />
-                <button
-                  type="button"
-                  onClick={handleRemoveFile}
-                  className="mt-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm"
-                >
-                  Remove Image
-                </button>
-              </div>
-            )}
-          </div>
+          <FileUpload
+            accept="image/*"
+            onFileSelect={handleFileSelect}
+            preview={coverPreview}
+          />
 
           <div className="flex gap-4">
             <DrawOutlineButton

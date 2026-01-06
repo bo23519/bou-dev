@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { TipTapEditor } from "@/components/editor/TipTapEditor";
-import { DrawOutlineButton } from "@/components/ui/button";
+import { PageHeader } from "@/components/admin/PageHeader";
 
 export default function CreatePage() {
   const router = useRouter();
@@ -48,12 +48,7 @@ export default function CreatePage() {
   return (
     <main className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-4xl font-bold">Create Blog Post</h1>
-          <DrawOutlineButton onClick={() => router.push("/blog")}>
-            Cancel
-          </DrawOutlineButton>
-        </div>
+        <PageHeader title="Create Blog Post" cancelHref="/blog" />
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
