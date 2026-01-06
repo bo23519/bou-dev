@@ -299,6 +299,15 @@
     animation: breathe 3s ease-in-out infinite;
   }
 
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   .zzz-border {
     border: 2px solid black;
     box-shadow: 0 0 0 1px black;
