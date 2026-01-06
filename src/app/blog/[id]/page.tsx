@@ -5,7 +5,6 @@ import { useQuery, useMutation } from "convex/react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Interweave } from "interweave";
 import { generateHTML } from "@tiptap/html";
 import StarterKit from "@tiptap/starter-kit";
 import { api } from "../../../../convex/_generated/api";
@@ -150,22 +149,20 @@ export default function BlogPostPage() {
             </div>
           </header>
 
-          <div className="prose prose-invert max-w-none">
-            <Interweave
-              content={
-                (() => {
-                  try {
-                    const jsonContent = JSON.parse(post.content);
-                    return generateHTML(jsonContent, [StarterKit]);
-                  } catch {
-                    // Fallback for old HTML content format
-                    return post.content;
-                  }
-                })()
-              }
-              className="text-lg leading-relaxed"
-            />
-          </div>
+          <div
+            className="prose prose-invert max-w-none leading-relaxed"
+            dangerouslySetInnerHTML={{
+              __html: (() => {
+                try {
+                  const jsonContent = JSON.parse(post.content);
+                  return generateHTML(jsonContent, [StarterKit]);
+                } catch {
+                  // Fallback for old HTML content format
+                  return post.content;
+                }
+              })()
+            }}
+          />
         </motion.article>
       </div>
     </main>

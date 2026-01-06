@@ -5,8 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
-import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import { DrawOutlineButton } from "@/components/ui/button";
+import { TipTapEditor } from "@/components/editor/TipTapEditor";
+import { PageHeader } from "@/components/admin/PageHeader";
+import { LoadingState } from "@/components/admin/LoadingState";
 
 export default function EditBlogPostPage() {
   const params = useParams();
@@ -86,13 +88,7 @@ export default function EditBlogPostPage() {
   }
 
   if (isLoading || post === undefined) {
-    return (
-      <main className="min-h-screen bg-background p-8">
-        <div className="mx-auto max-w-4xl">
-          <div className="text-center text-muted-foreground">Loading...</div>
-        </div>
-      </main>
-    );
+    return <LoadingState />;
   }
 
   if (post === null) {
@@ -111,12 +107,7 @@ export default function EditBlogPostPage() {
   return (
     <main className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-4xl font-bold">Edit Blog Post</h1>
-          <DrawOutlineButton onClick={() => router.push(`/blog/${postId}`)}>
-            Cancel
-          </DrawOutlineButton>
-        </div>
+        <PageHeader title="Edit Blog Post" cancelHref={`/blog/${postId}`} />
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>

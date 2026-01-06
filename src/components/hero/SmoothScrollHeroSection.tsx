@@ -222,7 +222,7 @@ const ListOfItems = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -10 }}
                                         transition={{ duration: 0.2 }}
-                                        className="absolute -top-2 -translate-x-1/2 px-4 py-1 bg-green-500 text-[#22C6CE] text-sm font-medium rounded-md whitespace-nowrap"
+                                        className="absolute -top-2 -translate-x-1/2 px-4 py-1 bg-white-500 text-[#22C6CE] text-sm font-medium rounded-md whitespace-nowrap"
                                     >
                                         Copied!
                                     </motion.div>
