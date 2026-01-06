@@ -51,6 +51,7 @@ const config: Config = {
       },
       transitionDuration: {
         "300": "300ms",
+        "400": "400ms",
       },
       fontFamily: {
         sans: [

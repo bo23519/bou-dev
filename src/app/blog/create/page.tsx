@@ -6,6 +6,7 @@ import { useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { DrawOutlineButton } from "@/components/ui/button";
 
 export default function CreatePage() {
   const router = useRouter();

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
+import { DrawOutlineButton } from "@/components/ui/button";
 import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { LoadingState } from "@/components/admin/LoadingState";

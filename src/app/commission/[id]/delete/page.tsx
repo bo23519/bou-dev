@@ -11,7 +11,7 @@ export default function DeleteCommissionPage() {
   const idParam = params.id;
   const idString = Array.isArray(idParam) ? idParam[0] : idParam;
 
-  const isValidId = idString && typeof idString === "string" && idString !== "undefined" && idString.length > 0;
+  const isValidId = !!(idString && typeof idString === "string" && idString !== "undefined" && idString.length > 0);
   const commissionId = isValidId ? (idString as Id<"commissions">) : undefined;
 
   const commission = useQuery(

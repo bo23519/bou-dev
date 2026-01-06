@@ -11,7 +11,7 @@ export default function DeleteBlogPostPage() {
   const idParam = params.id;
   const idString = Array.isArray(idParam) ? idParam[0] : idParam;
   
-  const isValidId = idString && typeof idString === "string" && idString !== "undefined" && idString.length > 0;
+  const isValidId = !!(idString && typeof idString === "string" && idString !== "undefined" && idString.length > 0);
   const postId = isValidId ? (idString as Id<"blogPosts">) : undefined;
 
   const post = useQuery(
