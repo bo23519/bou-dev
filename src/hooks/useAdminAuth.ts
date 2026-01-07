@@ -11,7 +11,7 @@ interface UseAdminAuthOptions {
 export function useAdminAuth(options: UseAdminAuthOptions = {}) {
   const { redirectTo, requireAuth = true } = options;
   const router = useRouter();
-  const verifyTokenMutation = useMutation((api as any).auth.verifyToken);
+  const verifyTokenMutation = useMutation(api.system.auth.verifyToken);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 

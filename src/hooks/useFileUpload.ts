@@ -4,8 +4,8 @@ import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 
 export function useFileUpload() {
-  const generateUploadUrl = useMutation((api as any).files.generateUploadUrl);
-  const saveFileRecord = useMutation((api as any).files.saveFileRecord);
+  const generateUploadUrl = useMutation(api.storage.files.generateUploadUrl);
+  const saveFileRecord = useMutation(api.storage.files.saveFileRecord);
   const [isUploading, setIsUploading] = useState(false);
 
   const uploadFile = async (file: File): Promise<string> => {

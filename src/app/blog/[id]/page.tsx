@@ -29,7 +29,7 @@ export default function BlogPostPage() {
   );
 
   const [isAdmin, setIsAdmin] = useState(false);
-  const verifyTokenMutation = useMutation((api as any).auth.verifyToken);
+  const verifyTokenMutation = useMutation(api.system.auth.verifyToken);
 
   // Redirect immediately to blog list if post is deleted
   useEffect(() => {

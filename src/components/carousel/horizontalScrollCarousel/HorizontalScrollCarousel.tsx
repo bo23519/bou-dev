@@ -33,7 +33,7 @@ export const HorizontalScrollCarouselExample = () => {
 export const HorizontalScrollCarousel = () => {
     // 1. Fetch data from Convex
     const projects = useQuery(api.content.projects.getProjects);
-    const verifyTokenMutation = useMutation((api as any).auth.verifyToken);
+    const verifyTokenMutation = useMutation(api.system.auth.verifyToken);
     const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {

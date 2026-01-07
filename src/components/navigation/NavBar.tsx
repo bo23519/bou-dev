@@ -28,9 +28,9 @@ export const NavBar = () => {
   const [password, setPassword] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const loginMutation = useMutation((api as any).auth.login);
-  const logoutMutation = useMutation((api as any).auth.logout);
-  const verifyTokenMutation = useMutation((api as any).auth.verifyToken);
+  const loginMutation = useMutation(api.system.auth.login);
+  const logoutMutation = useMutation(api.system.auth.logout);
+  const verifyTokenMutation = useMutation(api.system.auth.verifyToken);
   const setAssetMutation = useMutation(api.storage.assets.setAsset);
   const { uploadFile, isUploading } = useFileUpload();
 
