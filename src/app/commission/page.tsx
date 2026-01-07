@@ -9,6 +9,7 @@ import { Id } from "../../../convex/_generated/dataModel";
 import { DrawOutlineButton } from "@/components/ui/button";
 import { CommissionDetailModal } from "@/components/commission/CommissionDetailModal";
 import { useLoadingTriggers } from "@/contexts/LoadingTriggersContext";
+import { TagDisplay } from "@/components/tags/TagDisplay";
 
 interface Commission {
   _id: Id<"commissions">;
@@ -132,18 +133,7 @@ const CommissionCard = ({ commission, isAdmin, router, onClick }: CommissionCard
         <p className="text-sm text-[#787878] line-clamp-3 leading-relaxed whitespace-pre-line">
           {commission.description}
         </p>
-        {commission.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 pt-1">
-            {commission.tags.slice(0, 3).map((tag, index) => (
-              <span
-                key={index}
-                className="px-2 py-0.5 text-xs font-medium text-[#787878] border border-zinc-700 rounded"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
+        <TagDisplay tags={commission.tags} maxTags={3} size="sm" />
       </div>
     </motion.div>
   );

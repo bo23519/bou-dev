@@ -11,6 +11,7 @@ import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { DrawOutlineButton } from "@/components/ui/button";
 import { formatBlogDate } from "@/lib/blog-utils";
+import { TagDisplay } from "@/components/tags/TagDisplay";
 
 export default function BlogPostPage() {
   const params = useParams();
@@ -135,16 +136,7 @@ export default function BlogPostPage() {
             <div className="flex items-center gap-4 flex-wrap">
               <p className="text-sm text-muted-foreground">{formatBlogDate((post as any)._creationTime)}</p>
               {post.tags && post.tags.length > 0 && (
-                <div className="flex gap-2 flex-wrap">
-                  {post.tags.map((tag: string, index: number) => (
-                    <span
-                      key={index}
-                      className="px-2 py-1 text-xs font-medium text-muted-foreground border border-border rounded"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+                <TagDisplay tags={post.tags} size="sm" />
               )}
             </div>
           </header>

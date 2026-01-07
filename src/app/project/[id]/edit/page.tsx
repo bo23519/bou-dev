@@ -11,6 +11,7 @@ import { useFileUpload } from "@/hooks/useFileUpload";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { FileUpload } from "@/components/admin/FileUpload";
 import { LoadingState } from "@/components/admin/LoadingState";
+import { TagSelector } from "@/components/tags/TagSelector";
 
 export default function EditProjectPage() {
   const params = useParams();
@@ -32,7 +33,7 @@ export default function EditProjectPage() {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [tags, setTags] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [link, setLink] = useState("");
   const [repo, setRepo] = useState("");
   const [existingImage, setExistingImage] = useState<string | null>(null);
@@ -45,7 +46,7 @@ export default function EditProjectPage() {
     if (project) {
       setTitle(project.title || "");
       setDescription(project.description || "");
-      setTags(project.tags?.join(", ") || "");
+      setTags(project.tags || []);
       setLink(project.link || "");
       setRepo(project.repo || "");
       setExistingImage(project.storageId || null);
@@ -93,16 +94,11 @@ export default function EditProjectPage() {
         return;
       }
 
-      const tagsArray = tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0);
-
       await updateProject({
         id: projectId,
         title: title.trim(),
         description: description.trim(),
-        tags: tagsArray,
+        tags,
         storageId,
         link: link.trim() || undefined,
         repo: repo.trim() || undefined,
@@ -161,18 +157,7 @@ export default function EditProjectPage() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
-              Tags (comma-separated)
-            </label>
-            <input
-              type="text"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
-              placeholder="e.g., React, TypeScript, Next.js"
-            />
-          </div>
+          <TagSelector selectedTags={tags} onChange={setTags} />
 
           <div>
             <label className="block text-sm font-medium text-zinc-300 mb-2">

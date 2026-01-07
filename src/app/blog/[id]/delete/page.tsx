@@ -5,6 +5,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
 import { DeleteConfirmationPage } from "@/components/admin/DeleteConfirmationPage";
+import { TagDisplay } from "@/components/tags/TagDisplay";
 
 export default function DeleteBlogPostPage() {
   const params = useParams();
@@ -35,15 +36,8 @@ export default function DeleteBlogPostPage() {
       itemTitle={(post) => post.title}
       itemDescription={(post) => 
         post.tags && post.tags.length > 0 ? (
-          <div className="flex gap-2 flex-wrap mt-2">
-            {post.tags.map((tag: string, index: number) => (
-              <span
-                key={index}
-                className="px-2 py-1 bg-zinc-700 rounded text-sm"
-              >
-                {tag}
-              </span>
-            ))}
+          <div className="mt-2">
+            <TagDisplay tags={post.tags} size="sm" />
           </div>
         ) : null
       }
