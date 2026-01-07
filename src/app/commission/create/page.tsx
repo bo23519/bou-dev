@@ -23,7 +23,7 @@ const STATUS_OPTIONS = [
 
 export default function CreateCommissionPage() {
   const router = useRouter();
-  const addCommission = useMutation(api.commissions.addCommission);
+  const addCommission = useMutation(api.content.commissions.addCommission);
   const { isAdmin, isLoading: authLoading } = useAdminAuth({ redirectTo: "/commission", requireAuth: true });
   const { uploadFile, isUploading } = useFileUpload();
 

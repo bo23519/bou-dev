@@ -24,7 +24,7 @@ export default function BlogPostPage() {
   const postId = isValidId ? (idString as Id<"blogPosts">) : undefined;
 
   const post = useQuery(
-    api.blogPosts.getBlogPostById,
+    api.content.blogPosts.getBlogPostById,
     postId ? { id: postId } : "skip"
   );
 

@@ -80,7 +80,7 @@ const ScrollIndicator = () => {
 // Center image of the hero section
 export const CenterImage = () => {
     const { scrollY } = useScroll();
-    const assets = useQuery(api.assets.getAssets);
+    const assets = useQuery(api.storage.assets.getAssets);
     const backgroundUrl = assets?.heroBackground?.url;
 
     const clip1 = useTransform(scrollY, [0, 1500], [25, 0]);
@@ -116,8 +116,8 @@ export const CenterImage = () => {
 
 // Items to display in the hero section
 const ListOfItems = () => {
-    const links = useQuery(api.links.getLinks);
-    const assets = useQuery(api.assets.getAssets);
+    const links = useQuery(api.system.links.getLinks);
+    const assets = useQuery(api.storage.assets.getAssets);
     const [showCopied, setShowCopied] = useState(false);
 
     const handleEmailClick = () => {

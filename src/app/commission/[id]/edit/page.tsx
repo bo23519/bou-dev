@@ -32,11 +32,11 @@ export default function EditCommissionPage() {
   const commissionId = isValidId ? (idString as Id<"commissions">) : undefined;
 
   const commission = useQuery(
-    api.commissions.getCommissionById,
+    api.content.commissions.getCommissionById,
     commissionId ? { id: commissionId } : "skip"
   );
 
-  const updateCommission = useMutation(api.commissions.updateCommission);
+  const updateCommission = useMutation(api.content.commissions.updateCommission);
   const { isAdmin, isLoading: authLoading } = useAdminAuth({ redirectTo: "/commission", requireAuth: true });
   const { uploadFile, isUploading } = useFileUpload();
 

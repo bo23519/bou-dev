@@ -8,15 +8,17 @@
  * @module
  */
 
-import type * as assets from "../assets.js";
-import type * as auth from "../auth.js";
-import type * as blogPosts from "../blogPosts.js";
-import type * as commissions from "../commissions.js";
-import type * as files from "../files.js";
-import type * as links from "../links.js";
-import type * as projects from "../projects.js";
-import type * as stats from "../stats.js";
-import type * as tags from "../tags.js";
+import type * as content_blogPosts from "../content/blogPosts.js";
+import type * as content_commissions from "../content/commissions.js";
+import type * as content_projects from "../content/projects.js";
+import type * as crons from "../crons.js";
+import type * as storage_assets from "../storage/assets.js";
+import type * as storage_files from "../storage/files.js";
+import type * as system_auth from "../system/auth.js";
+import type * as system_cleanup from "../system/cleanup.js";
+import type * as system_links from "../system/links.js";
+import type * as system_stats from "../system/stats.js";
+import type * as system_tags from "../system/tags.js";
 
 import type {
   ApiFromModules,
@@ -25,15 +27,17 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-  assets: typeof assets;
-  auth: typeof auth;
-  blogPosts: typeof blogPosts;
-  commissions: typeof commissions;
-  files: typeof files;
-  links: typeof links;
-  projects: typeof projects;
-  stats: typeof stats;
-  tags: typeof tags;
+  "content/blogPosts": typeof content_blogPosts;
+  "content/commissions": typeof content_commissions;
+  "content/projects": typeof content_projects;
+  crons: typeof crons;
+  "storage/assets": typeof storage_assets;
+  "storage/files": typeof storage_files;
+  "system/auth": typeof system_auth;
+  "system/cleanup": typeof system_cleanup;
+  "system/links": typeof system_links;
+  "system/stats": typeof system_stats;
+  "system/tags": typeof system_tags;
 }>;
 
 /**

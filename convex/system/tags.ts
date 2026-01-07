@@ -1,4 +1,4 @@
-import { query, mutation } from "./_generated/server";
+import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
 
 export const COLOR_SCHEMES = [
@@ -51,7 +51,6 @@ export const createTag = mutation({
     colorScheme: v.string(),
   },
   handler: async (ctx, args) => {
-    // Check if tag with same name already exists
     const existing = await ctx.db
       .query("tags")
       .withIndex("by_name", (q) => q.eq("name", args.name))
@@ -61,7 +60,6 @@ export const createTag = mutation({
       throw new Error(`Tag with name "${args.name}" already exists`);
     }
 
-    // Validate color scheme
     const colorScheme = COLOR_SCHEMES.find((scheme) => scheme.name === args.colorScheme);
     if (!colorScheme) {
       throw new Error(`Invalid color scheme: ${args.colorScheme}`);

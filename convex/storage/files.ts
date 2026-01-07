@@ -1,4 +1,4 @@
-import { mutation, query } from "./_generated/server";
+import { mutation, query } from "../_generated/server";
 import { v } from "convex/values";
 
 export const generateUploadUrl = mutation(async (ctx) => {
@@ -17,7 +17,7 @@ export const getImageUrlById = query({
       } catch (e) {
         console.error("Failed to get storage URL for storageId:", args.storageId, e);
       }
-    }
+  }
     return imageUrl;
   },
 });

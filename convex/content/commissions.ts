@@ -1,4 +1,4 @@
-import { query, mutation } from "./_generated/server";
+import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
 import { paginationOptsValidator } from "convex/server";
 
@@ -15,10 +15,15 @@ export const getCommissions = query({
       results.page.map(async (commission) => {
         let coverUrl: string | null = null;
         if (commission.cover) {
-          try {
-            coverUrl = await ctx.storage.getUrl(commission.cover);
-          } catch (e) {
-            console.error("Failed to get storage URL for commission:", commission._id, e);
+          // If already a URL, use it directly; otherwise resolve from storage
+          if (commission.cover.startsWith("http")) {
+            coverUrl = commission.cover;
+          } else {
+            try {
+              coverUrl = await ctx.storage.getUrl(commission.cover);
+            } catch (e) {
+              console.error("Failed to get storage URL for commission:", commission._id, e);
+            }
           }
         }
 
@@ -47,6 +52,10 @@ export const getCommissionById = query({
       return null;
     }
     if (commission && commission.cover) {
+      // If already a URL, use it directly
+      if (commission.cover.startsWith("http")) {
+        return commission;
+      }
       try {
         const coverUrl = await ctx.storage.getUrl(commission.cover);
         return {
@@ -112,5 +121,37 @@ export const deleteCommission = mutation({
   args: { id: v.id("commissions") },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, { deletedAt: Date.now() });
+  },
+});
+
+export const getLatestCommission = query({
+  args: {},
+  handler: async (ctx) => {
+    const commission = await ctx.db
+      .query("commissions")
+      .filter((q) => q.eq(q.field("deletedAt"), undefined))
+      .order("desc")
+      .first();
+
+    if (!commission) return null;
+
+    let coverUrl: string | null = null;
+    if (commission.cover) {
+      // If already a URL, use it directly; otherwise resolve from storage
+      if (commission.cover.startsWith("http")) {
+        coverUrl = commission.cover;
+      } else {
+        try {
+          coverUrl = await ctx.storage.getUrl(commission.cover);
+        } catch (e) {
+          console.error("Failed to get storage URL for commission:", commission._id, e);
+        }
+      }
+    }
+
+    return {
+      ...commission,
+      cover: coverUrl ?? commission.cover ?? null,
+    };
   },
 });

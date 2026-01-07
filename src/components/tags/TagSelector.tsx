@@ -19,9 +19,9 @@ interface TagSelectorProps {
 }
 
 export function TagSelector({ selectedTags, onChange, label = "Tags" }: TagSelectorProps) {
-  const allTags = useQuery(api.tags.getAllTags);
-  const colorSchemes = useQuery(api.tags.getColorSchemes);
-  const createTag = useMutation(api.tags.createTag);
+  const allTags = useQuery(api.system.tags.getAllTags);
+  const colorSchemes = useQuery(api.system.tags.getColorSchemes);
+  const createTag = useMutation(api.system.tags.createTag);
 
   const [inputValue, setInputValue] = useState("");
   const [isOpen, setIsOpen] = useState(false);

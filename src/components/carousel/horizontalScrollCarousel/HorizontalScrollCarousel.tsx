@@ -32,7 +32,7 @@ export const HorizontalScrollCarouselExample = () => {
 // From template
 export const HorizontalScrollCarousel = () => {
     // 1. Fetch data from Convex
-    const projects = useQuery(api.projects.getProjects);
+    const projects = useQuery(api.content.projects.getProjects);
     const verifyTokenMutation = useMutation((api as any).auth.verifyToken);
     const [isAdmin, setIsAdmin] = useState(false);
 
@@ -62,7 +62,7 @@ export const HorizontalScrollCarousel = () => {
         target: targetRef,
     });
 
-    const x = useTransform(scrollYProgress, [0, 1], ["1%", "-95%"]);
+    const x = useTransform(scrollYProgress, [0, 1], ["1%", "-65%"]);
 
     return (
         <section ref={targetRef} className="relative h-[300vh] bg-[#121212]">

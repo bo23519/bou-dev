@@ -21,11 +21,11 @@ export default function EditBlogPostPage() {
   const postId = isValidId ? (idString as Id<"blogPosts">) : undefined;
 
   const post = useQuery(
-    api.blogPosts.getBlogPostById,
+    api.content.blogPosts.getBlogPostById,
     postId ? { id: postId } : "skip"
   );
 
-  const updateBlogPost = useMutation(api.blogPosts.updateBlogPost);
+  const updateBlogPost = useMutation(api.content.blogPosts.updateBlogPost);
 
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]);

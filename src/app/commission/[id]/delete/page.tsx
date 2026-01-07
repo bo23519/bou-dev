@@ -15,11 +15,11 @@ export default function DeleteCommissionPage() {
   const commissionId = isValidId ? (idString as Id<"commissions">) : undefined;
 
   const commission = useQuery(
-    api.commissions.getCommissionById,
+    api.content.commissions.getCommissionById,
     commissionId ? { id: commissionId } : "skip"
   );
 
-  const deleteCommission = useMutation(api.commissions.deleteCommission);
+  const deleteCommission = useMutation(api.content.commissions.deleteCommission);
 
   const handleDelete = async () => {
     if (!commissionId) return;
