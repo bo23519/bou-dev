@@ -25,8 +25,8 @@ export default function RootLayout({
       <body className={inter.className}>
         <ConvexClientProvider>
           <LoadingTriggersProvider>
-            <NavBar />
-            <div className="pt-20">{children}</div>
+          <NavBar />
+          <div className="pt-20">{children}</div>
           </LoadingTriggersProvider>
         </ConvexClientProvider>
       </body>

@@ -17,7 +17,7 @@ export const getImageUrlById = query({
       } catch (e) {
         console.error("Failed to get storage URL for storageId:", args.storageId, e);
       }
-    }
+  }
     return imageUrl;
   },
 });

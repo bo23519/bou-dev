@@ -27,15 +27,15 @@ function BlogPageContent() {
   const result = useQuery(
     api.blogPosts.getBlogPostByPage,
     {
-      page: currentPage,
-      itemsPerPage: ITEMS_PER_PAGE,
+    page: currentPage,
+    itemsPerPage: ITEMS_PER_PAGE,
     }
   );
 
   const numOfPages = useQuery(
     api.blogPosts.getNumOfPages,
     {
-      itemsPerPage: ITEMS_PER_PAGE,
+    itemsPerPage: ITEMS_PER_PAGE,
     }
   );
 
