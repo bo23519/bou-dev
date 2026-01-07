@@ -153,3 +153,24 @@ export const deleteBlogPost = mutation({
         await ctx.db.patch(args.id, { deletedAt: Date.now() });
     },
 });
+
+export const getLatestBlogPost = query({
+    args: {},
+    handler: async (ctx) => {
+        const allPosts = await ctx.db.query("blogPosts").collect();
+        
+        const activePosts = allPosts
+            .filter((post) => !post.deletedAt)
+            .sort((a, b) => (b._creationTime || 0) - (a._creationTime || 0));
+        
+        if (activePosts.length === 0) return null;
+        
+        const post = activePosts[0];
+        return {
+            _id: post._id,
+            title: post.title,
+            tags: post.tags,
+            _creationTime: post._creationTime,
+        };
+    },
+});

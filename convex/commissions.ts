@@ -114,3 +114,30 @@ export const deleteCommission = mutation({
     await ctx.db.patch(args.id, { deletedAt: Date.now() });
   },
 });
+
+export const getLatestCommission = query({
+  args: {},
+  handler: async (ctx) => {
+    const commission = await ctx.db
+      .query("commissions")
+      .filter((q) => q.eq(q.field("deletedAt"), undefined))
+      .order("desc")
+      .first();
+
+    if (!commission) return null;
+
+    let coverUrl: string | null = null;
+    if (commission.cover) {
+      try {
+        coverUrl = await ctx.storage.getUrl(commission.cover);
+      } catch (e) {
+        console.error("Failed to get storage URL for commission:", commission._id, e);
+      }
+    }
+
+    return {
+      ...commission,
+      cover: coverUrl ?? commission.cover ?? null,
+    };
+  },
+});
