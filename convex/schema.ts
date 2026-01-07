@@ -58,7 +58,7 @@ export default defineSchema({
   tags: defineTable({
     name: v.string(),
     color: v.string(),
-  }),
+  }).index("by_name", ["name"]),
   assets: defineTable({
     key: v.string(),
     storageId: v.optional(v.string()),

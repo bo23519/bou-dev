@@ -16,6 +16,7 @@ import type * as files from "../files.js";
 import type * as links from "../links.js";
 import type * as projects from "../projects.js";
 import type * as stats from "../stats.js";
+import type * as tags from "../tags.js";
 
 import type {
   ApiFromModules,
@@ -32,6 +33,7 @@ declare const fullApi: ApiFromModules<{
   links: typeof links;
   projects: typeof projects;
   stats: typeof stats;
+  tags: typeof tags;
 }>;
 
 /**

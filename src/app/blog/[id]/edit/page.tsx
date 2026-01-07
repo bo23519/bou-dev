@@ -9,6 +9,7 @@ import { DrawOutlineButton } from "@/components/ui/button";
 import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { LoadingState } from "@/components/admin/LoadingState";
+import { TagSelector } from "@/components/tags/TagSelector";
 
 export default function EditBlogPostPage() {
   const params = useParams();
@@ -27,7 +28,7 @@ export default function EditBlogPostPage() {
   const updateBlogPost = useMutation(api.blogPosts.updateBlogPost);
 
   const [title, setTitle] = useState("");
-  const [tags, setTags] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,7 +37,7 @@ export default function EditBlogPostPage() {
   useEffect(() => {
     if (post) {
       setTitle(post.title || "");
-      setTags(post.tags ? post.tags.join(", ") : "");
+      setTags(post.tags || []);
       setContent(post.content || "");
       setIsLoading(false);
     } else if (post === null) {
@@ -53,16 +54,11 @@ export default function EditBlogPostPage() {
 
     setIsSubmitting(true);
     try {
-      const tagsArray = tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0);
-
       await updateBlogPost({
         id: postId,
         title: title.trim(),
         content,
-        tags: tagsArray,
+        tags,
       });
 
       router.push(`/blog/${postId}`);
@@ -123,18 +119,7 @@ export default function EditBlogPostPage() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
-              Tags (comma-separated)
-            </label>
-            <input
-              type="text"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
-              placeholder="e.g., React, TypeScript, Next.js"
-            />
-          </div>
+          <TagSelector selectedTags={tags} onChange={setTags} />
 
           <div>
             <label className="block text-sm font-medium text-zinc-300 mb-2">

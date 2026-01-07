@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { Id } from "../../../convex/_generated/dataModel";
+import { TagDisplay } from "@/components/tags/TagDisplay";
 
 interface Commission {
   _id: Id<"commissions">;
@@ -116,16 +117,7 @@ export function CommissionDetailModal({
                   <h3 className="text-sm font-semibold text-[#787878] mb-2 uppercase tracking-wide">
                     Tags
                   </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {commission.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1.5 text-sm font-medium text-[#787878] border border-zinc-700 rounded-lg bg-zinc-800/50"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                  <TagDisplay tags={commission.tags} size="md" />
                 </div>
               )}
 

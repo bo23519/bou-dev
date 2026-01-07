@@ -8,6 +8,7 @@ import { useQuery, useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import { api } from "../../../../convex/_generated/api";
 import { Github, ExternalLink, Edit2 } from "lucide-react";
+import { TagDisplay } from "@/components/tags/TagDisplay";
 
 // From template
 export const HorizontalScrollCarouselExample = () => {
@@ -150,9 +151,9 @@ const Card = ({ project, isAdmin }: { project: CardType; isAdmin: boolean }) => 
                     </div>
                 </div>
                 {/* Tags of the project */}
-                <p className="text-sm font-medium text-[#8BC3DC] mb-4 ">
-                    {project.tags.join(" - ")}
-                </p>
+                <div className="mb-4">
+                    <TagDisplay tags={project.tags} size="sm" />
+                </div>
                 {/* Description of the project */}
                 {project.description && (
                     <p className="text-white text-sm leading-relaxed max-w-md]">

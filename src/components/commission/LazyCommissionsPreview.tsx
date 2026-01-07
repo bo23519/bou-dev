@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Id } from "../../../convex/_generated/dataModel";
+import { TagDisplay } from "@/components/tags/TagDisplay";
 
 interface Commission {
   _id: Id<"commissions">;
@@ -59,18 +60,7 @@ export function LazyCommissionsPreview() {
             <p className="text-sm text-[#787878] line-clamp-2">
               {commission.description}
             </p>
-            {commission.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1 pt-1">
-                {commission.tags.slice(0, 2).map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-2 py-0.5 text-xs font-medium text-[#787878] border border-zinc-700 rounded"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
+            <TagDisplay tags={commission.tags} maxTags={2} size="sm" />
           </div>
         </motion.div>
       ))}

@@ -7,13 +7,14 @@ import { api } from "../../../../convex/_generated/api";
 import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DrawOutlineButton } from "@/components/ui/button";
+import { TagSelector } from "@/components/tags/TagSelector";
 
 export default function CreatePage() {
   const router = useRouter();
   const addBlogPost = useMutation(api.blogPosts.addBlogPost);
 
   const [title, setTitle] = useState("");
-  const [tags, setTags] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -26,15 +27,10 @@ export default function CreatePage() {
 
     setIsSubmitting(true);
     try {
-      const tagsArray = tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0);
-
       await addBlogPost({
         title: title.trim(),
         content,
-        tags: tagsArray,
+        tags,
       });
 
       router.push("/blog");
@@ -65,18 +61,7 @@ export default function CreatePage() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
-              Tags (comma-separated)
-            </label>
-            <input
-              type="text"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
-              placeholder="e.g., React, TypeScript, Next.js"
-            />
-          </div>
+          <TagSelector selectedTags={tags} onChange={setTags} />
 
           <div>
             <label className="block text-sm font-medium text-zinc-300 mb-2">
