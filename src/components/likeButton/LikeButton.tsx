@@ -5,15 +5,18 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLoadingTriggers } from "@/contexts/LoadingTriggersContext";
 
 export const LikeButton = () => {
     const likes = useQuery(api.stats.getLikes);
     const addLike = useMutation(api.stats.addLike);
     const links = useQuery(api.links.getLinks);
     const [showLiked, setShowLiked] = useState(false);
+    const { triggerAll } = useLoadingTriggers();
 
     const HandleLike = () => {
         addLike();
+        triggerAll();
         setShowLiked(true);
         setTimeout(() => {
             setShowLiked(false);

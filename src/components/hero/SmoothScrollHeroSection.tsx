@@ -117,6 +117,7 @@ export const CenterImage = () => {
 // Items to display in the hero section
 const ListOfItems = () => {
     const links = useQuery(api.links.getLinks);
+    const assets = useQuery(api.assets.getAssets);
     const [showCopied, setShowCopied] = useState(false);
 
     const handleEmailClick = () => {
@@ -178,7 +179,7 @@ const ListOfItems = () => {
                         <motion.a
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            href={links?.Resume?.url}
+                            href={assets?.resume?.url ?? links?.Resume?.url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="zzz-button zzz-button-miyabi mt-8 flex items-center gap-2 hover:text-[#181818]"

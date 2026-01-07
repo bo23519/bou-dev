@@ -3,10 +3,11 @@
 "use client";
 
 import { motion, useTransform, useScroll } from "framer-motion";
-import { useRef } from "react";
-import { useQuery } from "convex/react";
+import { useRef, useState, useEffect } from "react";
+import { useQuery, useMutation } from "convex/react";
+import { useRouter } from "next/navigation";
 import { api } from "../../../../convex/_generated/api";
-import { Github, ExternalLink } from "lucide-react";
+import { Github, ExternalLink, Edit2 } from "lucide-react";
 
 // From template
 export const HorizontalScrollCarouselExample = () => {
@@ -31,6 +32,29 @@ export const HorizontalScrollCarouselExample = () => {
 export const HorizontalScrollCarousel = () => {
     // 1. Fetch data from Convex
     const projects = useQuery(api.projects.getProjects);
+    const verifyTokenMutation = useMutation((api as any).auth.verifyToken);
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            const token = localStorage.getItem("authToken");
+            if (token) {
+                try {
+                    const result = await verifyTokenMutation({ token });
+                    if (result?.valid && result.role === "admin") {
+                        setIsAdmin(true);
+                    } else {
+                        setIsAdmin(false);
+                    }
+                } catch (error) {
+                    setIsAdmin(false);
+                }
+            } else {
+                setIsAdmin(false);
+            }
+        };
+        checkAuth();
+    }, [verifyTokenMutation]);
 
     const targetRef = useRef<HTMLDivElement | null>(null);
     const { scrollYProgress } = useScroll({
@@ -53,7 +77,7 @@ export const HorizontalScrollCarousel = () => {
                 ) : (
                     <motion.div style={{ x }} className="flex gap-4">
                         {projects.map((project: CardType) => {
-                            return <Card project={project} key={project._id} />;
+                            return <Card project={project} key={project._id} isAdmin={isAdmin} />;
                         })}
                     </motion.div>
                 )}
@@ -62,7 +86,8 @@ export const HorizontalScrollCarousel = () => {
     );
 };
 
-const Card = ({ project }: { project: CardType }) => {
+const Card = ({ project, isAdmin }: { project: CardType; isAdmin: boolean }) => {
+    const router = useRouter();
 
     return (
         <div
@@ -76,6 +101,21 @@ const Card = ({ project }: { project: CardType }) => {
             </div>
             {/* Each project card has a dark background with a gradient */}
             <div className="absolute inset-0 z-5 bg-black/40"></div>
+            
+            {/* Edit button for admin - top right */}
+            {isAdmin && (
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/project/${project._id}/edit`);
+                    }}
+                    className="absolute top-4 right-4 z-20 p-2 rounded-lg transition-colors text-[#181818] hover:text-white"
+                    title="Edit Project"
+                >
+                    Edit
+                </button>
+            )}
+            
             <div className="absolute inset-0 z-10 flex flex-col justify-center items-start px-4 sm:px-8">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full mb-4">
                     {/* Title of the project */}

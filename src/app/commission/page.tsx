@@ -8,6 +8,7 @@ import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { DrawOutlineButton } from "@/components/ui/button";
 import { CommissionDetailModal } from "@/components/commission/CommissionDetailModal";
+import { useLoadingTriggers } from "@/contexts/LoadingTriggersContext";
 
 interface Commission {
   _id: Id<"commissions">;
@@ -150,16 +151,27 @@ const CommissionCard = ({ commission, isAdmin, router, onClick }: CommissionCard
 
 export default function CommissionPage() {
   const router = useRouter();
-  const { results: commissions, status, loadMore, isLoading } = usePaginatedQuery(
-    api.commissions.getCommissions,
-    {},
-    { initialNumItems: 30 }
-  );
+  const [shouldLoad, setShouldLoad] = useState(false);
   const verifyTokenMutation = useMutation((api as any).auth.verifyToken);
   const [isAdmin, setIsAdmin] = useState(false);
   const [numOfColumns, setNumOfColumns] = useState(5);
   const [selectedCommission, setSelectedCommission] = useState<Commission | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { shouldLoadCommissions, triggerCommissions } = useLoadingTriggers();
+
+  useEffect(() => {
+    triggerCommissions();
+    const timer = setTimeout(() => {
+      setShouldLoad(true);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [triggerCommissions]);
+
+  const { results: commissions, status, loadMore, isLoading } = usePaginatedQuery(
+    api.commissions.getCommissions,
+    {},
+    { initialNumItems: 30 }
+  );
 
   useEffect(() => {
     const calculateColumns = () => {
@@ -224,7 +236,7 @@ export default function CommissionPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
-  if (isLoading && commissions === undefined) {
+  if (!shouldLoad || (isLoading && commissions === undefined)) {
     return (
       <main className="min-h-screen bg-background p-8">
         <div className="mx-auto max-w-7xl">

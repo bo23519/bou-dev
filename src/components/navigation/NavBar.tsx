@@ -243,6 +243,15 @@ export const NavBar = () => {
                         </button>
                         <button
                           onClick={() => {
+                            router.push("/project/create");
+                            setShowCreateDropdown(false);
+                          }}
+                          className="w-full px-4 py-3 text-left text-[#EFF0EF] hover:bg-[#D8FA00] hover:text-[#181818] transition-colors duration-200 flex items-center gap-2 border-t border-zinc-700"
+                        >
+                          <span>New Project</span>
+                        </button>
+                        <button
+                          onClick={() => {
                             setShowAssetUploadModal(true);
                             setShowCreateDropdown(false);
                           }}
