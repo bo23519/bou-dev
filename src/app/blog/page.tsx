@@ -10,6 +10,7 @@ import { Id } from "../../../convex/_generated/dataModel";
 import { Pagination } from "@/components/blog/Pagination";
 import { formatBlogDate, BLOG_CONSTANTS } from "@/lib/blog-utils";
 import { useLoadingTriggers } from "@/contexts/LoadingTriggersContext";
+import { TagDisplay } from "@/components/tags/TagDisplay";
 
 const ITEMS_PER_PAGE = BLOG_CONSTANTS.ITEMS_PER_PAGE;
 
@@ -68,15 +69,8 @@ function BlogPageContent() {
                     {post.Title}
                   </h2>
                 </Link>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {post.Tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="px-2 py-1 text-xs font-medium text-muted-foreground border border-border rounded"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+                <div className="mb-2">
+                  <TagDisplay tags={post.Tags} size="sm" />
                 </div>
                 <p className="text-sm text-muted-foreground">{formatBlogDate(post.PublishedAt)}</p>
               </motion.div>
