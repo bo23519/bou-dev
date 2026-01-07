@@ -129,7 +129,7 @@ const CommissionCard = ({ commission, isAdmin, router, onClick }: CommissionCard
         <h3 className="text-base font-semibold text-[#EFF0EF] line-clamp-2 leading-snug">
           {commission.title}
         </h3>
-        <p className="text-sm text-[#787878] line-clamp-3 leading-relaxed">
+        <p className="text-sm text-[#787878] line-clamp-3 leading-relaxed whitespace-pre-line">
           {commission.description}
         </p>
         {commission.tags.length > 0 && (

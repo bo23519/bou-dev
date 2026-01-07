@@ -49,10 +49,6 @@ export default function EditCommissionPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  if (authLoading) {
-    return <LoadingState />;
-  }
-
   useEffect(() => {
     if (commission) {
       setTitle(commission.title || "");
@@ -66,6 +62,10 @@ export default function EditCommissionPage() {
       setIsLoading(false);
     }
   }, [commission]);
+
+  if (authLoading) {
+    return <LoadingState />;
+  }
 
   const handleFileSelect = (file: File | null) => {
     setSelectedFile(file);
@@ -104,7 +104,7 @@ export default function EditCommissionPage() {
       await updateCommission({
         id: commissionId,
         title: title.trim(),
-        description: description.trim(),
+        description: description.trimEnd(),
         updatedAt: Date.now(),
         tags: tagsArray,
         status,
