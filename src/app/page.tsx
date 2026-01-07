@@ -3,20 +3,20 @@
 import { useEffect, useState, useRef } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { LazyHorizontalScrollCarousel } from "@/components/carousel/horizontalScrollCarousel/LazyHorizontalScrollCarousel";
 import { SmoothScrollHero } from "@/components/hero/SmoothScrollHeroSection";
+import { HorizontalScrollCarousel } from "@/components/carousel/horizontalScrollCarousel/HorizontalScrollCarousel";
 import { useLoadingTriggers } from "@/contexts/LoadingTriggersContext";
 import dynamic from "next/dynamic";
 
-const LazyCommissionsPreview = dynamic(
-  () => import("@/components/commission/LazyCommissionsPreview").then((mod) => mod.LazyCommissionsPreview),
-  { ssr: false }
-);
+// const LazyCommissionsPreview = dynamic(
+//   () => import("@/components/commission/LazyCommissionsPreview").then((mod) => mod.LazyCommissionsPreview),
+//   { ssr: false }
+// );
 
-const LazyBlogsPreview = dynamic(
-  () => import("@/components/blog/LazyBlogsPreview").then((mod) => mod.LazyBlogsPreview),
-  { ssr: false }
-);
+// const LazyBlogsPreview = dynamic(
+//   () => import("@/components/blog/LazyBlogsPreview").then((mod) => mod.LazyBlogsPreview),
+//   { ssr: false }
+// );
 
 export default function Home() {
   const addView = useMutation((api as any).stats.addView);
@@ -64,28 +64,28 @@ export default function Home() {
         {/* Project showcases - Moved outside the max-w-4xl container */}
         <div className="mt-16" id="projects">
           <h2 className="text-3xl font-bold text-center mb-8 text-[#D8FA00]">Featured Projects</h2>
-          <LazyHorizontalScrollCarousel />
+          <HorizontalScrollCarousel />
         </div>
 
         {/* Commissions Preview - Loads when scrolling further */}
-        <div ref={commissionsTriggerRef} className="mt-16" id="commissions">
+        {/* <div ref={commissionsTriggerRef} className="mt-16" id="commissions">
           {shouldLoadCommissions && (
             <>
               <h2 className="text-3xl font-bold text-center mb-8 text-[#D8FA00]">Commissions</h2>
               <LazyCommissionsPreview />
             </>
           )}
-        </div>
+        </div> */}
 
         {/* Blogs Preview - Loads when scrolling even further */}
-        <div ref={blogsTriggerRef} className="mt-16" id="blogs">
+        {/* <div ref={blogsTriggerRef} className="mt-16" id="blogs">
           {shouldLoadBlogs && (
             <>
               <h2 className="text-3xl font-bold text-center mb-8 text-[#D8FA00]">Latest Blog Posts</h2>
               <LazyBlogsPreview />
             </>
           )}
-        </div>
+        </div> */}
 
       </div>
     </main>

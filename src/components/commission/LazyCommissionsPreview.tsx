@@ -21,7 +21,7 @@ export function LazyCommissionsPreview() {
   const { results: commissions } = usePaginatedQuery(
     api.commissions.getCommissions,
     {},
-    { initialNumItems: 6 }
+    { initialNumItems: 3 }
   );
 
   if (!commissions || commissions.length === 0) {
