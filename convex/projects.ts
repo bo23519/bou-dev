@@ -28,6 +28,28 @@ export const getProjects = query({
     },
 });
 
+export const getProjectById = query({
+    args: { id: v.id("projects") },
+    handler: async (ctx, args) => {
+        const project = await ctx.db.get(args.id);
+        if (!project) return null;
+        
+        let imageUrl: string | null = null;
+        if (project.storageId) {
+            try {
+                imageUrl = await ctx.storage.getUrl(project.storageId);
+            } catch (e) {
+                console.error("Failed to get storage URL for project:", project._id, e);
+            }
+        }
+        
+        return {
+            ...project,
+            storageId: imageUrl ?? project.storageId,
+        };
+    },
+});
+
 export const addProject = mutation({
     args: {
         title: v.string(),
@@ -46,5 +68,21 @@ export const addProject = mutation({
             link: args.link,
             repo: args.repo,
         });
+    },
+});
+
+export const updateProject = mutation({
+    args: {
+        id: v.id("projects"),
+        title: v.string(),
+        description: v.string(),
+        tags: v.array(v.string()),
+        storageId: v.string(),
+        link: v.optional(v.string()),
+        repo: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const { id, ...updates } = args;
+        await ctx.db.patch(id, updates);
     },
 });
