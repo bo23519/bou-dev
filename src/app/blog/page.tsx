@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useTransition } from "react";
+import { Suspense, useEffect } from "react";
 import { useQuery } from "convex/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -9,23 +9,34 @@ import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { Pagination } from "@/components/blog/Pagination";
 import { formatBlogDate, BLOG_CONSTANTS } from "@/lib/blog-utils";
+import { useLoadingTriggers } from "@/contexts/LoadingTriggersContext";
 
 const ITEMS_PER_PAGE = BLOG_CONSTANTS.ITEMS_PER_PAGE;
 
 function BlogPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
+  const { triggerBlogs } = useLoadingTriggers();
 
-  const result = useQuery(api.blogPosts.getBlogPostByPage, {
-    page: currentPage,
-    itemsPerPage: ITEMS_PER_PAGE,
-  });
+  useEffect(() => {
+    triggerBlogs();
+  }, [triggerBlogs]);
 
-  const numOfPages = useQuery(api.blogPosts.getNumOfPages, {
-    itemsPerPage: ITEMS_PER_PAGE,
-  });
+  const result = useQuery(
+    api.blogPosts.getBlogPostByPage,
+    {
+      page: currentPage,
+      itemsPerPage: ITEMS_PER_PAGE,
+    }
+  );
+
+  const numOfPages = useQuery(
+    api.blogPosts.getNumOfPages,
+    {
+      itemsPerPage: ITEMS_PER_PAGE,
+    }
+  );
 
   const posts = (result?.page || []).filter((post): post is { Id: Id<"blogPosts">; Title: string; Tags: string[]; PublishedAt: number; Image: string | undefined } => post !== null);
   const totalPages = numOfPages || 1;
@@ -44,9 +55,6 @@ function BlogPageContent() {
             transition={{ duration: 0.4 }}
             className="space-y-6"
           >
-            {isPending && (
-              <div className="text-center text-muted-foreground">Loading...</div>
-            )}
             {posts.map((post) => (
               <motion.div
                 key={post.Id}

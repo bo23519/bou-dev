@@ -14,8 +14,9 @@ interface AssetUploadModalProps {
 }
 
 const ASSET_TYPES = [
-  { key: "logo", label: "Logo/Icon" },
-  { key: "heroBackground", label: "Hero Background" },
+  { key: "logo", label: "Logo/Icon", accept: "image/*" },
+  { key: "heroBackground", label: "Hero Background", accept: "image/*" },
+  { key: "resume", label: "Resume", accept: "application/pdf" },
 ] as const;
 
 export function AssetUploadModal({
@@ -35,7 +36,7 @@ export function AssetUploadModal({
       setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreview(reader.result as string);
+        setPreview(reader.result as string && ASSET_TYPES.find((type) => type.key === selectedAssetType)?.accept === "image/*" ? reader.result as string : null);
       };
       reader.readAsDataURL(file);
     }
@@ -106,12 +107,12 @@ export function AssetUploadModal({
 
               <div>
                 <label className="block text-sm font-medium text-zinc-300 mb-2">
-                  Image File
+                  File Upload
                 </label>
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept={ASSET_TYPES.find((type) => type.key === selectedAssetType)?.accept}
                   onChange={handleFileSelect}
                   className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#D8FA00] file:text-black hover:file:bg-[#C8E600]"
                 />

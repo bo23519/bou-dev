@@ -1,4 +1,5 @@
-import { query } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
+import { v } from "convex/values";
 
 export const getProjects = query({
     args: {},
@@ -24,5 +25,26 @@ export const getProjects = query({
                 };
             }),
         );
+    },
+});
+
+export const addProject = mutation({
+    args: {
+        title: v.string(),
+        description: v.string(),
+        tags: v.array(v.string()),
+        storageId: v.string(),
+        link: v.optional(v.string()),
+        repo: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        return await ctx.db.insert("projects", {
+            title: args.title,
+            description: args.description,
+            tags: args.tags,
+            storageId: args.storageId,
+            link: args.link,
+            repo: args.repo,
+        });
     },
 });
