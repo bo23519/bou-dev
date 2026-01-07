@@ -11,7 +11,7 @@ import { TagSelector } from "@/components/tags/TagSelector";
 
 export default function CreatePage() {
   const router = useRouter();
-  const addBlogPost = useMutation(api.blogPosts.addBlogPost);
+  const addBlogPost = useMutation(api.content.blogPosts.addBlogPost);
 
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]);

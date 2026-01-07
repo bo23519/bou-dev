@@ -7,13 +7,13 @@ const crons = cronJobs();
 crons.daily(
   "cleanup soft-deleted commissions",
   { hourUTC: 3, minuteUTC: 0 },
-  internal.cleanup.cleanupCommissions
+  internal.system.cleanup.cleanupCommissions
 );
 
 crons.daily(
   "cleanup soft-deleted blog posts",
   { hourUTC: 3, minuteUTC: 5 },
-  internal.cleanup.cleanupBlogPosts
+  internal.system.cleanup.cleanupBlogPosts
 );
 
 export default crons;

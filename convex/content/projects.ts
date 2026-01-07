@@ -1,4 +1,4 @@
-import { query, mutation } from "./_generated/server";
+import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
 
 export const getProjects = query({
@@ -7,7 +7,6 @@ export const getProjects = query({
         const projects = await ctx.db.query("projects").collect();
         return Promise.all(
             projects.map(async (project) => {
-                // Only try to get URL if storageId exists
                 let imageUrl: string | null = null;
                 if (project.storageId) {
                     try {
@@ -19,8 +18,6 @@ export const getProjects = query({
 
                 return {
                     ...project,
-                    // Replace the storage ID with the actual URL
-                    // We use the original storageId as a fallback if the file isn't found
                     storageId: imageUrl ?? project.storageId,
                 };
             }),

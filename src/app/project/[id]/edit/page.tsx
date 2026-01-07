@@ -23,11 +23,11 @@ export default function EditProjectPage() {
   const projectId = isValidId ? (idString as Id<"projects">) : undefined;
 
   const project = useQuery(
-    api.projects.getProjectById,
+    api.content.projects.getProjectById,
     projectId ? { id: projectId } : "skip"
   );
 
-  const updateProject = useMutation(api.projects.updateProject);
+  const updateProject = useMutation(api.content.projects.updateProject);
   const { isAdmin, isLoading: authLoading } = useAdminAuth({ redirectTo: "/", requireAuth: true });
   const { uploadFile, isUploading } = useFileUpload();
 

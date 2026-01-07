@@ -31,10 +31,10 @@ export const NavBar = () => {
   const loginMutation = useMutation((api as any).auth.login);
   const logoutMutation = useMutation((api as any).auth.logout);
   const verifyTokenMutation = useMutation((api as any).auth.verifyToken);
-  const setAssetMutation = useMutation(api.assets.setAsset);
+  const setAssetMutation = useMutation(api.storage.assets.setAsset);
   const { uploadFile, isUploading } = useFileUpload();
 
-  const assets = useQuery(api.assets.getAssets);
+  const assets = useQuery(api.storage.assets.getAssets);
   const iconUrl = assets?.logo?.url;
 
   const navLinks = [

@@ -14,7 +14,7 @@ import { TagSelector } from "@/components/tags/TagSelector";
 
 export default function CreateProjectPage() {
   const router = useRouter();
-  const addProject = useMutation(api.projects.addProject);
+  const addProject = useMutation(api.content.projects.addProject);
   const { isAdmin, isLoading: authLoading } = useAdminAuth({ redirectTo: "/", requireAuth: true });
   const { uploadFile, isUploading } = useFileUpload();
 

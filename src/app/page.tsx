@@ -10,10 +10,10 @@ import { ArrowRight } from "lucide-react";
 import { TagDisplay } from "@/components/tags/TagDisplay";
 
 export default function Home() {
-  const addView = useMutation((api as any).stats.addView);
-  const latestCommission = useQuery(api.commissions.getLatestCommission);
-  const latestBlogPost = useQuery(api.blogPosts.getLatestBlogPost);
-  const assets = useQuery(api.assets.getAssets);
+  const addView = useMutation(api.system.stats.addView);
+  const latestCommission = useQuery(api.content.commissions.getLatestCommission);
+  const latestBlogPost = useQuery(api.content.blogPosts.getLatestBlogPost);
+  const assets = useQuery(api.storage.assets.getAssets);
   const heroBackgroundUrl = assets?.heroBackground?.url;
 
   useEffect(() => {

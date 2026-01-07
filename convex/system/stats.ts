@@ -1,4 +1,4 @@
-import { mutation, query } from "./_generated/server";
+import { mutation, query } from "../_generated/server";
 
 export const getLikes = query({
     args: {},
@@ -14,11 +14,9 @@ export const addLike = mutation({
       const stats = await ctx.db.query("stats").first();
       
       if (stats) {
-        // Update existing document - only patch the likes field
         await ctx.db.patch(stats._id, { likes: stats.likes + 1 });
         return stats.likes + 1;
       } else {
-        // Create new document if it doesn't exist
         await ctx.db.insert("stats", { likes: 1, views: 0 });
         return 1;
       }

@@ -32,7 +32,7 @@ export const HorizontalScrollCarouselExample = () => {
 // From template
 export const HorizontalScrollCarousel = () => {
     // 1. Fetch data from Convex
-    const projects = useQuery(api.projects.getProjects);
+    const projects = useQuery(api.content.projects.getProjects);
     const verifyTokenMutation = useMutation((api as any).auth.verifyToken);
     const [isAdmin, setIsAdmin] = useState(false);
 

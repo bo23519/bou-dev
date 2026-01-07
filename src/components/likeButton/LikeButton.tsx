@@ -1,22 +1,18 @@
 import { DrawOutlineButton } from "@/components/ui/button";
 import { ThumbsUpIcon } from "lucide-react";
-import { getLikes } from "../../../convex/stats";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useLoadingTriggers } from "@/contexts/LoadingTriggersContext";
 
 export const LikeButton = () => {
-    const likes = useQuery(api.stats.getLikes);
-    const addLike = useMutation(api.stats.addLike);
-    const links = useQuery(api.links.getLinks);
+    const likes = useQuery(api.system.stats.getLikes);
+    const addLike = useMutation(api.system.stats.addLike);
+    const links = useQuery(api.system.links.getLinks);
     const [showLiked, setShowLiked] = useState(false);
-    const { triggerAll } = useLoadingTriggers();
 
     const HandleLike = () => {
         addLike();
-        triggerAll();
         setShowLiked(true);
         setTimeout(() => {
             setShowLiked(false);

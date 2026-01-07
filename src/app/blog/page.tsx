@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense } from "react";
 import { useQuery } from "convex/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -9,7 +9,6 @@ import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { Pagination } from "@/components/blog/Pagination";
 import { formatBlogDate, BLOG_CONSTANTS } from "@/lib/blog-utils";
-import { useLoadingTriggers } from "@/contexts/LoadingTriggersContext";
 import { TagDisplay } from "@/components/tags/TagDisplay";
 
 const ITEMS_PER_PAGE = BLOG_CONSTANTS.ITEMS_PER_PAGE;
@@ -18,14 +17,9 @@ function BlogPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
-  const { triggerBlogs } = useLoadingTriggers();
-
-  useEffect(() => {
-    triggerBlogs();
-  }, [triggerBlogs]);
 
   const result = useQuery(
-    api.blogPosts.getBlogPostByPage,
+    api.content.blogPosts.getBlogPostByPage,
     {
     page: currentPage,
     itemsPerPage: ITEMS_PER_PAGE,
@@ -33,7 +27,7 @@ function BlogPageContent() {
   );
 
   const numOfPages = useQuery(
-    api.blogPosts.getNumOfPages,
+    api.content.blogPosts.getNumOfPages,
     {
     itemsPerPage: ITEMS_PER_PAGE,
     }

@@ -10,7 +10,7 @@ interface TagDisplayProps {
 }
 
 export function TagDisplay({ tags, maxTags, size = "sm" }: TagDisplayProps) {
-  const allTags = useQuery(api.tags.getAllTags);
+  const allTags = useQuery(api.system.tags.getAllTags);
 
   const getTagColor = (tagName: string): string => {
     const tag = allTags?.find((t) => t.name === tagName);
