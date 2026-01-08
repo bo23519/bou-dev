@@ -30,7 +30,7 @@ export default function CreateCommissionPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState<string[]>([]);
-  const [status, setStatus] = useState<typeof STATUS_OPTIONS[number]>("Todo");
+  const [status, setStatus] = useState<typeof STATUS_OPTIONS[number]>("Backlog");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
