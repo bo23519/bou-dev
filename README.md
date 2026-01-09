@@ -92,39 +92,76 @@ flowchart LR
 
 ### Prerequisites
 
-- Node.js 18+
-- npm or pnpm
-- Convex account (free tier available)
+- **Node.js** 18+ ([download](https://nodejs.org/))
+- **npm** (comes with Node.js) or **pnpm**
+- **Convex account** ([sign up for free](https://convex.dev/))
 
 ### Installation
 
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/yourusername/portfolio.git
+   cd portfolio
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Set up Convex:**
+   
+   Run the Convex dev command. This will:
+   - Prompt you to log in or create a Convex account
+   - Create a new Convex project (or connect to existing)
+   - Generate a `convex.json` configuration file
+   - Create `.env.local` with your Convex deployment URL
+   - Start the Convex dev server with hot reload
+   
+   ```bash
+   npx convex dev
+   ```
+   
+   Keep this terminal running. The Convex dev server will:
+   - Watch for changes in the `convex/` directory
+   - Auto-deploy functions and schema changes
+   - Stream logs from your Convex functions
+
+4. **Start the Next.js development server:**
+   
+   In a **new terminal**, run:
+   ```bash
+   npm run dev
+   ```
+
+5. **Open your browser:**
+   
+   Navigate to [http://localhost:3000](http://localhost:3000) to see the app.
+
+### Optional: Import Sample Data
+
+If you want to populate your database with sample data, you can import from the JSONL files in the `local/` directory:
+
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/portfolio.git
-cd portfolio
-
-# Install dependencies
-npm install
-
-# Set up Convex (follow prompts to create a new project)
-npx convex dev
-
-# In a new terminal, start the dev server
-npm run dev
+# Import to dev deployment
+npx convex import --table projects local/projects.jsonl --replace
+npx convex import --table links local/links.jsonl --replace
+npx convex import --table blogPosts local/blogPosts.jsonl --replace
+npx convex import --table commissions local/commissions.jsonl --replace
 ```
-
-Open [http://localhost:3000](http://localhost:3000) to see the app.
 
 ---
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `NEXT_PUBLIC_CONVEX_URL` | Convex deployment URL | ✅ |
-| `CONVEX_DEPLOYMENT` | Convex deployment name | ✅ |
+The following environment variables are automatically created in `.env.local` when you run `npx convex dev`:
 
-These are automatically populated when running `npx convex dev`.
+| Variable | Description | Required | Auto-generated |
+|----------|-------------|----------|----------------|
+| `NEXT_PUBLIC_CONVEX_URL` | Convex deployment URL | ✅ | Yes |
+| `CONVEX_DEPLOYMENT` | Convex deployment name | ✅ | Yes |
+
+**Note:** The `.env.local` file is automatically created and should not be committed to git. Make sure it's listed in your `.gitignore`.
 
 ---
 
@@ -133,29 +170,48 @@ These are automatically populated when running `npx convex dev`.
 ```
 ├── convex/                    # Convex backend
 │   ├── _generated/            # Auto-generated types & API
-│   ├── schema.ts              # Database schema
-│   ├── auth.ts                # Authentication functions
-│   ├── blogPosts.ts           # Blog post queries & mutations
-│   ├── commissions.ts         # Commission queries & mutations
-│   ├── files.ts               # File upload functions
-│   ├── links.ts               # Links queries
-│   ├── projects.ts            # Projects queries
-│   └── stats.ts               # Statistics queries
+│   ├── content/               # Content-related queries & mutations
+│   │   ├── blogPosts.ts       # Blog post queries & mutations
+│   │   ├── commissions.ts     # Commission queries & mutations
+│   │   └── projects.ts        # Project queries & mutations
+│   ├── storage/               # File storage functions
+│   │   ├── assets.ts          # Asset management
+│   │   └── files.ts           # File upload & retrieval
+│   ├── system/                # System & utility functions
+│   │   ├── auth.ts            # Authentication functions
+│   │   ├── cleanup.ts         # Data cleanup tasks
+│   │   ├── links.ts           # Links queries
+│   │   ├── stats.ts           # Statistics queries
+│   │   └── tags.ts            # Tag management
+│   ├── crons.ts               # Scheduled cron jobs
+│   ├── schema.ts              # Database schema definitions
+│   └── tsconfig.json          # TypeScript config for Convex
 ├── src/
 │   ├── app/                   # Next.js App Router
 │   │   ├── blog/              # Blog pages
 │   │   │   ├── [id]/          # Individual blog post pages
-│   │   │   ├── create/        # Create blog post
-│   │   │   └── page.tsx       # Blog listing
+│   │   │   │   ├── delete/    # Delete confirmation page
+│   │   │   │   ├── edit/      # Edit blog post page
+│   │   │   │   └── page.tsx   # Blog post detail page
+│   │   │   ├── create/        # Create blog post page
+│   │   │   └── page.tsx       # Blog listing page
 │   │   ├── commission/        # Commission pages
 │   │   │   ├── [id]/          # Individual commission pages
-│   │   │   ├── create/        # Create commission
-│   │   │   └── page.tsx       # Commission listing
+│   │   │   │   ├── delete/    # Delete confirmation page
+│   │   │   │   ├── edit/      # Edit commission page
+│   │   │   │   └── page.tsx   # Commission detail page
+│   │   │   ├── create/        # Create commission page
+│   │   │   └── page.tsx       # Commission listing page
+│   │   ├── project/           # Project pages
+│   │   │   ├── [id]/          # Individual project pages
+│   │   │   │   └── edit/      # Edit project page
+│   │   │   └── create/        # Create project page
 │   │   ├── layout.tsx         # Root layout with providers
 │   │   ├── page.tsx           # Home page
 │   │   └── globals.css        # Global styles
 │   ├── components/
 │   │   ├── admin/             # Admin components
+│   │   │   ├── AssetUploadModal.tsx
 │   │   │   ├── DeleteConfirmationPage.tsx
 │   │   │   ├── FileUpload.tsx
 │   │   │   ├── LoadingState.tsx
@@ -164,33 +220,49 @@ These are automatically populated when running `npx convex dev`.
 │   │   │   └── Pagination.tsx
 │   │   ├── carousel/          # Carousel components
 │   │   │   └── horizontalScrollCarousel/
+│   │   │       └── HorizontalScrollCarousel.tsx
+│   │   ├── commission/        # Commission components
+│   │   │   └── CommissionDetailModal.tsx
+│   │   ├── convex/            # Convex-specific components
+│   │   │   └── ConvexImage.tsx
 │   │   ├── editor/            # Editor components
 │   │   │   └── TipTapEditor.tsx
 │   │   ├── hero/              # Hero section components
 │   │   │   └── SmoothScrollHeroSection.tsx
+│   │   ├── likeButton/        # Like button component
+│   │   │   └── LikeButton.tsx
 │   │   ├── navigation/        # Navigation components
 │   │   │   └── NavBar.tsx
-│   │   └── ui/                # UI components
-│   │       ├── button.tsx
-│   │       └── Input.tsx
+│   │   ├── tags/              # Tag components
+│   │   │   ├── TagDisplay.tsx
+│   │   │   └── TagSelector.tsx
+│   │   ├── ui/                # UI components (shadcn/ui)
+│   │   │   ├── button.tsx
+│   │   │   └── Input.tsx
+│   │   └── convex-provider.tsx # Convex client provider
 │   ├── hooks/                 # Custom React hooks
-│   │   ├── useAdminAuth.ts
-│   │   └── useFileUpload.ts
+│   │   ├── useAdminAuth.ts    # Admin authentication hook
+│   │   └── useFileUpload.ts   # File upload hook
 │   └── lib/                   # Utility functions
-│       ├── blog-utils.ts
-│       ├── colors.ts
-│       ├── styles.ts
-│       └── utils.ts
+│       ├── blog-utils.ts      # Blog-related utilities
+│       ├── colors.ts          # Color constants
+│       ├── styles.ts          # Style utilities
+│       └── utils.ts           # General utilities
 ├── local/                     # Local data files for import
+│   ├── auth.jsonl
+│   ├── blogPosts.jsonl
+│   ├── commissions.jsonl
 │   ├── links.jsonl
 │   ├── links_prod.jsonl
 │   ├── projects.jsonl
-│   ├── projects_prod.jsonl
-│   ├── blogPosts.jsonl
-│   └── commissions.jsonl
-├── tailwind.config.ts
-├── next.config.mjs
-└── package.json
+│   └── projects_prod.jsonl
+├── public/                    # Static assets
+├── components.json            # shadcn/ui components config
+├── tailwind.config.ts         # Tailwind CSS configuration
+├── postcss.config.mjs         # PostCSS configuration
+├── next.config.mjs            # Next.js configuration
+├── tsconfig.json              # TypeScript configuration
+└── package.json               # Dependencies & scripts
 ```
 
 ---

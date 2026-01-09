@@ -66,15 +66,19 @@ export default function Home() {
                 {latestCommission ? (
                   <div className="flex-1 flex flex-col">
                     <h3 className="text-lg font-bold text-[#EFF0EF] line-clamp-1">{latestCommission.title}</h3>
-                    <p className="text-sm text-zinc-400 line-clamp-2 mt-2 flex-1">{latestCommission.description}</p>
                     <div className="mt-3">
                       <TagDisplay tags={latestCommission.tags} maxTags={3} size="sm" />
                     </div>
                   </div>
+                  
                 ) : (
                   <p className="text-zinc-500 italic">No commissions yet</p>
                 )}
               </div>
+
+              <p className="text-sm text-muted-foreground mb-8 w-4/5 mx-auto text-center">
+                Tickets for myself to work on. <br />Board inspired by Zenless Zone Zero.
+              </p>
             </div>
           </Link>
 
@@ -118,9 +122,21 @@ export default function Home() {
                   <p className="text-zinc-500 italic">No blog posts yet</p>
                 )}
               </div>
+
+              <p className="text-sm text-muted-foreground mb-8 w-4/5 mx-auto text-center">
+                Blog posts about my learning and thoughts.
+                <br />
+                Practice my writing and expressions.
+              </p>
             </div>
           </Link>
         </div>
+
+
+        <p className="text-sm text-muted-foreground mb-8 w-4/5 mx-auto text-center">
+        This site's design and color scheme are inspired by the game <a href="https://zenless.hoyoverse.com/" className="text-[#D8FA00]">Zenless Zone Zero</a>. <br/>
+        Hero section/Horizontal scroll carousel/Draw outline button etc. are from <a href="https://www.hover.dev/components/" className="text-[#5349E6]">Hover</a>.
+        </p>
 
       </div>
     </main>
