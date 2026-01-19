@@ -12,6 +12,8 @@ import { TagSelector } from "@/components/tags/TagSelector";
 export default function CreatePage() {
   const router = useRouter();
   const addBlogPost = useMutation(api.content.blogPosts.addBlogPost);
+  const upsertDraft = useMutation(api.content.drafts.upsertDraft);
+  const deleteDraft = useMutation(api.content.drafts.deleteDraft);
   const draft = useQuery(api.content.drafts.getDraft, { type: "blog" });
 
   const [title, setTitle] = useState("");
@@ -28,6 +30,21 @@ export default function CreatePage() {
     }
   }, [draft]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      upsertDraft({
+        type: "blog",
+        data: {
+          title,
+          content,
+          tags,
+        },
+      });
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [title, content, tags, upsertDraft]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) {
@@ -43,6 +60,7 @@ export default function CreatePage() {
         tags,
       });
 
+      await deleteDraft({ type: "blog" });
       router.push("/blog");
     } catch (error) {
       console.error("Error creating blog post:", error);

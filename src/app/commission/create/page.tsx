@@ -24,6 +24,8 @@ const STATUS_OPTIONS = [
 export default function CreateCommissionPage() {
   const router = useRouter();
   const addCommission = useMutation(api.content.commissions.addCommission);
+  const upsertDraft = useMutation(api.content.drafts.upsertDraft);
+  const deleteDraft = useMutation(api.content.drafts.deleteDraft);
   const { isAdmin, isLoading: authLoading } = useAdminAuth({ redirectTo: "/commission", requireAuth: true });
   const { uploadFile, isUploading } = useFileUpload();
   const draft = useQuery(api.content.drafts.getDraft, { type: "commission" });
@@ -54,6 +56,22 @@ export default function CreateCommissionPage() {
       setDraftLoaded(true);
     }
   }, [draft, draftLoaded]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      upsertDraft({
+        type: "commission",
+        data: {
+          title,
+          description,
+          tags,
+          status,
+        },
+      });
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [title, description, tags, status, upsertDraft]);
 
   if (authLoading) {
     return <LoadingState />;
@@ -96,6 +114,7 @@ export default function CreateCommissionPage() {
         cover: coverStorageId,
       });
 
+      await deleteDraft({ type: "commission" });
       router.push("/commission");
     } catch (error) {
       console.error("Error creating commission:", error);

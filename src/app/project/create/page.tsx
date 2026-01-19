@@ -15,6 +15,8 @@ import { TagSelector } from "@/components/tags/TagSelector";
 export default function CreateProjectPage() {
   const router = useRouter();
   const addProject = useMutation(api.content.projects.addProject);
+  const upsertDraft = useMutation(api.content.drafts.upsertDraft);
+  const deleteDraft = useMutation(api.content.drafts.deleteDraft);
   const { isAdmin, isLoading: authLoading } = useAdminAuth({ redirectTo: "/", requireAuth: true });
   const { uploadFile, isUploading } = useFileUpload();
   const draft = useQuery(api.content.drafts.getDraft, { type: "project" });
@@ -51,6 +53,23 @@ export default function CreateProjectPage() {
       setDraftLoaded(true);
     }
   }, [draft, draftLoaded]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      upsertDraft({
+        type: "project",
+        data: {
+          title,
+          description,
+          tags,
+          link,
+          repo,
+        },
+      });
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [title, description, tags, link, repo, upsertDraft]);
 
   if (authLoading) {
     return <LoadingState />;
@@ -95,6 +114,7 @@ export default function CreateProjectPage() {
         repo: repo.trim() || undefined,
       });
 
+      await deleteDraft({ type: "project" });
       router.push("/");
     } catch (error) {
       console.error("Error creating project:", error);
