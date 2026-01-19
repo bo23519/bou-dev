@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { DrawOutlineButton } from "@/components/ui/button";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
@@ -17,6 +17,7 @@ export default function CreateProjectPage() {
   const addProject = useMutation(api.content.projects.addProject);
   const { isAdmin, isLoading: authLoading } = useAdminAuth({ redirectTo: "/", requireAuth: true });
   const { uploadFile, isUploading } = useFileUpload();
+  const draft = useQuery(api.content.drafts.getDraft, { type: "project" });
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -26,6 +27,30 @@ export default function CreateProjectPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [draftLoaded, setDraftLoaded] = useState(false);
+
+  useEffect(() => {
+    if (draft?.data && !draftLoaded) {
+      const draftData = draft.data as {
+        title?: string;
+        description?: string;
+        tags?: string[];
+        link?: string;
+        repo?: string;
+        storageId?: string;
+      };
+      if (draftData.title) setTitle(draftData.title);
+      if (draftData.description) setDescription(draftData.description);
+      if (draftData.tags) setTags(draftData.tags);
+      if (draftData.link) setLink(draftData.link);
+      if (draftData.repo) setRepo(draftData.repo);
+      if (draftData.storageId) {
+        // Note: Can't restore File object from draft, only storageId reference
+        // User will need to re-upload file if needed
+      }
+      setDraftLoaded(true);
+    }
+  }, [draft, draftLoaded]);
 
   if (authLoading) {
     return <LoadingState />;

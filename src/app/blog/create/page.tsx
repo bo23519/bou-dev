@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import { PageHeader } from "@/components/admin/PageHeader";
@@ -12,11 +12,21 @@ import { TagSelector } from "@/components/tags/TagSelector";
 export default function CreatePage() {
   const router = useRouter();
   const addBlogPost = useMutation(api.content.blogPosts.addBlogPost);
+  const draft = useQuery(api.content.drafts.getDraft, { type: "blog" });
 
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (draft?.data) {
+      const draftData = draft.data as { title?: string; content?: string; tags?: string[] };
+      if (draftData.title) setTitle(draftData.title);
+      if (draftData.content) setContent(draftData.content);
+      if (draftData.tags) setTags(draftData.tags);
+    }
+  }, [draft]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
