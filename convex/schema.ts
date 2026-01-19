@@ -89,4 +89,17 @@ export default defineSchema({
     icon: v.string(),
     file: v.boolean(),
   }),
+
+  // ============================================
+  // DRAFTS - Auto-saved draft content
+  // ============================================
+  drafts: defineTable({
+    type: v.union(
+      v.literal("blog"),
+      v.literal("project"),
+      v.literal("commission")
+    ),
+    data: v.any(),
+    updatedAt: v.number(),
+  }).index("by_type", ["type"]),
 });

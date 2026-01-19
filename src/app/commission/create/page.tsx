@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { DrawOutlineButton } from "@/components/ui/button";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
@@ -24,8 +24,11 @@ const STATUS_OPTIONS = [
 export default function CreateCommissionPage() {
   const router = useRouter();
   const addCommission = useMutation(api.content.commissions.addCommission);
+  const upsertDraft = useMutation(api.content.drafts.upsertDraft);
+  const deleteDraft = useMutation(api.content.drafts.deleteDraft);
   const { isAdmin, isLoading: authLoading } = useAdminAuth({ redirectTo: "/commission", requireAuth: true });
   const { uploadFile, isUploading } = useFileUpload();
+  const draft = useQuery(api.content.drafts.getDraft, { type: "commission" });
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -34,6 +37,78 @@ export default function CreateCommissionPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [draftLoaded, setDraftLoaded] = useState(false);
+
+  const stateRef = useRef({ title, description, tags, status });
+
+  useEffect(() => {
+    stateRef.current = { title, description, tags, status };
+  }, [title, description, tags, status]);
+
+  useEffect(() => {
+    if (draft?.data && !draftLoaded) {
+      const draftData = draft.data as {
+        title?: string;
+        description?: string;
+        tags?: string[];
+        status?: typeof STATUS_OPTIONS[number];
+        cover?: string;
+      };
+      if (draftData.title) setTitle(draftData.title);
+      if (draftData.description) setDescription(draftData.description);
+      if (draftData.tags) setTags(draftData.tags);
+      if (draftData.status) setStatus(draftData.status);
+      // Note: Can't restore File object from draft, only storageId reference
+      setDraftLoaded(true);
+    }
+  }, [draft, draftLoaded]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const formData = {
+        title: stateRef.current.title.trim(),
+        description: stateRef.current.description.trim(),
+        tags: stateRef.current.tags,
+        status: stateRef.current.status,
+      };
+      
+      upsertDraft({
+        type: "commission",
+        data: formData,
+      });
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [upsertDraft]);
+
+  const handleSaveDraft = async () => {
+    setIsSavingDraft(true);
+    try {
+      const formData = getFormData();
+      
+      await upsertDraft({
+        type: "commission",
+        data: formData,
+      });
+      
+      alert("Draft saved successfully!");
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      alert("Failed to save draft");
+    } finally {
+      setIsSavingDraft(false);
+    }
+  };
+
+  const getFormData = () => {
+    return {
+      title: stateRef.current.title.trim(),
+      description: stateRef.current.description.trim(),
+      tags: stateRef.current.tags,
+      status: stateRef.current.status,
+    };
+  };
 
   if (authLoading) {
     return <LoadingState />;
@@ -54,7 +129,9 @@ export default function CreateCommissionPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !description.trim()) {
+    const formData = getFormData();
+    
+    if (!formData.title || !formData.description) {
       alert("Title and description are required");
       return;
     }
@@ -69,13 +146,11 @@ export default function CreateCommissionPage() {
       }
 
       await addCommission({
-        title: title.trim(),
-        description: description.trim(),
-        tags,
-        status,
+        ...formData,
         cover: coverStorageId,
       });
 
+      await deleteDraft({ type: "commission" });
       router.push("/commission");
     } catch (error) {
       console.error("Error creating commission:", error);
@@ -157,10 +232,18 @@ export default function CreateCommissionPage() {
           <div className="flex gap-4">
             <DrawOutlineButton
               type="submit"
-              disabled={isSubmitting}
-              className={isSubmitting ? "opacity-50 cursor-not-allowed" : ""}
+              disabled={isSubmitting || isSavingDraft}
+              className={isSubmitting || isSavingDraft ? "opacity-50 cursor-not-allowed" : ""}
             >
               {isSubmitting ? (isUploading ? "Uploading..." : "Creating...") : "Create Commission"}
+            </DrawOutlineButton>
+            <DrawOutlineButton
+              type="button"
+              onClick={handleSaveDraft}
+              disabled={isSavingDraft || isSubmitting}
+              className={isSavingDraft || isSubmitting ? "opacity-50 cursor-not-allowed" : ""}
+            >
+              {isSavingDraft ? "Saving..." : "Save as Draft"}
             </DrawOutlineButton>
           </div>
         </form>

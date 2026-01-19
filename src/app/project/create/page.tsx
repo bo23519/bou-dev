@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { DrawOutlineButton } from "@/components/ui/button";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
@@ -15,8 +15,11 @@ import { TagSelector } from "@/components/tags/TagSelector";
 export default function CreateProjectPage() {
   const router = useRouter();
   const addProject = useMutation(api.content.projects.addProject);
+  const upsertDraft = useMutation(api.content.drafts.upsertDraft);
+  const deleteDraft = useMutation(api.content.drafts.deleteDraft);
   const { isAdmin, isLoading: authLoading } = useAdminAuth({ redirectTo: "/", requireAuth: true });
   const { uploadFile, isUploading } = useFileUpload();
+  const draft = useQuery(api.content.drafts.getDraft, { type: "project" });
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -26,6 +29,85 @@ export default function CreateProjectPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [draftLoaded, setDraftLoaded] = useState(false);
+
+  const stateRef = useRef({ title, description, tags, link, repo });
+
+  useEffect(() => {
+    stateRef.current = { title, description, tags, link, repo };
+  }, [title, description, tags, link, repo]);
+
+  useEffect(() => {
+    if (draft?.data && !draftLoaded) {
+      const draftData = draft.data as {
+        title?: string;
+        description?: string;
+        tags?: string[];
+        link?: string;
+        repo?: string;
+        storageId?: string;
+      };
+      if (draftData.title) setTitle(draftData.title);
+      if (draftData.description) setDescription(draftData.description);
+      if (draftData.tags) setTags(draftData.tags);
+      if (draftData.link) setLink(draftData.link);
+      if (draftData.repo) setRepo(draftData.repo);
+      if (draftData.storageId) {
+        // Note: Can't restore File object from draft, only storageId reference
+        // User will need to re-upload file if needed
+      }
+      setDraftLoaded(true);
+    }
+  }, [draft, draftLoaded]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const formData = {
+        title: stateRef.current.title.trim(),
+        description: stateRef.current.description.trim(),
+        tags: stateRef.current.tags,
+        link: stateRef.current.link.trim() || undefined,
+        repo: stateRef.current.repo.trim() || undefined,
+      };
+      
+      upsertDraft({
+        type: "project",
+        data: formData,
+      });
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [upsertDraft]);
+
+  const handleSaveDraft = async () => {
+    setIsSavingDraft(true);
+    try {
+      const formData = getFormData();
+      
+      await upsertDraft({
+        type: "project",
+        data: formData,
+      });
+      
+      alert("Draft saved successfully!");
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      alert("Failed to save draft");
+    } finally {
+      setIsSavingDraft(false);
+    }
+  };
+
+  const getFormData = () => {
+    return {
+      title: stateRef.current.title.trim(),
+      description: stateRef.current.description.trim(),
+      tags: stateRef.current.tags,
+      link: stateRef.current.link.trim() || undefined,
+      repo: stateRef.current.repo.trim() || undefined,
+    };
+  };
 
   if (authLoading) {
     return <LoadingState />;
@@ -46,7 +128,9 @@ export default function CreateProjectPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !description.trim()) {
+    const formData = getFormData();
+    
+    if (!formData.title || !formData.description) {
       alert("Title and description are required");
       return;
     }
@@ -62,14 +146,11 @@ export default function CreateProjectPage() {
       const storageId = await uploadFile(selectedFile);
 
       await addProject({
-        title: title.trim(),
-        description: description.trim(),
-        tags,
+        ...formData,
         storageId,
-        link: link.trim() || undefined,
-        repo: repo.trim() || undefined,
       });
 
+      await deleteDraft({ type: "project" });
       router.push("/");
     } catch (error) {
       console.error("Error creating project:", error);
@@ -161,10 +242,18 @@ export default function CreateProjectPage() {
           <div className="flex gap-4">
             <DrawOutlineButton
               type="submit"
-              disabled={isSubmitting}
-              className={isSubmitting ? "opacity-50 cursor-not-allowed" : ""}
+              disabled={isSubmitting || isSavingDraft}
+              className={isSubmitting || isSavingDraft ? "opacity-50 cursor-not-allowed" : ""}
             >
               {isSubmitting ? (isUploading ? "Uploading..." : "Creating...") : "Create Project"}
+            </DrawOutlineButton>
+            <DrawOutlineButton
+              type="button"
+              onClick={handleSaveDraft}
+              disabled={isSavingDraft || isSubmitting}
+              className={isSavingDraft || isSubmitting ? "opacity-50 cursor-not-allowed" : ""}
+            >
+              {isSavingDraft ? "Saving..." : "Save as Draft"}
             </DrawOutlineButton>
           </div>
         </form>
