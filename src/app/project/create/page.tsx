@@ -31,31 +31,11 @@ export default function CreateProjectPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
 
-  const titleRef = useRef(title);
-  const descriptionRef = useRef(description);
-  const tagsRef = useRef(tags);
-  const linkRef = useRef(link);
-  const repoRef = useRef(repo);
+  const stateRef = useRef({ title, description, tags, link, repo });
 
   useEffect(() => {
-    titleRef.current = title;
-  }, [title]);
-
-  useEffect(() => {
-    descriptionRef.current = description;
-  }, [description]);
-
-  useEffect(() => {
-    tagsRef.current = tags;
-  }, [tags]);
-
-  useEffect(() => {
-    linkRef.current = link;
-  }, [link]);
-
-  useEffect(() => {
-    repoRef.current = repo;
-  }, [repo]);
+    stateRef.current = { title, description, tags, link, repo };
+  }, [title, description, tags, link, repo]);
 
   useEffect(() => {
     if (draft?.data && !draftLoaded) {
@@ -82,20 +62,41 @@ export default function CreateProjectPage() {
 
   useEffect(() => {
     const interval = setInterval(() => {
+      const formData = {
+        title: stateRef.current.title.trim(),
+        description: stateRef.current.description.trim(),
+        tags: stateRef.current.tags,
+        link: stateRef.current.link.trim() || undefined,
+        repo: stateRef.current.repo.trim() || undefined,
+      };
+      
+      console.log("[Auto-save] Attempting to save project draft:", {
+        title: formData.title,
+        descriptionLength: formData.description?.length || 0,
+        descriptionPreview: formData.description?.substring(0, 100) || "empty",
+        tags: formData.tags,
+        link: formData.link,
+        repo: formData.repo,
+      });
+      
       upsertDraft({
         type: "project",
-        data: {
-          title: titleRef.current,
-          description: descriptionRef.current,
-          tags: tagsRef.current,
-          link: linkRef.current,
-          repo: repoRef.current,
-        },
+        data: formData,
       });
     }, 15000);
 
     return () => clearInterval(interval);
   }, [upsertDraft]);
+
+  const getFormData = () => {
+    return {
+      title: stateRef.current.title.trim(),
+      description: stateRef.current.description.trim(),
+      tags: stateRef.current.tags,
+      link: stateRef.current.link.trim() || undefined,
+      repo: stateRef.current.repo.trim() || undefined,
+    };
+  };
 
   if (authLoading) {
     return <LoadingState />;
@@ -116,7 +117,9 @@ export default function CreateProjectPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !description.trim()) {
+    const formData = getFormData();
+    
+    if (!formData.title || !formData.description) {
       alert("Title and description are required");
       return;
     }
@@ -132,12 +135,8 @@ export default function CreateProjectPage() {
       const storageId = await uploadFile(selectedFile);
 
       await addProject({
-        title: title.trim(),
-        description: description.trim(),
-        tags,
+        ...formData,
         storageId,
-        link: link.trim() || undefined,
-        repo: repo.trim() || undefined,
       });
 
       await deleteDraft({ type: "project" });

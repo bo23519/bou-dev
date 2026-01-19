@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
-import { TipTapEditor } from "@/components/editor/TipTapEditor";
+import { TipTapEditor, TipTapEditorRef } from "@/components/editor/TipTapEditor";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DrawOutlineButton } from "@/components/ui/button";
 import { TagSelector } from "@/components/tags/TagSelector";
@@ -21,60 +21,79 @@ export default function CreatePage() {
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const titleRef = useRef(title);
-  const contentRef = useRef(content);
-  const tagsRef = useRef(tags);
+  const editorRef = useRef<TipTapEditorRef>(null);
+  const stateRef = useRef({ title, tags, content });
 
   useEffect(() => {
-    titleRef.current = title;
-  }, [title]);
+    stateRef.current = { title, tags, content };
+  }, [title, tags, content]);
+
+  const [draftLoaded, setDraftLoaded] = useState(false);
 
   useEffect(() => {
-    contentRef.current = content;
-  }, [content]);
-
-  useEffect(() => {
-    tagsRef.current = tags;
-  }, [tags]);
-
-  useEffect(() => {
-    if (draft?.data) {
+    if (draft && draft.data && !draftLoaded) {
       const draftData = draft.data as { title?: string; content?: string; tags?: string[] };
+      
       if (draftData.title) setTitle(draftData.title);
       if (draftData.content) setContent(draftData.content);
       if (draftData.tags) setTags(draftData.tags);
+      
+      setDraftLoaded(true);
     }
-  }, [draft]);
+    
+    if (draft === null && !draftLoaded) {
+      setDraftLoaded(true);
+    }
+  }, [draft, draftLoaded]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      upsertDraft({
-        type: "blog",
-        data: {
-          title: titleRef.current,
-          content: contentRef.current,
-          tags: tagsRef.current,
-        },
-      });
-    }, 15000);
+    const saveDraft = async () => {
+      try {
+        const editorContent = editorRef.current?.getCurrentContent();
+        const stateContent = stateRef.current.content;
+        const currentContent = editorContent || stateContent;
+        
+        const formData = {
+          title: stateRef.current.title.trim(),
+          content: currentContent,
+          tags: stateRef.current.tags,
+        };
+        
+        await upsertDraft({
+          type: "blog",
+          data: formData,
+        });
+      } catch (error) {
+        console.error("Error auto-saving draft:", error);
+      }
+    };
+    
+    const interval = setInterval(saveDraft, 15000);
 
     return () => clearInterval(interval);
   }, [upsertDraft]);
 
+  const getFormData = () => {
+    const currentContent = editorRef.current?.getCurrentContent() || stateRef.current.content;
+    return {
+      title: stateRef.current.title.trim(),
+      content: currentContent,
+      tags: stateRef.current.tags,
+    };
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) {
+    const formData = getFormData();
+    
+    if (!formData.title || !formData.content.trim()) {
       alert("Title and content are required");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await addBlogPost({
-        title: title.trim(),
-        content,
-        tags,
-      });
+      await addBlogPost(formData);
 
       await deleteDraft({ type: "blog" });
       router.push("/blog");
@@ -111,7 +130,7 @@ export default function CreatePage() {
             <label className="block text-sm font-medium text-zinc-300 mb-2">
               Content
             </label>
-            <TipTapEditor content={content} onChange={setContent} />
+            <TipTapEditor ref={editorRef} content={content} onChange={setContent} />
           </div>
 
           <div className="flex gap-4">

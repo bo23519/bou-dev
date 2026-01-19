@@ -39,26 +39,11 @@ export default function CreateCommissionPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
 
-  const titleRef = useRef(title);
-  const descriptionRef = useRef(description);
-  const tagsRef = useRef(tags);
-  const statusRef = useRef(status);
+  const stateRef = useRef({ title, description, tags, status });
 
   useEffect(() => {
-    titleRef.current = title;
-  }, [title]);
-
-  useEffect(() => {
-    descriptionRef.current = description;
-  }, [description]);
-
-  useEffect(() => {
-    tagsRef.current = tags;
-  }, [tags]);
-
-  useEffect(() => {
-    statusRef.current = status;
-  }, [status]);
+    stateRef.current = { title, description, tags, status };
+  }, [title, description, tags, status]);
 
   useEffect(() => {
     if (draft?.data && !draftLoaded) {
@@ -80,19 +65,38 @@ export default function CreateCommissionPage() {
 
   useEffect(() => {
     const interval = setInterval(() => {
+      const formData = {
+        title: stateRef.current.title.trim(),
+        description: stateRef.current.description.trim(),
+        tags: stateRef.current.tags,
+        status: stateRef.current.status,
+      };
+      
+      console.log("[Auto-save] Attempting to save commission draft:", {
+        title: formData.title,
+        descriptionLength: formData.description?.length || 0,
+        descriptionPreview: formData.description?.substring(0, 100) || "empty",
+        tags: formData.tags,
+        status: formData.status,
+      });
+      
       upsertDraft({
         type: "commission",
-        data: {
-          title: titleRef.current,
-          description: descriptionRef.current,
-          tags: tagsRef.current,
-          status: statusRef.current,
-        },
+        data: formData,
       });
     }, 15000);
 
     return () => clearInterval(interval);
   }, [upsertDraft]);
+
+  const getFormData = () => {
+    return {
+      title: stateRef.current.title.trim(),
+      description: stateRef.current.description.trim(),
+      tags: stateRef.current.tags,
+      status: stateRef.current.status,
+    };
+  };
 
   if (authLoading) {
     return <LoadingState />;
@@ -113,7 +117,9 @@ export default function CreateCommissionPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !description.trim()) {
+    const formData = getFormData();
+    
+    if (!formData.title || !formData.description) {
       alert("Title and description are required");
       return;
     }
@@ -128,10 +134,7 @@ export default function CreateCommissionPage() {
       }
 
       await addCommission({
-        title: title.trim(),
-        description: description.trim(),
-        tags,
-        status,
+        ...formData,
         cover: coverStorageId,
       });
 

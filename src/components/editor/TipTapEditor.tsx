@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from "react";
 import { generateJSON } from "@tiptap/html";
 import StarterKit from "@tiptap/starter-kit";
 import { marked } from "marked";
@@ -8,6 +8,11 @@ import { marked } from "marked";
 interface TipTapEditorProps {
   content: string;
   onChange: (content: string) => void;
+}
+
+export interface TipTapEditorRef {
+  getCurrentContent: () => string;
+  getCurrentMarkdown: () => string;
 }
 
 // Convert TipTap JSON to markdown (simplified)
@@ -101,14 +106,37 @@ function markdownToJson(markdown: string): string {
   }
 }
 
-export const TipTapEditor = ({ content, onChange }: TipTapEditorProps) => {
+export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(
+  ({ content, onChange }, ref) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [markdown, setMarkdown] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
+  const markdownRef = useRef(markdown);
+  const previousContentRef = useRef<string | null>(null);
 
-  // Initialize: convert TipTap JSON to markdown
+  useImperativeHandle(ref, () => ({
+    getCurrentContent: () => {
+      const md = markdownRef.current || markdown;
+      if (!md.trim()) return "";
+      try {
+        const json = markdownToJson(md);
+        return json;
+      } catch (error) {
+        return "";
+      }
+    },
+    getCurrentMarkdown: () => {
+      return markdownRef.current || markdown;
+    },
+  }));
+
   useEffect(() => {
-    if (isInitialized) return;
+    markdownRef.current = markdown;
+  }, [markdown]);
+
+  // Initialize or re-initialize: convert TipTap JSON to markdown
+  useEffect(() => {
+    if (content === previousContentRef.current && isInitialized) return;
     
     if (content && content.trim()) {
       try {
@@ -116,12 +144,13 @@ export const TipTapEditor = ({ content, onChange }: TipTapEditorProps) => {
         const md = jsonToMarkdown(json);
         setMarkdown(md);
       } catch {
-        // If it's not JSON, assume it's already markdown
         setMarkdown(content);
       }
     } else {
       setMarkdown("");
     }
+    
+    previousContentRef.current = content;
     setIsInitialized(true);
   }, [content, isInitialized]);
 
@@ -129,8 +158,12 @@ export const TipTapEditor = ({ content, onChange }: TipTapEditorProps) => {
   useEffect(() => {
     if (!isInitialized) return;
     
-    const json = markdownToJson(markdown);
-    onChange(json);
+    try {
+      const json = markdownToJson(markdown);
+      onChange(json);
+    } catch (error) {
+      console.error("Error converting markdown to JSON:", error);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [markdown, isInitialized]);
 
@@ -288,4 +321,6 @@ export const TipTapEditor = ({ content, onChange }: TipTapEditorProps) => {
       />
     </div>
   );
-};
+});
+
+TipTapEditor.displayName = "TipTapEditor";
