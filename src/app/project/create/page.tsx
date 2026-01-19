@@ -29,6 +29,7 @@ export default function CreateProjectPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
 
   const stateRef = useRef({ title, description, tags, link, repo });
@@ -70,15 +71,6 @@ export default function CreateProjectPage() {
         repo: stateRef.current.repo.trim() || undefined,
       };
       
-      console.log("[Auto-save] Attempting to save project draft:", {
-        title: formData.title,
-        descriptionLength: formData.description?.length || 0,
-        descriptionPreview: formData.description?.substring(0, 100) || "empty",
-        tags: formData.tags,
-        link: formData.link,
-        repo: formData.repo,
-      });
-      
       upsertDraft({
         type: "project",
         data: formData,
@@ -87,6 +79,25 @@ export default function CreateProjectPage() {
 
     return () => clearInterval(interval);
   }, [upsertDraft]);
+
+  const handleSaveDraft = async () => {
+    setIsSavingDraft(true);
+    try {
+      const formData = getFormData();
+      
+      await upsertDraft({
+        type: "project",
+        data: formData,
+      });
+      
+      alert("Draft saved successfully!");
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      alert("Failed to save draft");
+    } finally {
+      setIsSavingDraft(false);
+    }
+  };
 
   const getFormData = () => {
     return {
@@ -231,10 +242,18 @@ export default function CreateProjectPage() {
           <div className="flex gap-4">
             <DrawOutlineButton
               type="submit"
-              disabled={isSubmitting}
-              className={isSubmitting ? "opacity-50 cursor-not-allowed" : ""}
+              disabled={isSubmitting || isSavingDraft}
+              className={isSubmitting || isSavingDraft ? "opacity-50 cursor-not-allowed" : ""}
             >
               {isSubmitting ? (isUploading ? "Uploading..." : "Creating...") : "Create Project"}
+            </DrawOutlineButton>
+            <DrawOutlineButton
+              type="button"
+              onClick={handleSaveDraft}
+              disabled={isSavingDraft || isSubmitting}
+              className={isSavingDraft || isSubmitting ? "opacity-50 cursor-not-allowed" : ""}
+            >
+              {isSavingDraft ? "Saving..." : "Save as Draft"}
             </DrawOutlineButton>
           </div>
         </form>

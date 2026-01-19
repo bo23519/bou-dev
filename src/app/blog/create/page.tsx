@@ -20,6 +20,7 @@ export default function CreatePage() {
   const [tags, setTags] = useState<string[]>([]);
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
 
   const editorRef = useRef<TipTapEditorRef>(null);
   const stateRef = useRef({ title, tags, content });
@@ -82,6 +83,33 @@ export default function CreatePage() {
     };
   };
 
+  const handleSaveDraft = async () => {
+    setIsSavingDraft(true);
+    try {
+      const editorContent = editorRef.current?.getCurrentContent();
+      const stateContent = stateRef.current.content;
+      const currentContent = editorContent || stateContent;
+      
+      const formData = {
+        title: stateRef.current.title.trim(),
+        content: currentContent,
+        tags: stateRef.current.tags,
+      };
+      
+      await upsertDraft({
+        type: "blog",
+        data: formData,
+      });
+      
+      alert("Draft saved successfully!");
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      alert("Failed to save draft");
+    } finally {
+      setIsSavingDraft(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = getFormData();
@@ -136,10 +164,18 @@ export default function CreatePage() {
           <div className="flex gap-4">
             <DrawOutlineButton
               type="submit"
-              disabled={isSubmitting}
-              className={isSubmitting ? "opacity-50 cursor-not-allowed" : ""}
+              disabled={isSubmitting || isSavingDraft}
+              className={isSubmitting || isSavingDraft ? "opacity-50 cursor-not-allowed" : ""}
             >
               {isSubmitting ? "Publishing..." : "Publish"}
+            </DrawOutlineButton>
+            <DrawOutlineButton
+              type="button"
+              onClick={handleSaveDraft}
+              disabled={isSavingDraft || isSubmitting}
+              className={isSavingDraft || isSubmitting ? "opacity-50 cursor-not-allowed" : ""}
+            >
+              {isSavingDraft ? "Saving..." : "Save as Draft"}
             </DrawOutlineButton>
           </div>
         </form>

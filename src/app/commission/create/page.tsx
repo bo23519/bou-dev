@@ -37,6 +37,7 @@ export default function CreateCommissionPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
 
   const stateRef = useRef({ title, description, tags, status });
@@ -72,14 +73,6 @@ export default function CreateCommissionPage() {
         status: stateRef.current.status,
       };
       
-      console.log("[Auto-save] Attempting to save commission draft:", {
-        title: formData.title,
-        descriptionLength: formData.description?.length || 0,
-        descriptionPreview: formData.description?.substring(0, 100) || "empty",
-        tags: formData.tags,
-        status: formData.status,
-      });
-      
       upsertDraft({
         type: "commission",
         data: formData,
@@ -88,6 +81,25 @@ export default function CreateCommissionPage() {
 
     return () => clearInterval(interval);
   }, [upsertDraft]);
+
+  const handleSaveDraft = async () => {
+    setIsSavingDraft(true);
+    try {
+      const formData = getFormData();
+      
+      await upsertDraft({
+        type: "commission",
+        data: formData,
+      });
+      
+      alert("Draft saved successfully!");
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      alert("Failed to save draft");
+    } finally {
+      setIsSavingDraft(false);
+    }
+  };
 
   const getFormData = () => {
     return {
@@ -220,10 +232,18 @@ export default function CreateCommissionPage() {
           <div className="flex gap-4">
             <DrawOutlineButton
               type="submit"
-              disabled={isSubmitting}
-              className={isSubmitting ? "opacity-50 cursor-not-allowed" : ""}
+              disabled={isSubmitting || isSavingDraft}
+              className={isSubmitting || isSavingDraft ? "opacity-50 cursor-not-allowed" : ""}
             >
               {isSubmitting ? (isUploading ? "Uploading..." : "Creating...") : "Create Commission"}
+            </DrawOutlineButton>
+            <DrawOutlineButton
+              type="button"
+              onClick={handleSaveDraft}
+              disabled={isSavingDraft || isSubmitting}
+              className={isSavingDraft || isSubmitting ? "opacity-50 cursor-not-allowed" : ""}
+            >
+              {isSavingDraft ? "Saving..." : "Save as Draft"}
             </DrawOutlineButton>
           </div>
         </form>
