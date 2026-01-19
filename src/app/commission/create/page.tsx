@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
@@ -39,6 +39,27 @@ export default function CreateCommissionPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
 
+  const titleRef = useRef(title);
+  const descriptionRef = useRef(description);
+  const tagsRef = useRef(tags);
+  const statusRef = useRef(status);
+
+  useEffect(() => {
+    titleRef.current = title;
+  }, [title]);
+
+  useEffect(() => {
+    descriptionRef.current = description;
+  }, [description]);
+
+  useEffect(() => {
+    tagsRef.current = tags;
+  }, [tags]);
+
+  useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
+
   useEffect(() => {
     if (draft?.data && !draftLoaded) {
       const draftData = draft.data as {
@@ -62,16 +83,16 @@ export default function CreateCommissionPage() {
       upsertDraft({
         type: "commission",
         data: {
-          title,
-          description,
-          tags,
-          status,
+          title: titleRef.current,
+          description: descriptionRef.current,
+          tags: tagsRef.current,
+          status: statusRef.current,
         },
       });
     }, 15000);
 
     return () => clearInterval(interval);
-  }, [title, description, tags, status, upsertDraft]);
+  }, [upsertDraft]);
 
   if (authLoading) {
     return <LoadingState />;

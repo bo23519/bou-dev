@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
@@ -31,6 +31,32 @@ export default function CreateProjectPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
 
+  const titleRef = useRef(title);
+  const descriptionRef = useRef(description);
+  const tagsRef = useRef(tags);
+  const linkRef = useRef(link);
+  const repoRef = useRef(repo);
+
+  useEffect(() => {
+    titleRef.current = title;
+  }, [title]);
+
+  useEffect(() => {
+    descriptionRef.current = description;
+  }, [description]);
+
+  useEffect(() => {
+    tagsRef.current = tags;
+  }, [tags]);
+
+  useEffect(() => {
+    linkRef.current = link;
+  }, [link]);
+
+  useEffect(() => {
+    repoRef.current = repo;
+  }, [repo]);
+
   useEffect(() => {
     if (draft?.data && !draftLoaded) {
       const draftData = draft.data as {
@@ -59,17 +85,17 @@ export default function CreateProjectPage() {
       upsertDraft({
         type: "project",
         data: {
-          title,
-          description,
-          tags,
-          link,
-          repo,
+          title: titleRef.current,
+          description: descriptionRef.current,
+          tags: tagsRef.current,
+          link: linkRef.current,
+          repo: repoRef.current,
         },
       });
     }, 15000);
 
     return () => clearInterval(interval);
-  }, [title, description, tags, link, repo, upsertDraft]);
+  }, [upsertDraft]);
 
   if (authLoading) {
     return <LoadingState />;

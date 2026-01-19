@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
@@ -21,6 +21,22 @@ export default function CreatePage() {
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const titleRef = useRef(title);
+  const contentRef = useRef(content);
+  const tagsRef = useRef(tags);
+
+  useEffect(() => {
+    titleRef.current = title;
+  }, [title]);
+
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
+
+  useEffect(() => {
+    tagsRef.current = tags;
+  }, [tags]);
+
   useEffect(() => {
     if (draft?.data) {
       const draftData = draft.data as { title?: string; content?: string; tags?: string[] };
@@ -35,15 +51,15 @@ export default function CreatePage() {
       upsertDraft({
         type: "blog",
         data: {
-          title,
-          content,
-          tags,
+          title: titleRef.current,
+          content: contentRef.current,
+          tags: tagsRef.current,
         },
       });
     }, 15000);
 
     return () => clearInterval(interval);
-  }, [title, content, tags, upsertDraft]);
+  }, [upsertDraft]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

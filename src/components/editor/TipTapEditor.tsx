@@ -131,7 +131,8 @@ export const TipTapEditor = ({ content, onChange }: TipTapEditorProps) => {
     
     const json = markdownToJson(markdown);
     onChange(json);
-  }, [markdown, isInitialized, onChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [markdown, isInitialized]);
 
   const insertAtCursor = (before: string, after: string = "") => {
     const textarea = textareaRef.current;
