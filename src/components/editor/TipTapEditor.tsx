@@ -134,25 +134,50 @@ export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(
     markdownRef.current = markdown;
   }, [markdown]);
 
-  // Initialize or re-initialize: convert TipTap JSON to markdown
-  useEffect(() => {
-    if (content === previousContentRef.current && isInitialized) return;
-    
-    if (content && content.trim()) {
-      try {
-        const json = JSON.parse(content);
-        const md = jsonToMarkdown(json);
-        setMarkdown(md);
-      } catch {
-        setMarkdown(content);
-      }
-    } else {
-      setMarkdown("");
+  // In TipTapEditor.tsx, replace the re-initialization useEffect (lines 137-155):
+
+const isInternalUpdateRef = useRef(false);
+
+// Initialize or re-initialize: convert TipTap JSON to markdown
+useEffect(() => {
+  // Skip if this is an internal update (from our own onChange)
+  if (isInternalUpdateRef.current) {
+    isInternalUpdateRef.current = false;
+    return;
+  }
+  
+  // Skip if content hasn't actually changed
+  if (content === previousContentRef.current && isInitialized) return;
+  
+  if (content && content.trim()) {
+    try {
+      const json = JSON.parse(content);
+      const md = jsonToMarkdown(json);
+      setMarkdown(md);
+    } catch {
+      setMarkdown(content);
     }
-    
-    previousContentRef.current = content;
-    setIsInitialized(true);
-  }, [content, isInitialized]);
+  } else {
+    setMarkdown("");
+  }
+  
+  previousContentRef.current = content;
+  setIsInitialized(true);
+}, [content, isInitialized]);
+
+// Convert markdown to TipTap JSON on change
+useEffect(() => {
+  if (!isInitialized) return;
+  
+  try {
+    const json = markdownToJson(markdown);
+    isInternalUpdateRef.current = true; // Mark as internal update
+    onChange(json);
+  } catch (error) {
+    console.error("Error converting markdown to JSON:", error);
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [markdown, isInitialized]);
 
   // Convert markdown to TipTap JSON on change
   useEffect(() => {
