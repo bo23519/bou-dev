@@ -343,6 +343,11 @@ useEffect(() => {
         onChange={(e) => setMarkdown(e.target.value)}
         className="w-full h-[400px] p-4 bg-zinc-900 text-zinc-100 font-mono text-sm focus:outline-none resize-none"
         placeholder="Write your content in markdown..."
+        autoCorrect="on"
+        autoCapitalize="off"
+        spellCheck="true"
+        inputMode="text"
+        data-gramm="false"
       />
     </div>
   );
