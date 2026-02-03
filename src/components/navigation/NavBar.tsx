@@ -126,13 +126,27 @@ export const NavBar = () => {
       if (verifyResult?.valid) {
         setIsLoggedIn(true);
         setIsAdmin(verifyResult.role === "admin");
+        setShowLoginModal(false);
+        setUsername("");
+        setPassword("");
+      } else {
+        // Token verification failed
+        localStorage.removeItem("authToken");
+        alert("Login verification failed. Please try again.");
       }
-      setShowLoginModal(false);
-      setUsername("");
-      setPassword("");
     } catch (error: any) {
       console.error("Login error:", error);
-      alert(error?.message || "Invalid credentials");
+      // Extract error message from Convex error format
+      const errorMessage = error?.message || error?.toString() || "Invalid credentials";
+
+      // Show user-friendly error messages
+      if (errorMessage.includes("Invalid credentials")) {
+        alert("❌ Invalid username or password. Please try again.");
+      } else if (errorMessage.includes("network") || errorMessage.includes("fetch")) {
+        alert("❌ Network error. Please check your connection and try again.");
+      } else {
+        alert(`❌ Login failed: ${errorMessage}`);
+      }
     }
   };
 

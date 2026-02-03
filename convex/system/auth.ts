@@ -2,6 +2,8 @@ import { mutation, query } from "../_generated/server";
 import { v } from "convex/values";
 // SECURITY FIX: Import bcryptjs for password hashing
 import bcrypt from "bcryptjs";
+// SECURITY FIX: Import validation utilities
+import { validateString, validateEmail, validatePassword, MAX_LENGTHS } from "../lib/validation";
 
 export const login = mutation({
   args: {
@@ -14,6 +16,7 @@ export const login = mutation({
       .filter((q) => q.eq(q.field("name"), args.username))
       .first();
 
+    // Don't reveal whether username or password was wrong (security best practice)
     if (!user) {
       throw new Error("Invalid credentials");
     }
@@ -23,6 +26,7 @@ export const login = mutation({
     // Using synchronous method as Convex mutations don't support async setTimeout
     const isPasswordValid = bcrypt.compareSync(args.password, user.password);
 
+    // Don't reveal whether username or password was wrong (security best practice)
     if (!isPasswordValid) {
       throw new Error("Invalid credentials");
     }
@@ -66,9 +70,10 @@ export const verifyToken = mutation({
     token: v.string(),
   },
   handler: async (ctx, args) => {
+    // PERFORMANCE: Use by_token index for fast lookup
     const session = await ctx.db
       .query("sessions")
-      .filter((q) => q.eq(q.field("token"), args.token))
+      .withIndex("by_token", (q) => q.eq("token", args.token))
       .first();
 
     if (!session) {
@@ -94,9 +99,10 @@ export const logout = mutation({
     token: v.string(),
   },
   handler: async (ctx, args) => {
+    // PERFORMANCE: Use by_token index for fast lookup
     const session = await ctx.db
       .query("sessions")
-      .filter((q) => q.eq(q.field("token"), args.token))
+      .withIndex("by_token", (q) => q.eq("token", args.token))
       .first();
 
     if (session) {
@@ -115,9 +121,14 @@ export const createUser = mutation({
     role: v.optional(v.union(v.literal("admin"), v.literal("user"))),
   },
   handler: async (ctx, args) => {
+    // SECURITY FIX: Validate all inputs
+    const validatedName = validateString(args.name, "Username", MAX_LENGTHS.USERNAME);
+    const validatedEmail = validateEmail(args.email);
+    validatePassword(args.password); // Throws if invalid
+
     const existingUser = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("name"), args.name))
+      .filter((q) => q.eq(q.field("name"), validatedName))
       .first();
 
     if (existingUser) {
@@ -131,8 +142,8 @@ export const createUser = mutation({
     const hashedPassword = bcrypt.hashSync(args.password, 10);
 
     const userId = await ctx.db.insert("users", {
-      name: args.name,
-      email: args.email,
+      name: validatedName,
+      email: validatedEmail,
       password: hashedPassword,
       role: args.role || "user",
     });

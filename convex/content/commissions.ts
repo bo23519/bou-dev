@@ -3,6 +3,8 @@ import { v } from "convex/values";
 import { paginationOptsValidator } from "convex/server";
 // SECURITY FIX: Import authentication middleware to protect mutations
 import { requireAuth } from "../lib/auth";
+// SECURITY FIX: Import validation utilities
+import { validateString, validateOptionalString, validateTags, MAX_LENGTHS } from "../lib/validation";
 
 export const getCommissions = query({
   args: { paginationOpts: paginationOptsValidator },
@@ -94,9 +96,19 @@ export const addCommission = mutation({
     // SECURITY CHECK: Verify user is authenticated admin before creating commission
     await requireAuth(ctx, args.token);
 
-    // Extract token from args before inserting to database
-    const { token, ...commissionData } = args;
-    await ctx.db.insert("commissions", commissionData);
+    // SECURITY FIX: Validate and sanitize all inputs
+    const validatedTitle = validateString(args.title, "Title", MAX_LENGTHS.TITLE);
+    const validatedDescription = validateString(args.description, "Description", MAX_LENGTHS.DESCRIPTION);
+    const validatedTags = validateTags(args.tags);
+    const validatedCover = validateOptionalString(args.cover, "Cover", 500);
+
+    await ctx.db.insert("commissions", {
+      title: validatedTitle,
+      description: validatedDescription,
+      tags: validatedTags,
+      cover: validatedCover,
+      status: args.status,
+    });
   },
 });
 
@@ -123,10 +135,18 @@ export const updateCommission = mutation({
     // SECURITY CHECK: Verify user is authenticated admin before updating commission
     await requireAuth(ctx, args.token);
 
-    // Extract id, updatedAt, and token, then patch with remaining data
-    const { id, updatedAt, token, ...updateData } = args;
-    await ctx.db.patch(id, {
-      ...updateData,
+    // SECURITY FIX: Validate and sanitize all inputs
+    const validatedTitle = validateString(args.title, "Title", MAX_LENGTHS.TITLE);
+    const validatedDescription = validateString(args.description, "Description", MAX_LENGTHS.DESCRIPTION);
+    const validatedTags = validateTags(args.tags);
+    const validatedCover = validateOptionalString(args.cover, "Cover", 500);
+
+    await ctx.db.patch(args.id, {
+      title: validatedTitle,
+      description: validatedDescription,
+      tags: validatedTags,
+      cover: validatedCover,
+      status: args.status,
       updatedAt: Date.now(),
     });
   },

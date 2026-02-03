@@ -2,6 +2,8 @@ import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
 // SECURITY FIX: Import authentication middleware to protect mutations
 import { requireAuth } from "../lib/auth";
+// SECURITY FIX: Import validation utilities
+import { validateString, validateOptionalString, validateUrl, validateTags, MAX_LENGTHS } from "../lib/validation";
 
 export const getProjects = query({
     args: {},
@@ -64,9 +66,22 @@ export const addProject = mutation({
         // SECURITY CHECK: Verify user is authenticated admin before creating project
         await requireAuth(ctx, args.token);
 
-        // Extract token from args before inserting to database
-        const { token, ...projectData } = args;
-        return await ctx.db.insert("projects", projectData);
+        // SECURITY FIX: Validate and sanitize all inputs
+        const validatedTitle = validateString(args.title, "Title", MAX_LENGTHS.TITLE);
+        const validatedDescription = validateString(args.description, "Description", MAX_LENGTHS.DESCRIPTION);
+        const validatedTags = validateTags(args.tags);
+        const validatedLink = validateUrl(args.link, "Project link");
+        const validatedRepo = validateUrl(args.repo, "Repository link");
+        const validatedStorageId = validateString(args.storageId, "Storage ID", 500);
+
+        return await ctx.db.insert("projects", {
+            title: validatedTitle,
+            description: validatedDescription,
+            tags: validatedTags,
+            storageId: validatedStorageId,
+            link: validatedLink,
+            repo: validatedRepo,
+        });
     },
 });
 
@@ -86,8 +101,21 @@ export const updateProject = mutation({
         // SECURITY CHECK: Verify user is authenticated admin before updating project
         await requireAuth(ctx, args.token);
 
-        // Extract token and id, then patch with remaining data
-        const { id, token, ...updates } = args;
-        await ctx.db.patch(id, updates);
+        // SECURITY FIX: Validate and sanitize all inputs
+        const validatedTitle = validateString(args.title, "Title", MAX_LENGTHS.TITLE);
+        const validatedDescription = validateString(args.description, "Description", MAX_LENGTHS.DESCRIPTION);
+        const validatedTags = validateTags(args.tags);
+        const validatedLink = validateUrl(args.link, "Project link");
+        const validatedRepo = validateUrl(args.repo, "Repository link");
+        const validatedStorageId = validateString(args.storageId, "Storage ID", 500);
+
+        await ctx.db.patch(args.id, {
+            title: validatedTitle,
+            description: validatedDescription,
+            tags: validatedTags,
+            storageId: validatedStorageId,
+            link: validatedLink,
+            repo: validatedRepo,
+        });
     },
 });

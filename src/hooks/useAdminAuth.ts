@@ -25,23 +25,38 @@ export function useAdminAuth(options: UseAdminAuthOptions = {}) {
             setIsAdmin(true);
             setIsLoading(false);
           } else {
+            // Token invalid or not admin
+            console.warn("Authentication failed: Invalid token or insufficient permissions");
+            localStorage.removeItem("authToken"); // Clean up invalid token
             setIsAdmin(false);
             setIsLoading(false);
             if (requireAuth && redirectTo) {
+              alert("⚠️ Your session has expired or you don't have permission. Please log in again.");
               router.push(redirectTo);
             }
           }
-        } catch (error) {
+        } catch (error: any) {
+          // Token verification error
+          console.error("Authentication error:", error);
+          localStorage.removeItem("authToken"); // Clean up invalid token
           setIsAdmin(false);
           setIsLoading(false);
           if (requireAuth && redirectTo) {
+            const errorMessage = error?.message || "Authentication failed";
+            if (errorMessage.includes("expired")) {
+              alert("⚠️ Your session has expired. Please log in again.");
+            } else {
+              alert("⚠️ Authentication error. Please log in again.");
+            }
             router.push(redirectTo);
           }
         }
       } else {
+        // No token found
         setIsAdmin(false);
         setIsLoading(false);
         if (requireAuth && redirectTo) {
+          console.warn("No authentication token found");
           router.push(redirectTo);
         }
       }
