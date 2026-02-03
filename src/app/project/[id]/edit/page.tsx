@@ -12,6 +12,8 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { FileUpload } from "@/components/admin/FileUpload";
 import { LoadingState } from "@/components/admin/LoadingState";
 import { TagSelector } from "@/components/tags/TagSelector";
+import { ROUTES, ERROR_MESSAGES, FORM_INPUT_CLASS, FORM_TEXTAREA_CLASS, FORM_LABEL_CLASS } from "@/lib/constants";
+import { getAuthTokenOrRedirect } from "@/lib/auth-utils";
 
 export default function EditProjectPage() {
   const params = useParams();
@@ -75,17 +77,11 @@ export default function EditProjectPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !description.trim() || !projectId) {
-      alert("Title and description are required");
+      alert(ERROR_MESSAGES.TITLE_AND_DESCRIPTION_REQUIRED);
       return;
     }
 
-    // SECURITY FIX: Get authentication token from localStorage
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      alert("You must be logged in to update a project");
-      router.push("/");
-      return;
-    }
+    const token = getAuthTokenOrRedirect(router, ROUTES.HOME, "You must be logged in to update a project");
 
     setIsSubmitting(true);
 
@@ -102,7 +98,6 @@ export default function EditProjectPage() {
         return;
       }
 
-      // SECURITY FIX: Pass token to protected mutation
       await updateProject({
         id: projectId,
         title: title.trim(),
@@ -114,10 +109,10 @@ export default function EditProjectPage() {
         token,
       });
 
-      router.push("/");
+      router.push(ROUTES.HOME);
     } catch (error) {
       console.error("Error updating project:", error);
-      alert("Failed to update project");
+      alert(ERROR_MESSAGES.UPDATE_FAILED("project"));
     } finally {
       setIsSubmitting(false);
     }
@@ -140,28 +135,28 @@ export default function EditProjectPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Title *
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
+              className={FORM_INPUT_CLASS}
               placeholder="Enter project title"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Description *
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={6}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00] resize-y"
+              className={FORM_TEXTAREA_CLASS + " resize-y"}
               placeholder="Enter project description"
               required
             />
@@ -170,27 +165,27 @@ export default function EditProjectPage() {
           <TagSelector selectedTags={tags} onChange={setTags} />
 
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Project Link (optional)
             </label>
             <input
               type="url"
               value={link}
               onChange={(e) => setLink(e.target.value)}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
+              className={FORM_INPUT_CLASS}
               placeholder="https://example.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Repository Link (optional)
             </label>
             <input
               type="url"
               value={repo}
               onChange={(e) => setRepo(e.target.value)}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
+              className={FORM_INPUT_CLASS}
               placeholder="https://github.com/username/repo"
             />
           </div>

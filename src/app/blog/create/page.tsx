@@ -8,6 +8,8 @@ import { TipTapEditor, TipTapEditorRef } from "@/components/editor/TipTapEditor"
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DrawOutlineButton } from "@/components/ui/button";
 import { TagSelector } from "@/components/tags/TagSelector";
+import { DRAFT_AUTO_SAVE_INTERVAL, ROUTES, ERROR_MESSAGES, FORM_INPUT_CLASS, FORM_LABEL_CLASS } from "@/lib/constants";
+import { getAuthTokenOrRedirect } from "@/lib/auth-utils";
 
 export default function CreatePage() {
   const router = useRouter();
@@ -69,7 +71,7 @@ export default function CreatePage() {
       }
     };
     
-    const interval = setInterval(saveDraft, 15000);
+    const interval = setInterval(saveDraft, DRAFT_AUTO_SAVE_INTERVAL);
 
     return () => clearInterval(interval);
   }, [upsertDraft]);
@@ -115,28 +117,21 @@ export default function CreatePage() {
     const formData = getFormData();
 
     if (!formData.title || !formData.content.trim()) {
-      alert("Title and content are required");
+      alert(ERROR_MESSAGES.TITLE_AND_CONTENT_REQUIRED);
       return;
     }
 
-    // SECURITY FIX: Get authentication token from localStorage
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      alert("You must be logged in to create a blog post");
-      router.push("/");
-      return;
-    }
+    const token = getAuthTokenOrRedirect(router, ROUTES.HOME, "You must be logged in to create a blog post");
 
     setIsSubmitting(true);
     try {
-      // SECURITY FIX: Pass token to protected mutation
       await addBlogPost({ ...formData, token });
 
       await deleteDraft({ type: "blog" });
-      router.push("/blog");
+      router.push(ROUTES.BLOG);
     } catch (error) {
       console.error("Error creating blog post:", error);
-      alert("Failed to create blog post");
+      alert(ERROR_MESSAGES.CREATE_FAILED("blog post"));
     } finally {
       setIsSubmitting(false);
     }
@@ -145,18 +140,18 @@ export default function CreatePage() {
   return (
     <main className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <PageHeader title="Create Blog Post" cancelHref="/blog" />
+        <PageHeader title="Create Blog Post" cancelHref={ROUTES.BLOG} />
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Title
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
+              className={FORM_INPUT_CLASS}
               placeholder="Enter blog post title"
             />
           </div>
@@ -164,7 +159,7 @@ export default function CreatePage() {
           <TagSelector selectedTags={tags} onChange={setTags} />
 
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Content
             </label>
             <TipTapEditor ref={editorRef} content={content} onChange={setContent} />

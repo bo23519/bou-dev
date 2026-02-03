@@ -12,15 +12,8 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { FileUpload } from "@/components/admin/FileUpload";
 import { LoadingState } from "@/components/admin/LoadingState";
 import { TagSelector } from "@/components/tags/TagSelector";
-
-const STATUS_OPTIONS = [
-  "Backlog",
-  "Todo",
-  "In progress",
-  "Done",
-  "Cancelled",
-  "Duplicate",
-] as const;
+import { COMMISSION_STATUSES, ROUTES, ERROR_MESSAGES, FORM_INPUT_CLASS, FORM_TEXTAREA_CLASS, FORM_SELECT_CLASS, FORM_LABEL_CLASS } from "@/lib/constants";
+import { getAuthTokenOrRedirect } from "@/lib/auth-utils";
 
 export default function EditCommissionPage() {
   const params = useParams();
@@ -43,7 +36,7 @@ export default function EditCommissionPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState<string[]>([]);
-  const [status, setStatus] = useState<typeof STATUS_OPTIONS[number]>("Todo");
+  const [status, setStatus] = useState<typeof COMMISSION_STATUSES[number]>("Todo");
   const [existingCover, setExistingCover] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
@@ -84,17 +77,11 @@ export default function EditCommissionPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !description.trim() || !commissionId) {
-      alert("Title and description are required");
+      alert(ERROR_MESSAGES.TITLE_AND_DESCRIPTION_REQUIRED);
       return;
     }
 
-    // SECURITY FIX: Get authentication token from localStorage
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      alert("You must be logged in to update a commission");
-      router.push("/commission");
-      return;
-    }
+    const token = getAuthTokenOrRedirect(router, ROUTES.COMMISSION, "You must be logged in to update a commission");
 
     setIsSubmitting(true);
 
@@ -105,7 +92,6 @@ export default function EditCommissionPage() {
         coverStorageId = await uploadFile(selectedFile);
       }
 
-      // SECURITY FIX: Pass token to protected mutation
       await updateCommission({
         id: commissionId,
         title: title.trim(),
@@ -117,10 +103,10 @@ export default function EditCommissionPage() {
         token,
       });
 
-      router.push("/commission");
+      router.push(ROUTES.COMMISSION);
     } catch (error) {
       console.error("Error updating commission:", error);
-      alert("Failed to update commission");
+      alert(ERROR_MESSAGES.UPDATE_FAILED("commission"));
     } finally {
       setIsSubmitting(false);
     }
@@ -131,7 +117,7 @@ export default function EditCommissionPage() {
       <main className="min-h-screen bg-background p-8">
         <div className="mx-auto max-w-4xl">
           <h1 className="text-4xl font-bold mb-4">Invalid Commission ID</h1>
-          <DrawOutlineButton onClick={() => router.push("/commission")}>
+          <DrawOutlineButton onClick={() => router.push(ROUTES.COMMISSION)}>
             ← Back to Commissions
           </DrawOutlineButton>
         </div>
@@ -158,7 +144,7 @@ export default function EditCommissionPage() {
             <p className="text-zinc-400 mb-4">
               This commission has been deleted or doesn't exist.
             </p>
-            <DrawOutlineButton onClick={() => router.push("/commission")}>
+            <DrawOutlineButton onClick={() => router.push(ROUTES.COMMISSION)}>
               ← Back to Commissions
             </DrawOutlineButton>
           </div>
@@ -174,28 +160,28 @@ export default function EditCommissionPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Title *
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
+              className={FORM_INPUT_CLASS}
               placeholder="Enter commission title"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Description *
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={6}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00] resize-y"
+              className={FORM_TEXTAREA_CLASS + " resize-y"}
               placeholder="Enter commission description"
               required
             />
@@ -204,15 +190,15 @@ export default function EditCommissionPage() {
           <TagSelector selectedTags={tags} onChange={setTags} />
 
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Status *
             </label>
             <select
               value={status}
-              onChange={(e) => setStatus(e.target.value as typeof STATUS_OPTIONS[number])}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
+              onChange={(e) => setStatus(e.target.value as typeof COMMISSION_STATUSES[number])}
+              className={FORM_SELECT_CLASS}
             >
-              {STATUS_OPTIONS.map((option) => (
+              {COMMISSION_STATUSES.map((option) => (
                 <option key={option} value={option}>
                   {option}
                 </option>

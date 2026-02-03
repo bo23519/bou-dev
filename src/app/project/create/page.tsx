@@ -11,6 +11,8 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { FileUpload } from "@/components/admin/FileUpload";
 import { LoadingState } from "@/components/admin/LoadingState";
 import { TagSelector } from "@/components/tags/TagSelector";
+import { DRAFT_AUTO_SAVE_INTERVAL, ROUTES, ERROR_MESSAGES, FORM_INPUT_CLASS, FORM_TEXTAREA_CLASS, FORM_LABEL_CLASS } from "@/lib/constants";
+import { getAuthTokenOrRedirect } from "@/lib/auth-utils";
 
 export default function CreateProjectPage() {
   const router = useRouter();
@@ -75,7 +77,7 @@ export default function CreateProjectPage() {
         type: "project",
         data: formData,
       });
-    }, 15000);
+    }, DRAFT_AUTO_SAVE_INTERVAL);
 
     return () => clearInterval(interval);
   }, [upsertDraft]);
@@ -131,7 +133,7 @@ export default function CreateProjectPage() {
     const formData = getFormData();
 
     if (!formData.title || !formData.description) {
-      alert("Title and description are required");
+      alert(ERROR_MESSAGES.TITLE_AND_DESCRIPTION_REQUIRED);
       return;
     }
 
@@ -140,20 +142,13 @@ export default function CreateProjectPage() {
       return;
     }
 
-    // SECURITY FIX: Get authentication token from localStorage
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      alert("You must be logged in to create a project");
-      router.push("/");
-      return;
-    }
+    const token = getAuthTokenOrRedirect(router, ROUTES.HOME, "You must be logged in to create a project");
 
     setIsSubmitting(true);
 
     try {
       const storageId = await uploadFile(selectedFile);
 
-      // SECURITY FIX: Pass token to protected mutation
       await addProject({
         ...formData,
         storageId,
@@ -161,10 +156,10 @@ export default function CreateProjectPage() {
       });
 
       await deleteDraft({ type: "project" });
-      router.push("/");
+      router.push(ROUTES.HOME);
     } catch (error) {
       console.error("Error creating project:", error);
-      alert("Failed to create project");
+      alert(ERROR_MESSAGES.CREATE_FAILED("project"));
     } finally {
       setIsSubmitting(false);
     }
@@ -187,28 +182,28 @@ export default function CreateProjectPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Title *
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
+              className={FORM_INPUT_CLASS}
               placeholder="Enter project title"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Description *
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={6}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00] resize-y"
+              className={FORM_TEXTAREA_CLASS + " resize-y"}
               placeholder="Enter project description"
               required
             />
@@ -217,27 +212,27 @@ export default function CreateProjectPage() {
           <TagSelector selectedTags={tags} onChange={setTags} />
 
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Project Link (optional)
             </label>
             <input
               type="url"
               value={link}
               onChange={(e) => setLink(e.target.value)}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
+              className={FORM_INPUT_CLASS}
               placeholder="https://example.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Repository Link (optional)
             </label>
             <input
               type="url"
               value={repo}
               onChange={(e) => setRepo(e.target.value)}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
+              className={FORM_INPUT_CLASS}
               placeholder="https://github.com/username/repo"
             />
           </div>
