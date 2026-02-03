@@ -117,3 +117,19 @@ export const createUser = mutation({
     return { userId };
   },
 });
+
+// TEMPORARY QUERY: Check if any users exist in the database
+// This will help verify if the admin account was imported
+export const getAllUsers = query({
+  args: {},
+  handler: async (ctx) => {
+    const users = await ctx.db.query("users").collect();
+    // Don't return passwords for security
+    return users.map(user => ({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    }));
+  },
+});
