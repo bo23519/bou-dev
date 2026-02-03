@@ -1,5 +1,7 @@
 import { mutation, query } from "../_generated/server";
 import { v } from "convex/values";
+// SECURITY FIX: Import bcryptjs for password hashing
+import bcrypt from "bcryptjs";
 
 export const login = mutation({
   args: {
@@ -12,12 +14,27 @@ export const login = mutation({
       .filter((q) => q.eq(q.field("name"), args.username))
       .first();
 
-    if (!user || user.password !== args.password) {
+    if (!user) {
       throw new Error("Invalid credentials");
     }
 
-    const credentials = `${args.username}:${args.password}`;
-    const token = btoa(credentials);
+    // SECURITY FIX: Compare password using bcrypt instead of plaintext comparison
+    // This securely verifies the password against the hashed version in the database
+    // Using synchronous method as Convex mutations don't support async setTimeout
+    const isPasswordValid = bcrypt.compareSync(args.password, user.password);
+
+    if (!isPasswordValid) {
+      throw new Error("Invalid credentials");
+    }
+
+    // SECURITY FIX: Generate cryptographically secure random token
+    // Instead of base64-encoding username:password (which can be easily decoded),
+    // we generate a random 32-byte token that cannot be reverse-engineered
+    const randomBytes = new Uint8Array(32);
+    crypto.getRandomValues(randomBytes);
+    const token = Array.from(randomBytes)
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
 
     const existingSession = await ctx.db
       .query("sessions")
@@ -107,10 +124,16 @@ export const createUser = mutation({
       throw new Error("User already exists");
     }
 
+    // SECURITY FIX: Hash password with bcrypt before storing
+    // Uses 10 salt rounds for a good balance of security and performance
+    // Never store plaintext passwords in the database!
+    // Using synchronous method as Convex mutations don't support async setTimeout
+    const hashedPassword = bcrypt.hashSync(args.password, 10);
+
     const userId = await ctx.db.insert("users", {
       name: args.name,
       email: args.email,
-      password: args.password,
+      password: hashedPassword,
       role: args.role || "user",
     });
 
@@ -131,5 +154,42 @@ export const getAllUsers = query({
       email: user.email,
       role: user.role,
     }));
+  },
+});
+
+// MIGRATION: One-time function to hash existing plaintext passwords
+// Run this once to convert your existing password to bcrypt hash
+// After running, this function can be removed
+export const migratePasswordToHash = mutation({
+  args: {
+    username: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("name"), args.username))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Check if password is already hashed (bcrypt hashes start with $2a$ or $2b$)
+    if (user.password.startsWith("$2a$") || user.password.startsWith("$2b$")) {
+      return { message: "Password is already hashed", alreadyHashed: true };
+    }
+
+    // Hash the current plaintext password using synchronous method
+    const hashedPassword = bcrypt.hashSync(user.password, 10);
+
+    // Update user with hashed password
+    await ctx.db.patch(user._id, {
+      password: hashedPassword,
+    });
+
+    return {
+      message: "Password successfully migrated to bcrypt hash",
+      alreadyHashed: false,
+    };
   },
 });
