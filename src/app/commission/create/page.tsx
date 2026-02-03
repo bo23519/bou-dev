@@ -130,9 +130,17 @@ export default function CreateCommissionPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = getFormData();
-    
+
     if (!formData.title || !formData.description) {
       alert("Title and description are required");
+      return;
+    }
+
+    // SECURITY FIX: Get authentication token from localStorage
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      alert("You must be logged in to create a commission");
+      router.push("/commission");
       return;
     }
 
@@ -145,9 +153,11 @@ export default function CreateCommissionPage() {
         coverStorageId = await uploadFile(selectedFile);
       }
 
+      // SECURITY FIX: Pass token to protected mutation
       await addCommission({
         ...formData,
         cover: coverStorageId,
+        token,
       });
 
       await deleteDraft({ type: "commission" });

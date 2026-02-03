@@ -79,6 +79,14 @@ export default function EditProjectPage() {
       return;
     }
 
+    // SECURITY FIX: Get authentication token from localStorage
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      alert("You must be logged in to update a project");
+      router.push("/");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -94,6 +102,7 @@ export default function EditProjectPage() {
         return;
       }
 
+      // SECURITY FIX: Pass token to protected mutation
       await updateProject({
         id: projectId,
         title: title.trim(),
@@ -102,6 +111,7 @@ export default function EditProjectPage() {
         storageId,
         link: link.trim() || undefined,
         repo: repo.trim() || undefined,
+        token,
       });
 
       router.push("/");

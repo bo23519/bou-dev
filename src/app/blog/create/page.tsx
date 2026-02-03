@@ -113,15 +113,24 @@ export default function CreatePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = getFormData();
-    
+
     if (!formData.title || !formData.content.trim()) {
       alert("Title and content are required");
       return;
     }
 
+    // SECURITY FIX: Get authentication token from localStorage
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      alert("You must be logged in to create a blog post");
+      router.push("/");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      await addBlogPost(formData);
+      // SECURITY FIX: Pass token to protected mutation
+      await addBlogPost({ ...formData, token });
 
       await deleteDraft({ type: "blog" });
       router.push("/blog");

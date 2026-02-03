@@ -129,7 +129,7 @@ export default function CreateProjectPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = getFormData();
-    
+
     if (!formData.title || !formData.description) {
       alert("Title and description are required");
       return;
@@ -140,14 +140,24 @@ export default function CreateProjectPage() {
       return;
     }
 
+    // SECURITY FIX: Get authentication token from localStorage
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      alert("You must be logged in to create a project");
+      router.push("/");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       const storageId = await uploadFile(selectedFile);
 
+      // SECURITY FIX: Pass token to protected mutation
       await addProject({
         ...formData,
         storageId,
+        token,
       });
 
       await deleteDraft({ type: "project" });

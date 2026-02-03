@@ -24,7 +24,16 @@ export default function DeleteBlogPostPage() {
 
   const handleDelete = async () => {
     if (!postId) return;
-    await deleteBlogPost({ id: postId });
+
+    // SECURITY FIX: Get authentication token from localStorage
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      alert("You must be logged in to delete a blog post");
+      return;
+    }
+
+    // SECURITY FIX: Pass token to protected mutation
+    await deleteBlogPost({ id: postId, token });
   };
 
   return (

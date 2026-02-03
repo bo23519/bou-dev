@@ -52,13 +52,23 @@ export default function EditBlogPostPage() {
       return;
     }
 
+    // SECURITY FIX: Get authentication token from localStorage
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      alert("You must be logged in to update a blog post");
+      router.push("/");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      // SECURITY FIX: Pass token to protected mutation
       await updateBlogPost({
         id: postId,
         title: title.trim(),
         content,
         tags,
+        token,
       });
 
       router.push(`/blog/${postId}`);

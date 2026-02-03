@@ -23,7 +23,16 @@ export default function DeleteCommissionPage() {
 
   const handleDelete = async () => {
     if (!commissionId) return;
-    await deleteCommission({ id: commissionId });
+
+    // SECURITY FIX: Get authentication token from localStorage
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      alert("You must be logged in to delete a commission");
+      return;
+    }
+
+    // SECURITY FIX: Pass token to protected mutation
+    await deleteCommission({ id: commissionId, token });
   };
 
   return (

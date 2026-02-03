@@ -1,6 +1,8 @@
 import { mutation, query } from "../_generated/server";
 import { v } from "convex/values";
 import { paginationOptsValidator } from "convex/server";
+// SECURITY FIX: Import authentication middleware to protect mutations
+import { requireAuth } from "../lib/auth";
 
 export const getBlogPostPaginated = query({
     args: { paginationOpts: paginationOptsValidator },
@@ -140,25 +142,50 @@ export const getBlogPostByTitle = query({
 });
 
 export const addBlogPost = mutation({
-    args: { title: v.string(),
+    args: {
+        title: v.string(),
         content: v.string(),
         tags: v.array(v.string()),
+        // SECURITY FIX: Require authentication token to create blog posts
+        token: v.string(),
     },
     handler: async (ctx, args) => {
-        await ctx.db.insert("blogPosts", args);
+        // SECURITY CHECK: Verify user is authenticated admin before creating post
+        await requireAuth(ctx, args.token);
+
+        // Extract token from args before inserting to database
+        const { token, ...blogPostData } = args;
+        await ctx.db.insert("blogPosts", blogPostData);
     },
 });
 
 export const updateBlogPost = mutation({
-    args: { id: v.id("blogPosts"), title: v.string(), content: v.string(), tags: v.array(v.string()) },
+    args: {
+        id: v.id("blogPosts"),
+        title: v.string(),
+        content: v.string(),
+        tags: v.array(v.string()),
+        // SECURITY FIX: Require authentication token to update blog posts
+        token: v.string(),
+    },
     handler: async (ctx, args) => {
+        // SECURITY CHECK: Verify user is authenticated admin before updating post
+        await requireAuth(ctx, args.token);
+
         await ctx.db.patch(args.id, { title: args.title, content: args.content, tags: args.tags });
     },
 });
 
 export const deleteBlogPost = mutation({
-    args: { id: v.id("blogPosts") },
+    args: {
+        id: v.id("blogPosts"),
+        // SECURITY FIX: Require authentication token to delete blog posts
+        token: v.string(),
+    },
     handler: async (ctx, args) => {
+        // SECURITY CHECK: Verify user is authenticated admin before soft-deleting post
+        await requireAuth(ctx, args.token);
+
         await ctx.db.patch(args.id, { deletedAt: Date.now() });
     },
 });

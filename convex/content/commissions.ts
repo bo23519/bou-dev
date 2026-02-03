@@ -1,6 +1,8 @@
 import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
 import { paginationOptsValidator } from "convex/server";
+// SECURITY FIX: Import authentication middleware to protect mutations
+import { requireAuth } from "../lib/auth";
 
 export const getCommissions = query({
   args: { paginationOpts: paginationOptsValidator },
@@ -85,9 +87,16 @@ export const addCommission = mutation({
       v.literal("Cancelled"),
       v.literal("Duplicate")
     ),
+    // SECURITY FIX: Require authentication token to create commissions
+    token: v.string(),
   },
   handler: async (ctx, args) => {
-    await ctx.db.insert("commissions", args);
+    // SECURITY CHECK: Verify user is authenticated admin before creating commission
+    await requireAuth(ctx, args.token);
+
+    // Extract token from args before inserting to database
+    const { token, ...commissionData } = args;
+    await ctx.db.insert("commissions", commissionData);
   },
 });
 
@@ -107,9 +116,15 @@ export const updateCommission = mutation({
       v.literal("Cancelled"),
       v.literal("Duplicate")
     ),
+    // SECURITY FIX: Require authentication token to update commissions
+    token: v.string(),
   },
   handler: async (ctx, args) => {
-    const { id, updatedAt, ...updateData } = args;
+    // SECURITY CHECK: Verify user is authenticated admin before updating commission
+    await requireAuth(ctx, args.token);
+
+    // Extract id, updatedAt, and token, then patch with remaining data
+    const { id, updatedAt, token, ...updateData } = args;
     await ctx.db.patch(id, {
       ...updateData,
       updatedAt: Date.now(),
@@ -118,8 +133,15 @@ export const updateCommission = mutation({
 });
 
 export const deleteCommission = mutation({
-  args: { id: v.id("commissions") },
+  args: {
+    id: v.id("commissions"),
+    // SECURITY FIX: Require authentication token to delete commissions
+    token: v.string(),
+  },
   handler: async (ctx, args) => {
+    // SECURITY CHECK: Verify user is authenticated admin before soft-deleting commission
+    await requireAuth(ctx, args.token);
+
     await ctx.db.patch(args.id, { deletedAt: Date.now() });
   },
 });

@@ -1,5 +1,7 @@
 import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
+// SECURITY FIX: Import authentication middleware to protect mutations
+import { requireAuth } from "../lib/auth";
 
 export const getProjects = query({
     args: {},
@@ -55,16 +57,16 @@ export const addProject = mutation({
         storageId: v.string(),
         link: v.optional(v.string()),
         repo: v.optional(v.string()),
+        // SECURITY FIX: Require authentication token to create projects
+        token: v.string(),
     },
     handler: async (ctx, args) => {
-        return await ctx.db.insert("projects", {
-            title: args.title,
-            description: args.description,
-            tags: args.tags,
-            storageId: args.storageId,
-            link: args.link,
-            repo: args.repo,
-        });
+        // SECURITY CHECK: Verify user is authenticated admin before creating project
+        await requireAuth(ctx, args.token);
+
+        // Extract token from args before inserting to database
+        const { token, ...projectData } = args;
+        return await ctx.db.insert("projects", projectData);
     },
 });
 
@@ -77,9 +79,15 @@ export const updateProject = mutation({
         storageId: v.string(),
         link: v.optional(v.string()),
         repo: v.optional(v.string()),
+        // SECURITY FIX: Require authentication token to update projects
+        token: v.string(),
     },
     handler: async (ctx, args) => {
-        const { id, ...updates } = args;
+        // SECURITY CHECK: Verify user is authenticated admin before updating project
+        await requireAuth(ctx, args.token);
+
+        // Extract token and id, then patch with remaining data
+        const { id, token, ...updates } = args;
         await ctx.db.patch(id, updates);
     },
 });

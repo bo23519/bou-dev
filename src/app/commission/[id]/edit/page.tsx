@@ -88,6 +88,14 @@ export default function EditCommissionPage() {
       return;
     }
 
+    // SECURITY FIX: Get authentication token from localStorage
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      alert("You must be logged in to update a commission");
+      router.push("/commission");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -97,6 +105,7 @@ export default function EditCommissionPage() {
         coverStorageId = await uploadFile(selectedFile);
       }
 
+      // SECURITY FIX: Pass token to protected mutation
       await updateCommission({
         id: commissionId,
         title: title.trim(),
@@ -105,6 +114,7 @@ export default function EditCommissionPage() {
         tags,
         status,
         cover: coverStorageId,
+        token,
       });
 
       router.push("/commission");
