@@ -87,6 +87,10 @@ export default defineSchema({
   stats: defineTable({
     likes: v.number(),
     views: v.number(),
+    likeWindowStart: v.optional(v.number()),
+    likesInWindow: v.optional(v.number()),
+    viewWindowStart: v.optional(v.number()),
+    viewsInWindow: v.optional(v.number()),
   }),
 
   tags: defineTable({
