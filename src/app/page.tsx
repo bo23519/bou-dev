@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
 import { api } from "../../convex/_generated/api";
@@ -16,8 +16,16 @@ export default function Home() {
   const assets = useQuery(api.storage.assets.getAssets);
   const heroBackgroundUrl = assets?.heroBackground?.url;
 
+  // BUG FIX: Prevent duplicate view counting in React StrictMode
+  // StrictMode runs effects twice in dev, causing double counting
+  const viewCounted = useRef(false);
+
   useEffect(() => {
-    addView();
+    // Only count view once per mount
+    if (!viewCounted.current) {
+      addView();
+      viewCounted.current = true;
+    }
   }, [addView]);
 
   return (

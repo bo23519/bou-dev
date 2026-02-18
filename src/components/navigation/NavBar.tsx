@@ -21,6 +21,7 @@ export const NavBar = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [authToken, setAuthToken] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showCreateDropdown, setShowCreateDropdown] = useState(false);
   const [showAssetUploadModal, setShowAssetUploadModal] = useState(false);
@@ -88,20 +89,24 @@ export const NavBar = () => {
           if (result?.valid) {
             setIsLoggedIn(true);
             setIsAdmin(result.role === "admin");
+            setAuthToken(token);
           } else {
             setIsLoggedIn(false);
             setIsAdmin(false);
+            setAuthToken("");
             localStorage.removeItem("authToken");
           }
         } catch (error) {
           // Silently fail - user is not logged in
           setIsLoggedIn(false);
           setIsAdmin(false);
+          setAuthToken("");
           localStorage.removeItem("authToken");
         }
       } else {
         setIsLoggedIn(false);
         setIsAdmin(false);
+        setAuthToken("");
       }
     };
     checkAuth();
@@ -126,13 +131,28 @@ export const NavBar = () => {
       if (verifyResult?.valid) {
         setIsLoggedIn(true);
         setIsAdmin(verifyResult.role === "admin");
+        setAuthToken(result.token);
+        setShowLoginModal(false);
+        setUsername("");
+        setPassword("");
+      } else {
+        // Token verification failed
+        localStorage.removeItem("authToken");
+        alert("Login verification failed. Please try again.");
       }
-      setShowLoginModal(false);
-      setUsername("");
-      setPassword("");
     } catch (error: any) {
       console.error("Login error:", error);
-      alert(error?.message || "Invalid credentials");
+      // Extract error message from Convex error format
+      const errorMessage = error?.message || error?.toString() || "Invalid credentials";
+
+      // Show user-friendly error messages
+      if (errorMessage.includes("Invalid credentials")) {
+        alert("❌ Invalid username or password. Please try again.");
+      } else if (errorMessage.includes("network") || errorMessage.includes("fetch")) {
+        alert("❌ Network error. Please check your connection and try again.");
+      } else {
+        alert(`❌ Login failed: ${errorMessage}`);
+      }
     }
   };
 
@@ -144,6 +164,7 @@ export const NavBar = () => {
     localStorage.removeItem("authToken");
     setIsLoggedIn(false);
     setIsAdmin(false);
+    setAuthToken("");
   };
 
   return (
@@ -365,10 +386,11 @@ export const NavBar = () => {
         onClose={() => setShowAssetUploadModal(false)}
         onUpload={async (assetKey: string, file: File) => {
           try {
-            const storageId = await uploadFile(file);
+            const storageId = await uploadFile(file, authToken);
             await setAssetMutation({
               key: assetKey,
               storageId,
+              token: authToken,
             });
             setShowAssetUploadModal(false);
           } catch (error) {

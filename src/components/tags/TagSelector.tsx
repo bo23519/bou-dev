@@ -16,9 +16,10 @@ interface TagSelectorProps {
   selectedTags: string[];
   onChange: (tags: string[]) => void;
   label?: string;
+  token?: string;
 }
 
-export function TagSelector({ selectedTags, onChange, label = "Tags" }: TagSelectorProps) {
+export function TagSelector({ selectedTags, onChange, label = "Tags", token }: TagSelectorProps) {
   const allTags = useQuery(api.system.tags.getAllTags);
   const colorSchemes = useQuery(api.system.tags.getColorSchemes);
   const createTag = useMutation(api.system.tags.createTag);
@@ -94,13 +95,14 @@ export function TagSelector({ selectedTags, onChange, label = "Tags" }: TagSelec
 
   const handleCreateTag = async () => {
     const tagName = inputValue.trim();
-    if (!tagName || !selectedColor) return;
+    if (!tagName || !selectedColor || !token) return;
 
     setIsCreating(true);
     try {
       await createTag({
         name: tagName,
         colorScheme: selectedColor,
+        token,
       });
       addTag(tagName);
       setSelectedColor(null);
@@ -113,8 +115,9 @@ export function TagSelector({ selectedTags, onChange, label = "Tags" }: TagSelec
     }
   };
 
-  const canCreateNewTag = inputValue.trim() && 
-    !allTags?.some((t) => t.name.toLowerCase() === inputValue.trim().toLowerCase());
+  const canCreateNewTag = inputValue.trim() &&
+    !allTags?.some((t) => t.name.toLowerCase() === inputValue.trim().toLowerCase()) &&
+    !!token;
 
   return (
     <div className="space-y-2">

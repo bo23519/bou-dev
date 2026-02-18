@@ -13,6 +13,8 @@ import type * as content_commissions from "../content/commissions.js";
 import type * as content_drafts from "../content/drafts.js";
 import type * as content_projects from "../content/projects.js";
 import type * as crons from "../crons.js";
+import type * as lib_auth from "../lib/auth.js";
+import type * as lib_validation from "../lib/validation.js";
 import type * as storage_assets from "../storage/assets.js";
 import type * as storage_files from "../storage/files.js";
 import type * as system_auth from "../system/auth.js";
@@ -33,6 +35,8 @@ declare const fullApi: ApiFromModules<{
   "content/drafts": typeof content_drafts;
   "content/projects": typeof content_projects;
   crons: typeof crons;
+  "lib/auth": typeof lib_auth;
+  "lib/validation": typeof lib_validation;
   "storage/assets": typeof storage_assets;
   "storage/files": typeof storage_files;
   "system/auth": typeof system_auth;

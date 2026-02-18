@@ -8,13 +8,16 @@ import { TipTapEditor, TipTapEditorRef } from "@/components/editor/TipTapEditor"
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DrawOutlineButton } from "@/components/ui/button";
 import { TagSelector } from "@/components/tags/TagSelector";
+import { DRAFT_AUTO_SAVE_INTERVAL, ROUTES, ERROR_MESSAGES, FORM_INPUT_CLASS, FORM_LABEL_CLASS } from "@/lib/constants";
+import { getAuthToken, getAuthTokenOrRedirect } from "@/lib/auth-utils";
 
 export default function CreatePage() {
   const router = useRouter();
   const addBlogPost = useMutation(api.content.blogPosts.addBlogPost);
   const upsertDraft = useMutation(api.content.drafts.upsertDraft);
   const deleteDraft = useMutation(api.content.drafts.deleteDraft);
-  const draft = useQuery(api.content.drafts.getDraft, { type: "blog" });
+  const [token] = useState(() => getAuthToken() ?? "");
+  const draft = useQuery(api.content.drafts.getDraft, { type: "blog", token });
 
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -63,13 +66,14 @@ export default function CreatePage() {
         await upsertDraft({
           type: "blog",
           data: formData,
+          token,
         });
       } catch (error) {
         console.error("Error auto-saving draft:", error);
       }
     };
-    
-    const interval = setInterval(saveDraft, 15000);
+
+    const interval = setInterval(saveDraft, DRAFT_AUTO_SAVE_INTERVAL);
 
     return () => clearInterval(interval);
   }, [upsertDraft]);
@@ -99,8 +103,9 @@ export default function CreatePage() {
       await upsertDraft({
         type: "blog",
         data: formData,
+        token,
       });
-      
+
       alert("Draft saved successfully!");
     } catch (error) {
       console.error("Error saving draft:", error);
@@ -113,21 +118,23 @@ export default function CreatePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = getFormData();
-    
+
     if (!formData.title || !formData.content.trim()) {
-      alert("Title and content are required");
+      alert(ERROR_MESSAGES.TITLE_AND_CONTENT_REQUIRED);
       return;
     }
 
+    const token = getAuthTokenOrRedirect(router, ROUTES.HOME, "You must be logged in to create a blog post");
+
     setIsSubmitting(true);
     try {
-      await addBlogPost(formData);
+      await addBlogPost({ ...formData, token });
 
-      await deleteDraft({ type: "blog" });
-      router.push("/blog");
+      await deleteDraft({ type: "blog", token });
+      router.push(ROUTES.BLOG);
     } catch (error) {
       console.error("Error creating blog post:", error);
-      alert("Failed to create blog post");
+      alert(ERROR_MESSAGES.CREATE_FAILED("blog post"));
     } finally {
       setIsSubmitting(false);
     }
@@ -136,26 +143,26 @@ export default function CreatePage() {
   return (
     <main className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <PageHeader title="Create Blog Post" cancelHref="/blog" />
+        <PageHeader title="Create Blog Post" cancelHref={ROUTES.BLOG} />
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Title
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
+              className={FORM_INPUT_CLASS}
               placeholder="Enter blog post title"
             />
           </div>
 
-          <TagSelector selectedTags={tags} onChange={setTags} />
+          <TagSelector selectedTags={tags} onChange={setTags} token={token} />
 
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Content
             </label>
             <TipTapEditor ref={editorRef} content={content} onChange={setContent} />

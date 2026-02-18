@@ -1,5 +1,6 @@
 import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
+import { requireAuth } from "../lib/auth";
 
 export const getAssets = query({
   args: {},
@@ -64,8 +65,10 @@ export const setAsset = mutation({
     storageId: v.optional(v.string()),
     url: v.optional(v.string()),
     description: v.optional(v.string()),
+    token: v.string(),
   },
   handler: async (ctx, args) => {
+    await requireAuth(ctx, args.token);
     const existing = await ctx.db
       .query("assets")
       .filter((q) => q.eq(q.field("key"), args.key))

@@ -1,6 +1,10 @@
 import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
 import { paginationOptsValidator } from "convex/server";
+// SECURITY FIX: Import authentication middleware to protect mutations
+import { requireAuth } from "../lib/auth";
+// SECURITY FIX: Import validation utilities
+import { validateString, validateOptionalString, validateTags, MAX_LENGTHS } from "../lib/validation";
 
 export const getCommissions = query({
   args: { paginationOpts: paginationOptsValidator },
@@ -85,9 +89,26 @@ export const addCommission = mutation({
       v.literal("Cancelled"),
       v.literal("Duplicate")
     ),
+    // SECURITY FIX: Require authentication token to create commissions
+    token: v.string(),
   },
   handler: async (ctx, args) => {
-    await ctx.db.insert("commissions", args);
+    // SECURITY CHECK: Verify user is authenticated admin before creating commission
+    await requireAuth(ctx, args.token);
+
+    // SECURITY FIX: Validate and sanitize all inputs
+    const validatedTitle = validateString(args.title, "Title", MAX_LENGTHS.TITLE);
+    const validatedDescription = validateString(args.description, "Description", MAX_LENGTHS.DESCRIPTION);
+    const validatedTags = validateTags(args.tags);
+    const validatedCover = validateOptionalString(args.cover, "Cover", 500);
+
+    await ctx.db.insert("commissions", {
+      title: validatedTitle,
+      description: validatedDescription,
+      tags: validatedTags,
+      cover: validatedCover,
+      status: args.status,
+    });
   },
 });
 
@@ -107,19 +128,40 @@ export const updateCommission = mutation({
       v.literal("Cancelled"),
       v.literal("Duplicate")
     ),
+    // SECURITY FIX: Require authentication token to update commissions
+    token: v.string(),
   },
   handler: async (ctx, args) => {
-    const { id, updatedAt, ...updateData } = args;
-    await ctx.db.patch(id, {
-      ...updateData,
+    // SECURITY CHECK: Verify user is authenticated admin before updating commission
+    await requireAuth(ctx, args.token);
+
+    // SECURITY FIX: Validate and sanitize all inputs
+    const validatedTitle = validateString(args.title, "Title", MAX_LENGTHS.TITLE);
+    const validatedDescription = validateString(args.description, "Description", MAX_LENGTHS.DESCRIPTION);
+    const validatedTags = validateTags(args.tags);
+    const validatedCover = validateOptionalString(args.cover, "Cover", 500);
+
+    await ctx.db.patch(args.id, {
+      title: validatedTitle,
+      description: validatedDescription,
+      tags: validatedTags,
+      cover: validatedCover,
+      status: args.status,
       updatedAt: Date.now(),
     });
   },
 });
 
 export const deleteCommission = mutation({
-  args: { id: v.id("commissions") },
+  args: {
+    id: v.id("commissions"),
+    // SECURITY FIX: Require authentication token to delete commissions
+    token: v.string(),
+  },
   handler: async (ctx, args) => {
+    // SECURITY CHECK: Verify user is authenticated admin before soft-deleting commission
+    await requireAuth(ctx, args.token);
+
     await ctx.db.patch(args.id, { deletedAt: Date.now() });
   },
 });

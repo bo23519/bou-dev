@@ -11,15 +11,8 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { FileUpload } from "@/components/admin/FileUpload";
 import { LoadingState } from "@/components/admin/LoadingState";
 import { TagSelector } from "@/components/tags/TagSelector";
-
-const STATUS_OPTIONS = [
-  "Backlog",
-  "Todo",
-  "In progress",
-  "Done",
-  "Cancelled",
-  "Duplicate",
-] as const;
+import { COMMISSION_STATUSES, DRAFT_AUTO_SAVE_INTERVAL, ROUTES, ERROR_MESSAGES, FORM_INPUT_CLASS, FORM_TEXTAREA_CLASS, FORM_SELECT_CLASS, FORM_LABEL_CLASS } from "@/lib/constants";
+import { getAuthToken, getAuthTokenOrRedirect } from "@/lib/auth-utils";
 
 export default function CreateCommissionPage() {
   const router = useRouter();
@@ -28,12 +21,13 @@ export default function CreateCommissionPage() {
   const deleteDraft = useMutation(api.content.drafts.deleteDraft);
   const { isAdmin, isLoading: authLoading } = useAdminAuth({ redirectTo: "/commission", requireAuth: true });
   const { uploadFile, isUploading } = useFileUpload();
-  const draft = useQuery(api.content.drafts.getDraft, { type: "commission" });
+  const [token] = useState(() => getAuthToken() ?? "");
+  const draft = useQuery(api.content.drafts.getDraft, { type: "commission", token });
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState<string[]>([]);
-  const [status, setStatus] = useState<typeof STATUS_OPTIONS[number]>("Todo");
+  const [status, setStatus] = useState<typeof COMMISSION_STATUSES[number]>("Todo");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,7 +46,7 @@ export default function CreateCommissionPage() {
         title?: string;
         description?: string;
         tags?: string[];
-        status?: typeof STATUS_OPTIONS[number];
+        status?: typeof COMMISSION_STATUSES[number];
         cover?: string;
       };
       if (draftData.title) setTitle(draftData.title);
@@ -72,12 +66,13 @@ export default function CreateCommissionPage() {
         tags: stateRef.current.tags,
         status: stateRef.current.status,
       };
-      
+
       upsertDraft({
         type: "commission",
         data: formData,
+        token,
       });
-    }, 15000);
+    }, DRAFT_AUTO_SAVE_INTERVAL);
 
     return () => clearInterval(interval);
   }, [upsertDraft]);
@@ -90,8 +85,9 @@ export default function CreateCommissionPage() {
       await upsertDraft({
         type: "commission",
         data: formData,
+        token,
       });
-      
+
       alert("Draft saved successfully!");
     } catch (error) {
       console.error("Error saving draft:", error);
@@ -130,11 +126,13 @@ export default function CreateCommissionPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = getFormData();
-    
+
     if (!formData.title || !formData.description) {
-      alert("Title and description are required");
+      alert(ERROR_MESSAGES.TITLE_AND_DESCRIPTION_REQUIRED);
       return;
     }
+
+    const token = getAuthTokenOrRedirect(router, ROUTES.COMMISSION, "You must be logged in to create a commission");
 
     setIsSubmitting(true);
 
@@ -142,19 +140,20 @@ export default function CreateCommissionPage() {
       let coverStorageId: string | undefined = undefined;
 
       if (selectedFile) {
-        coverStorageId = await uploadFile(selectedFile);
+        coverStorageId = await uploadFile(selectedFile, token);
       }
 
       await addCommission({
         ...formData,
         cover: coverStorageId,
+        token,
       });
 
-      await deleteDraft({ type: "commission" });
-      router.push("/commission");
+      await deleteDraft({ type: "commission", token });
+      router.push(ROUTES.COMMISSION);
     } catch (error) {
       console.error("Error creating commission:", error);
-      alert("Failed to create commission");
+      alert(ERROR_MESSAGES.CREATE_FAILED("commission"));
     } finally {
       setIsSubmitting(false);
     }
@@ -173,49 +172,49 @@ export default function CreateCommissionPage() {
   return (
     <main className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <PageHeader title="Create Commission" cancelHref="/commission" />
+        <PageHeader title="Create Commission" cancelHref={ROUTES.COMMISSION} />
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Title *
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
+              className={FORM_INPUT_CLASS}
               placeholder="Enter commission title"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Description *
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={6}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00] resize-y"
+              className={FORM_TEXTAREA_CLASS + " resize-y"}
               placeholder="Enter commission description"
               required
             />
           </div>
 
-          <TagSelector selectedTags={tags} onChange={setTags} />
+          <TagSelector selectedTags={tags} onChange={setTags} token={token} />
 
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Status *
             </label>
             <select
               value={status}
-              onChange={(e) => setStatus(e.target.value as typeof STATUS_OPTIONS[number])}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
+              onChange={(e) => setStatus(e.target.value as typeof COMMISSION_STATUSES[number])}
+              className={FORM_SELECT_CLASS}
             >
-              {STATUS_OPTIONS.map((option) => (
+              {COMMISSION_STATUSES.map((option) => (
                 <option key={option} value={option}>
                   {option}
                 </option>

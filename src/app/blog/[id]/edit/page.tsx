@@ -10,6 +10,8 @@ import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { LoadingState } from "@/components/admin/LoadingState";
 import { TagSelector } from "@/components/tags/TagSelector";
+import { ROUTES, ERROR_MESSAGES, FORM_INPUT_CLASS, FORM_LABEL_CLASS } from "@/lib/constants";
+import { getAuthToken, getAuthTokenOrRedirect } from "@/lib/auth-utils";
 
 export default function EditBlogPostPage() {
   const params = useParams();
@@ -27,6 +29,7 @@ export default function EditBlogPostPage() {
 
   const updateBlogPost = useMutation(api.content.blogPosts.updateBlogPost);
 
+  const [token] = useState(() => getAuthToken() ?? "");
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [content, setContent] = useState("");
@@ -48,9 +51,11 @@ export default function EditBlogPostPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !content.trim() || !postId) {
-      alert("Title and content are required");
+      alert(ERROR_MESSAGES.TITLE_AND_CONTENT_REQUIRED);
       return;
     }
+
+    const token = getAuthTokenOrRedirect(router, ROUTES.HOME, "You must be logged in to update a blog post");
 
     setIsSubmitting(true);
     try {
@@ -59,12 +64,13 @@ export default function EditBlogPostPage() {
         title: title.trim(),
         content,
         tags,
+        token,
       });
 
       router.push(`/blog/${postId}`);
     } catch (error) {
       console.error("Error updating blog post:", error);
-      alert("Failed to update blog post");
+      alert(ERROR_MESSAGES.UPDATE_FAILED("blog post"));
     } finally {
       setIsSubmitting(false);
     }
@@ -75,7 +81,7 @@ export default function EditBlogPostPage() {
       <main className="min-h-screen bg-background p-8">
         <div className="mx-auto max-w-4xl">
           <h1 className="text-4xl font-bold mb-4">Invalid Post ID</h1>
-          <DrawOutlineButton onClick={() => router.push("/blog")}>
+          <DrawOutlineButton onClick={() => router.push(ROUTES.BLOG)}>
             Back to Blog
           </DrawOutlineButton>
         </div>
@@ -92,7 +98,7 @@ export default function EditBlogPostPage() {
       <main className="min-h-screen bg-background p-8">
         <div className="mx-auto max-w-4xl">
           <h1 className="text-4xl font-bold mb-4">Post Not Found or Deleted</h1>
-          <DrawOutlineButton onClick={() => router.push("/blog")}>
+          <DrawOutlineButton onClick={() => router.push(ROUTES.BLOG)}>
             Back to Blog
           </DrawOutlineButton>
         </div>
@@ -107,22 +113,22 @@ export default function EditBlogPostPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Title
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-[#EFF0EF] focus:outline-none focus:ring-2 focus:ring-[#D8FA00]"
+              className={FORM_INPUT_CLASS}
               placeholder="Enter blog post title"
             />
           </div>
 
-          <TagSelector selectedTags={tags} onChange={setTags} />
+          <TagSelector selectedTags={tags} onChange={setTags} token={token} />
 
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className={FORM_LABEL_CLASS}>
               Content
             </label>
             <TipTapEditor content={content} onChange={setContent} />

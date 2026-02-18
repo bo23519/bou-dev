@@ -29,7 +29,10 @@ export default defineSchema({
     ),
     deletedAt: v.optional(v.number()),
     updatedAt: v.optional(v.number()),
-  }),
+  })
+    // PERFORMANCE FIX: Index on deletedAt for filtering soft-deleted commissions
+    // Used in getCommissions query to efficiently filter active commissions
+    .index("by_deletedAt", ["deletedAt"]),
 
   blogPosts: defineTable({
     title: v.string(),
@@ -38,7 +41,10 @@ export default defineSchema({
     image: v.optional(v.string()),
     deletedAt: v.optional(v.number()),
     updatedAt: v.optional(v.number()),
-  }),
+  })
+    // PERFORMANCE FIX: Index on deletedAt for filtering soft-deleted posts
+    // This improves queries that check for active (non-deleted) posts
+    .index("by_deletedAt", ["deletedAt"]),
 
   // ============================================
   // STORAGE - File and asset management
@@ -65,17 +71,26 @@ export default defineSchema({
     email: v.string(),
     password: v.string(),
     role: v.union(v.literal("admin"), v.literal("user")),
+    failedLoginAttempts: v.optional(v.number()),
+    lockedUntil: v.optional(v.number()),
   }),
 
   sessions: defineTable({
     userId: v.id("users"),
     token: v.string(),
     expiresAt: v.number(),
-  }),
+  })
+    // PERFORMANCE FIX: Index on token for fast auth verification
+    // This is queried on every authenticated request via requireAuth()
+    .index("by_token", ["token"]),
 
   stats: defineTable({
     likes: v.number(),
     views: v.number(),
+    likeWindowStart: v.optional(v.number()),
+    likesInWindow: v.optional(v.number()),
+    viewWindowStart: v.optional(v.number()),
+    viewsInWindow: v.optional(v.number()),
   }),
 
   tags: defineTable({
