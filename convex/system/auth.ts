@@ -5,6 +5,11 @@ import bcrypt from "bcryptjs";
 // SECURITY FIX: Import validation utilities
 import { validateString, validateEmail, validatePassword, MAX_LENGTHS } from "../lib/validation";
 
+// Dummy bcrypt hash used when a username does not exist.
+// Ensures compareSync always runs regardless of whether the user was found,
+// eliminating the timing difference that would reveal valid usernames.
+const DUMMY_HASH = "$2b$10$invalidhashfortimingXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+
 export const login = mutation({
   args: {
     username: v.string(),
@@ -16,18 +21,13 @@ export const login = mutation({
       .filter((q) => q.eq(q.field("name"), args.username))
       .first();
 
-    // Don't reveal whether username or password was wrong (security best practice)
-    if (!user) {
-      throw new Error("Invalid credentials");
-    }
+    // Always run bcrypt compare — even when the user doesn't exist — so that a
+    // missing username and a wrong password take the same amount of time.
+    // Skipping compareSync on missing users leaks valid usernames via timing.
+    const hashToCompare = user ? user.password : DUMMY_HASH;
+    const isPasswordValid = bcrypt.compareSync(args.password, hashToCompare);
 
-    // SECURITY FIX: Compare password using bcrypt instead of plaintext comparison
-    // This securely verifies the password against the hashed version in the database
-    // Using synchronous method as Convex mutations don't support async setTimeout
-    const isPasswordValid = bcrypt.compareSync(args.password, user.password);
-
-    // Don't reveal whether username or password was wrong (security best practice)
-    if (!isPasswordValid) {
+    if (!user || !isPasswordValid) {
       throw new Error("Invalid credentials");
     }
 
