@@ -12,7 +12,7 @@ import { FileUpload } from "@/components/admin/FileUpload";
 import { LoadingState } from "@/components/admin/LoadingState";
 import { TagSelector } from "@/components/tags/TagSelector";
 import { COMMISSION_STATUSES, DRAFT_AUTO_SAVE_INTERVAL, ROUTES, ERROR_MESSAGES, FORM_INPUT_CLASS, FORM_TEXTAREA_CLASS, FORM_SELECT_CLASS, FORM_LABEL_CLASS } from "@/lib/constants";
-import { getAuthTokenOrRedirect } from "@/lib/auth-utils";
+import { getAuthToken, getAuthTokenOrRedirect } from "@/lib/auth-utils";
 
 export default function CreateCommissionPage() {
   const router = useRouter();
@@ -21,7 +21,8 @@ export default function CreateCommissionPage() {
   const deleteDraft = useMutation(api.content.drafts.deleteDraft);
   const { isAdmin, isLoading: authLoading } = useAdminAuth({ redirectTo: "/commission", requireAuth: true });
   const { uploadFile, isUploading } = useFileUpload();
-  const draft = useQuery(api.content.drafts.getDraft, { type: "commission" });
+  const [token] = useState(() => getAuthToken() ?? "");
+  const draft = useQuery(api.content.drafts.getDraft, { type: "commission", token });
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -69,6 +70,7 @@ export default function CreateCommissionPage() {
       upsertDraft({
         type: "commission",
         data: formData,
+        token,
       });
     }, DRAFT_AUTO_SAVE_INTERVAL);
 
@@ -83,8 +85,9 @@ export default function CreateCommissionPage() {
       await upsertDraft({
         type: "commission",
         data: formData,
+        token,
       });
-      
+
       alert("Draft saved successfully!");
     } catch (error) {
       console.error("Error saving draft:", error);
@@ -137,7 +140,7 @@ export default function CreateCommissionPage() {
       let coverStorageId: string | undefined = undefined;
 
       if (selectedFile) {
-        coverStorageId = await uploadFile(selectedFile);
+        coverStorageId = await uploadFile(selectedFile, token);
       }
 
       await addCommission({
@@ -146,7 +149,7 @@ export default function CreateCommissionPage() {
         token,
       });
 
-      await deleteDraft({ type: "commission" });
+      await deleteDraft({ type: "commission", token });
       router.push(ROUTES.COMMISSION);
     } catch (error) {
       console.error("Error creating commission:", error);
@@ -200,7 +203,7 @@ export default function CreateCommissionPage() {
             />
           </div>
 
-          <TagSelector selectedTags={tags} onChange={setTags} />
+          <TagSelector selectedTags={tags} onChange={setTags} token={token} />
 
           <div>
             <label className={FORM_LABEL_CLASS}>

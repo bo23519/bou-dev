@@ -13,7 +13,7 @@ import { FileUpload } from "@/components/admin/FileUpload";
 import { LoadingState } from "@/components/admin/LoadingState";
 import { TagSelector } from "@/components/tags/TagSelector";
 import { ROUTES, ERROR_MESSAGES, FORM_INPUT_CLASS, FORM_TEXTAREA_CLASS, FORM_LABEL_CLASS } from "@/lib/constants";
-import { getAuthTokenOrRedirect } from "@/lib/auth-utils";
+import { getAuthToken, getAuthTokenOrRedirect } from "@/lib/auth-utils";
 
 export default function EditProjectPage() {
   const params = useParams();
@@ -33,6 +33,7 @@ export default function EditProjectPage() {
   const { isAdmin, isLoading: authLoading } = useAdminAuth({ redirectTo: "/", requireAuth: true });
   const { uploadFile, isUploading } = useFileUpload();
 
+  const [token] = useState(() => getAuthToken() ?? "");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -89,7 +90,7 @@ export default function EditProjectPage() {
       let storageId = existingImage || "";
 
       if (selectedFile) {
-        storageId = await uploadFile(selectedFile);
+        storageId = await uploadFile(selectedFile, token);
       }
 
       if (!storageId) {
@@ -162,7 +163,7 @@ export default function EditProjectPage() {
             />
           </div>
 
-          <TagSelector selectedTags={tags} onChange={setTags} />
+          <TagSelector selectedTags={tags} onChange={setTags} token={token} />
 
           <div>
             <label className={FORM_LABEL_CLASS}>

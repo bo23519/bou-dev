@@ -12,7 +12,7 @@ import { FileUpload } from "@/components/admin/FileUpload";
 import { LoadingState } from "@/components/admin/LoadingState";
 import { TagSelector } from "@/components/tags/TagSelector";
 import { DRAFT_AUTO_SAVE_INTERVAL, ROUTES, ERROR_MESSAGES, FORM_INPUT_CLASS, FORM_TEXTAREA_CLASS, FORM_LABEL_CLASS } from "@/lib/constants";
-import { getAuthTokenOrRedirect } from "@/lib/auth-utils";
+import { getAuthToken, getAuthTokenOrRedirect } from "@/lib/auth-utils";
 
 export default function CreateProjectPage() {
   const router = useRouter();
@@ -21,7 +21,8 @@ export default function CreateProjectPage() {
   const deleteDraft = useMutation(api.content.drafts.deleteDraft);
   const { isAdmin, isLoading: authLoading } = useAdminAuth({ redirectTo: "/", requireAuth: true });
   const { uploadFile, isUploading } = useFileUpload();
-  const draft = useQuery(api.content.drafts.getDraft, { type: "project" });
+  const [token] = useState(() => getAuthToken() ?? "");
+  const draft = useQuery(api.content.drafts.getDraft, { type: "project", token });
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -76,6 +77,7 @@ export default function CreateProjectPage() {
       upsertDraft({
         type: "project",
         data: formData,
+        token,
       });
     }, DRAFT_AUTO_SAVE_INTERVAL);
 
@@ -90,8 +92,9 @@ export default function CreateProjectPage() {
       await upsertDraft({
         type: "project",
         data: formData,
+        token,
       });
-      
+
       alert("Draft saved successfully!");
     } catch (error) {
       console.error("Error saving draft:", error);
@@ -147,7 +150,7 @@ export default function CreateProjectPage() {
     setIsSubmitting(true);
 
     try {
-      const storageId = await uploadFile(selectedFile);
+      const storageId = await uploadFile(selectedFile, token);
 
       await addProject({
         ...formData,
@@ -155,7 +158,7 @@ export default function CreateProjectPage() {
         token,
       });
 
-      await deleteDraft({ type: "project" });
+      await deleteDraft({ type: "project", token });
       router.push(ROUTES.HOME);
     } catch (error) {
       console.error("Error creating project:", error);
@@ -209,7 +212,7 @@ export default function CreateProjectPage() {
             />
           </div>
 
-          <TagSelector selectedTags={tags} onChange={setTags} />
+          <TagSelector selectedTags={tags} onChange={setTags} token={token} />
 
           <div>
             <label className={FORM_LABEL_CLASS}>

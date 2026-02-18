@@ -13,7 +13,7 @@ import { FileUpload } from "@/components/admin/FileUpload";
 import { LoadingState } from "@/components/admin/LoadingState";
 import { TagSelector } from "@/components/tags/TagSelector";
 import { COMMISSION_STATUSES, ROUTES, ERROR_MESSAGES, FORM_INPUT_CLASS, FORM_TEXTAREA_CLASS, FORM_SELECT_CLASS, FORM_LABEL_CLASS } from "@/lib/constants";
-import { getAuthTokenOrRedirect } from "@/lib/auth-utils";
+import { getAuthToken, getAuthTokenOrRedirect } from "@/lib/auth-utils";
 
 export default function EditCommissionPage() {
   const params = useParams();
@@ -33,6 +33,7 @@ export default function EditCommissionPage() {
   const { isAdmin, isLoading: authLoading } = useAdminAuth({ redirectTo: "/commission", requireAuth: true });
   const { uploadFile, isUploading } = useFileUpload();
 
+  const [token] = useState(() => getAuthToken() ?? "");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -89,7 +90,7 @@ export default function EditCommissionPage() {
       let coverStorageId: string | undefined = existingCover || undefined;
 
       if (selectedFile) {
-        coverStorageId = await uploadFile(selectedFile);
+        coverStorageId = await uploadFile(selectedFile, token);
       }
 
       await updateCommission({
@@ -187,7 +188,7 @@ export default function EditCommissionPage() {
             />
           </div>
 
-          <TagSelector selectedTags={tags} onChange={setTags} />
+          <TagSelector selectedTags={tags} onChange={setTags} token={token} />
 
           <div>
             <label className={FORM_LABEL_CLASS}>

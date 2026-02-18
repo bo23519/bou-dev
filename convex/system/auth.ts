@@ -119,12 +119,36 @@ export const createUser = mutation({
     email: v.string(),
     password: v.string(),
     role: v.optional(v.union(v.literal("admin"), v.literal("user"))),
+    // Token required unless this is the very first user (bootstrap)
+    token: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // Check if any users exist already
+    const userCount = await ctx.db.query("users").first();
+
+    if (userCount !== null) {
+      // Users exist - require admin auth to create more
+      if (!args.token) {
+        throw new Error("Authentication required to create additional users");
+      }
+      // Import requireAuth inline to check admin role
+      const session = await ctx.db
+        .query("sessions")
+        .withIndex("by_token", (q) => q.eq("token", args.token!))
+        .first();
+      if (!session || session.expiresAt < Date.now()) {
+        throw new Error("Invalid or expired session");
+      }
+      const callerUser = await ctx.db.get(session.userId);
+      if (!callerUser || callerUser.role !== "admin") {
+        throw new Error("Admin permissions required to create users");
+      }
+    }
+
     // SECURITY FIX: Validate all inputs
     const validatedName = validateString(args.name, "Username", MAX_LENGTHS.USERNAME);
     const validatedEmail = validateEmail(args.email);
-    validatePassword(args.password); // Throws if invalid
+    validatePassword(args.password);
 
     const existingUser = await ctx.db
       .query("users")
@@ -135,10 +159,6 @@ export const createUser = mutation({
       throw new Error("User already exists");
     }
 
-    // SECURITY FIX: Hash password with bcrypt before storing
-    // Uses 10 salt rounds for a good balance of security and performance
-    // Never store plaintext passwords in the database!
-    // Using synchronous method as Convex mutations don't support async setTimeout
     const hashedPassword = bcrypt.hashSync(args.password, 10);
 
     const userId = await ctx.db.insert("users", {
@@ -152,55 +172,24 @@ export const createUser = mutation({
   },
 });
 
-// TEMPORARY QUERY: Check if any users exist in the database
-// This will help verify if the admin account was imported
 export const getAllUsers = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    // Validate token in query context
+    const session = await ctx.db
+      .query("sessions")
+      .withIndex("by_token", (q) => q.eq("token", args.token))
+      .first();
+    if (!session || session.expiresAt < Date.now()) return null;
+    const callerUser = await ctx.db.get(session.userId);
+    if (!callerUser || callerUser.role !== "admin") return null;
+
     const users = await ctx.db.query("users").collect();
-    // Don't return passwords for security
     return users.map(user => ({
       _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
     }));
-  },
-});
-
-// MIGRATION: One-time function to hash existing plaintext passwords
-// Run this once to convert your existing password to bcrypt hash
-// After running, this function can be removed
-export const migratePasswordToHash = mutation({
-  args: {
-    username: v.string(),
-  },
-  handler: async (ctx, args) => {
-    const user = await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("name"), args.username))
-      .first();
-
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    // Check if password is already hashed (bcrypt hashes start with $2a$ or $2b$)
-    if (user.password.startsWith("$2a$") || user.password.startsWith("$2b$")) {
-      return { message: "Password is already hashed", alreadyHashed: true };
-    }
-
-    // Hash the current plaintext password using synchronous method
-    const hashedPassword = bcrypt.hashSync(user.password, 10);
-
-    // Update user with hashed password
-    await ctx.db.patch(user._id, {
-      password: hashedPassword,
-    });
-
-    return {
-      message: "Password successfully migrated to bcrypt hash",
-      alreadyHashed: false,
-    };
   },
 });

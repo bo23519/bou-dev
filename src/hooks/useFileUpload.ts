@@ -8,10 +8,10 @@ export function useFileUpload() {
   const saveFileRecord = useMutation(api.storage.files.saveFileRecord);
   const [isUploading, setIsUploading] = useState(false);
 
-  const uploadFile = async (file: File): Promise<string> => {
+  const uploadFile = async (file: File, token: string): Promise<string> => {
     setIsUploading(true);
     try {
-      const uploadUrl = await generateUploadUrl();
+      const uploadUrl = await generateUploadUrl({ token });
       const result = await fetch(uploadUrl, {
         method: "POST",
         headers: { "Content-Type": file.type },
@@ -24,6 +24,7 @@ export function useFileUpload() {
         name: file.name,
         type: file.type,
         size: file.size,
+        token,
       });
 
       return storageId;

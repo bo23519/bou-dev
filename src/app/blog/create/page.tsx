@@ -9,14 +9,15 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { DrawOutlineButton } from "@/components/ui/button";
 import { TagSelector } from "@/components/tags/TagSelector";
 import { DRAFT_AUTO_SAVE_INTERVAL, ROUTES, ERROR_MESSAGES, FORM_INPUT_CLASS, FORM_LABEL_CLASS } from "@/lib/constants";
-import { getAuthTokenOrRedirect } from "@/lib/auth-utils";
+import { getAuthToken, getAuthTokenOrRedirect } from "@/lib/auth-utils";
 
 export default function CreatePage() {
   const router = useRouter();
   const addBlogPost = useMutation(api.content.blogPosts.addBlogPost);
   const upsertDraft = useMutation(api.content.drafts.upsertDraft);
   const deleteDraft = useMutation(api.content.drafts.deleteDraft);
-  const draft = useQuery(api.content.drafts.getDraft, { type: "blog" });
+  const [token] = useState(() => getAuthToken() ?? "");
+  const draft = useQuery(api.content.drafts.getDraft, { type: "blog", token });
 
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -65,12 +66,13 @@ export default function CreatePage() {
         await upsertDraft({
           type: "blog",
           data: formData,
+          token,
         });
       } catch (error) {
         console.error("Error auto-saving draft:", error);
       }
     };
-    
+
     const interval = setInterval(saveDraft, DRAFT_AUTO_SAVE_INTERVAL);
 
     return () => clearInterval(interval);
@@ -101,8 +103,9 @@ export default function CreatePage() {
       await upsertDraft({
         type: "blog",
         data: formData,
+        token,
       });
-      
+
       alert("Draft saved successfully!");
     } catch (error) {
       console.error("Error saving draft:", error);
@@ -127,7 +130,7 @@ export default function CreatePage() {
     try {
       await addBlogPost({ ...formData, token });
 
-      await deleteDraft({ type: "blog" });
+      await deleteDraft({ type: "blog", token });
       router.push(ROUTES.BLOG);
     } catch (error) {
       console.error("Error creating blog post:", error);
@@ -156,7 +159,7 @@ export default function CreatePage() {
             />
           </div>
 
-          <TagSelector selectedTags={tags} onChange={setTags} />
+          <TagSelector selectedTags={tags} onChange={setTags} token={token} />
 
           <div>
             <label className={FORM_LABEL_CLASS}>

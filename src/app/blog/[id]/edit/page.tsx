@@ -11,7 +11,7 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { LoadingState } from "@/components/admin/LoadingState";
 import { TagSelector } from "@/components/tags/TagSelector";
 import { ROUTES, ERROR_MESSAGES, FORM_INPUT_CLASS, FORM_LABEL_CLASS } from "@/lib/constants";
-import { getAuthTokenOrRedirect } from "@/lib/auth-utils";
+import { getAuthToken, getAuthTokenOrRedirect } from "@/lib/auth-utils";
 
 export default function EditBlogPostPage() {
   const params = useParams();
@@ -29,6 +29,7 @@ export default function EditBlogPostPage() {
 
   const updateBlogPost = useMutation(api.content.blogPosts.updateBlogPost);
 
+  const [token] = useState(() => getAuthToken() ?? "");
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [content, setContent] = useState("");
@@ -124,7 +125,7 @@ export default function EditBlogPostPage() {
             />
           </div>
 
-          <TagSelector selectedTags={tags} onChange={setTags} />
+          <TagSelector selectedTags={tags} onChange={setTags} token={token} />
 
           <div>
             <label className={FORM_LABEL_CLASS}>

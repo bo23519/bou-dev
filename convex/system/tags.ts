@@ -1,5 +1,6 @@
 import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
+import { requireAuth } from "../lib/auth";
 
 export const COLOR_SCHEMES = [
   { name: "Red", color: "#C34128" },
@@ -49,8 +50,10 @@ export const createTag = mutation({
   args: {
     name: v.string(),
     colorScheme: v.string(),
+    token: v.string(),
   },
   handler: async (ctx, args) => {
+    await requireAuth(ctx, args.token);
     const existing = await ctx.db
       .query("tags")
       .withIndex("by_name", (q) => q.eq("name", args.name))
@@ -73,8 +76,9 @@ export const createTag = mutation({
 });
 
 export const deleteTag = mutation({
-  args: { id: v.id("tags") },
+  args: { id: v.id("tags"), token: v.string() },
   handler: async (ctx, args) => {
+    await requireAuth(ctx, args.token);
     const tag = await ctx.db.get(args.id);
     if (!tag) {
       throw new Error("Tag not found");
