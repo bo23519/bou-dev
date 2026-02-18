@@ -10,6 +10,9 @@ import { validateString, validateEmail, validatePassword, MAX_LENGTHS } from "..
 // eliminating the timing difference that would reveal valid usernames.
 const DUMMY_HASH = "$2b$10$invalidhashfortimingXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+
 export const login = mutation({
   args: {
     username: v.string(),
@@ -21,19 +24,37 @@ export const login = mutation({
       .filter((q) => q.eq(q.field("name"), args.username))
       .first();
 
-    // Always run bcrypt compare — even when the user doesn't exist — so that a
-    // missing username and a wrong password take the same amount of time.
-    // Skipping compareSync on missing users leaks valid usernames via timing.
+    // Check account lockout before doing anything else.
+    // Run this even when the user doesn't exist (no-op) to keep the same path.
+    if (user?.lockedUntil && user.lockedUntil > Date.now()) {
+      const minutesLeft = Math.ceil((user.lockedUntil - Date.now()) / 60_000);
+      throw new Error(`Account locked. Try again in ${minutesLeft} minute${minutesLeft === 1 ? "" : "s"}.`);
+    }
+
+    // Always run bcrypt compare — even when the user doesn't exist — to prevent
+    // timing-based username enumeration (see previous fix).
     const hashToCompare = user ? user.password : DUMMY_HASH;
     const isPasswordValid = bcrypt.compareSync(args.password, hashToCompare);
 
     if (!user || !isPasswordValid) {
+      // Increment failure counter and lock if threshold reached
+      if (user) {
+        const attempts = (user.failedLoginAttempts ?? 0) + 1;
+        const shouldLock = attempts >= MAX_FAILED_ATTEMPTS;
+        await ctx.db.patch(user._id, {
+          failedLoginAttempts: attempts,
+          lockedUntil: shouldLock ? Date.now() + LOCKOUT_DURATION_MS : user.lockedUntil,
+        });
+      }
       throw new Error("Invalid credentials");
     }
 
-    // SECURITY FIX: Generate cryptographically secure random token
-    // Instead of base64-encoding username:password (which can be easily decoded),
-    // we generate a random 32-byte token that cannot be reverse-engineered
+    // Successful login — reset failure counters
+    await ctx.db.patch(user._id, {
+      failedLoginAttempts: 0,
+      lockedUntil: undefined,
+    });
+
     const randomBytes = new Uint8Array(32);
     crypto.getRandomValues(randomBytes);
     const token = Array.from(randomBytes)
@@ -48,18 +69,11 @@ export const login = mutation({
     const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
 
     if (existingSession) {
-      await ctx.db.patch(existingSession._id, {
-        token,
-        expiresAt,
-      });
+      await ctx.db.patch(existingSession._id, { token, expiresAt });
       return { token, userId: user._id };
     }
 
-    await ctx.db.insert("sessions", {
-      userId: user._id,
-      token,
-      expiresAt,
-    });
+    await ctx.db.insert("sessions", { userId: user._id, token, expiresAt });
 
     return { token, userId: user._id };
   },

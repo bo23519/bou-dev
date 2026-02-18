@@ -71,6 +71,8 @@ export default defineSchema({
     email: v.string(),
     password: v.string(),
     role: v.union(v.literal("admin"), v.literal("user")),
+    failedLoginAttempts: v.optional(v.number()),
+    lockedUntil: v.optional(v.number()),
   }),
 
   sessions: defineTable({
